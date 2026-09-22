@@ -1,0 +1,420 @@
+<!-- Version: 2026-09-22 -- selector de idioma ES/EN/EU para el envoltorio de la pagina (titulo, migas, cargando/error); el contenido del manual (el .md) sigue solo en castellano -->
+<!doctype html>
+<!-- Pinta en el navegador, con la misma marca/tipografia que landing.html
+     y Virtual_Robotic/index.html, el markdown crudo de /manual/{nombre}/raw
+     -- antes /manual/{nombre} devolvia el .md sin mas, texto plano "sin
+     pulir para visitas". Un solo fichero sirve para los tres manuales
+     (lanzar/taller/panda): lee el nombre de la propia URL. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Manual — Virtual Robotic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+
+<style>
+  /* ---------- Tokens (identicos a landing.html / Virtual_Robotic) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --bg-elevated: #ffffff;
+    --fg: #16211f;
+    --fg-muted: #55655f;
+    --accent-brick: #a8461f;
+    --accent-brick-strong: #8c3717;
+    --accent-copper: #b97a34;
+    --accent-water: #2f645f;
+    --line: rgba(22,33,31,0.14);
+    --shadow: rgba(22,33,31,0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --bg-elevated: #182322;
+      --fg: #eee7da;
+      --fg-muted: #9fb0ac;
+      --accent-brick: #c9683c;
+      --accent-brick-strong: #e08658;
+      --accent-copper: #d69a55;
+      --accent-water: #5b9a92;
+      --line: rgba(238,231,218,0.14);
+      --shadow: rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --bg-elevated: #182322;
+    --fg: #eee7da;
+    --fg-muted: #9fb0ac;
+    --accent-brick: #c9683c;
+    --accent-brick-strong: #e08658;
+    --accent-copper: #d69a55;
+    --accent-water: #5b9a92;
+    --line: rgba(238,231,218,0.14);
+    --shadow: rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  a { color: var(--accent-water); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent-copper);
+    outline-offset: 2px;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    margin: 0 0 0.9rem;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(1.25rem, 5vw, 3rem); }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1.5rem; padding-block: 0.7rem;
+  }
+  .idioma-select {
+    background: transparent; color: var(--fg-muted);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 0.3rem 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.76rem;
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--fg); }
+  .brand svg { width: 26px; height: auto; display: block; }
+  .brand-word {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800; letter-spacing: 0.02em; font-size: 1.05rem; text-transform: uppercase;
+  }
+  /* ---------- Migas de pan (sesion 2026-09-17, a peticion del usuario:
+     "en la cabecera vas poniendo como un indice diciendo donde estamos
+     Principal->Como arranca todo") -- sustituye el simple "Volver" por
+     una ruta completa: de un vistazo se ve en que manual se esta y con
+     un clic se vuelve a la portada. ---------- */
+  .migas {
+    display: flex; align-items: center; gap: 0.5rem; min-width: 0;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; letter-spacing: 0.02em;
+  }
+  .migas a {
+    color: var(--fg-muted); text-decoration: none; white-space: nowrap;
+  }
+  .migas a:hover { color: var(--fg); }
+  .migas-sep { color: var(--fg-muted); opacity: 0.6; }
+  .migas-actual {
+    color: var(--accent-brick); font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ---------- Cabecera del articulo ---------- */
+  .article-head { padding-block: clamp(2.5rem, 6vw, 4rem) 1rem; }
+  .article-head h1 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase; text-wrap: balance; line-height: 0.96;
+    font-size: clamp(2rem, 5vw, 3.2rem); margin: 0;
+  }
+
+  /* ---------- Indice ---------- */
+  .indice {
+    max-width: 740px; margin: 1.5rem auto 0;
+    border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg-elevated);
+  }
+  .indice summary {
+    cursor: pointer; padding: 0.9rem 1.2rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem;
+    letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-brick);
+    list-style: none;
+  }
+  .indice summary::-webkit-details-marker { display: none; }
+  .indice summary::before { content: "▸ "; }
+  .indice[open] summary::before { content: "▾ "; }
+  .indice-lista { padding: 0 1.2rem 1.1rem; margin: 0; border-top: 1px solid var(--line); }
+  .indice-lista ol { margin: 0.8rem 0 0; padding-left: 1.2rem; }
+  .indice-lista li { margin: 0.3rem 0; }
+  .indice-lista a { color: var(--fg); text-decoration: none; font-size: 0.95rem; }
+  .indice-lista a:hover { color: var(--accent-water); }
+  .indice-lista .nivel-3 { list-style: none; margin-left: -1.2rem; }
+
+  /* ---------- Cuerpo del articulo (markdown renderizado) ---------- */
+  article.prose { max-width: 740px; margin: 0 auto; padding-block: 2rem clamp(4rem, 8vw, 6rem); }
+  .prose h1 { display: none; } /* el h1 real del .md ya se muestra arriba, en .article-head */
+  .prose h2, .prose h3, .prose h4 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase; text-wrap: balance; line-height: 1;
+    margin: 2.4rem 0 0.9rem; scroll-margin-top: 5rem;
+  }
+  .prose h2 { font-size: clamp(1.5rem, 3vw, 2rem); color: var(--accent-brick); }
+  .prose h3 { font-size: 1.2rem; }
+  .prose h4 { font-size: 1rem; letter-spacing: 0.02em; color: var(--fg-muted); }
+  .prose > *:first-child { margin-top: 0; }
+  .prose p, .prose li { color: var(--fg); }
+  .prose p { margin: 0 0 1.1rem; }
+  .prose ul, .prose ol { padding-left: 1.4rem; margin: 0 0 1.1rem; }
+  .prose li + li { margin-top: 0.35rem; }
+  .prose strong { font-weight: 700; }
+  .prose hr { border: none; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+  .prose blockquote {
+    margin: 0 0 1.1rem; padding: 0.2rem 1.2rem;
+    border-left: 3px solid var(--accent-copper); color: var(--fg-muted);
+  }
+  .prose code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.88em;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.1em 0.4em;
+  }
+  .prose pre {
+    background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 4px;
+    padding: 1rem 1.2rem; overflow-x: auto; margin: 0 0 1.3rem;
+  }
+  .prose pre code { background: none; border: none; padding: 0; font-size: 0.85rem; line-height: 1.6; }
+  .prose table {
+    width: 100%; border-collapse: collapse; margin: 0 0 1.3rem;
+    font-size: 0.95rem; display: block; overflow-x: auto;
+  }
+  .prose th, .prose td { border: 1px solid var(--line); padding: 0.5rem 0.8rem; text-align: left; }
+  .prose thead { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-brick); }
+  .prose img { max-width: 100%; border-radius: 4px; border: 1px solid var(--line); }
+  .prose a { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 2px; }
+  .prose a:hover { text-decoration-color: var(--accent-water); }
+
+  .estado {
+    max-width: 740px; margin: 3rem auto; color: var(--fg-muted);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 148 260" aria-hidden="true">
+        <rect x="50" y="64" width="32" height="10" fill="currentColor"/>
+        <rect x="58" y="70" width="16" height="176" fill="currentColor"/>
+        <polygon points="8,136 24,136 46,190 30,190" fill="currentColor"/>
+        <polygon points="74,136 58,136 36,190 52,190" fill="currentColor"/>
+        <rect x="8" y="136" width="16" height="110" fill="currentColor"/>
+        <rect x="58" y="136" width="50" height="14" fill="currentColor"/>
+        <rect x="94" y="136" width="14" height="48" fill="currentColor"/>
+        <rect x="58" y="170" width="50" height="14" fill="currentColor"/>
+        <polygon points="94,184 108,184 128,246 112,246" fill="currentColor"/>
+      </svg>
+      <span class="brand-word">Virtual Robotic</span>
+    </a>
+    <nav class="migas" aria-label="Ruta">
+      <a href="/" id="migaPrincipal">Principal</a>
+      <span class="migas-sep">→</span>
+      <span class="migas-actual" id="migaActual" aria-current="page">…</span>
+    </nav>
+    <select class="idioma-select" id="idiomaSel" title="Idioma">
+      <option value="es">ES</option>
+      <option value="en">EN</option>
+      <option value="eu">EU</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <div class="article-head wrap">
+    <p class="eyebrow" id="eyebrowManual">Manual</p>
+    <h1 id="tituloManual">Cargando…</h1>
+  </div>
+
+  <details class="indice" id="indiceBox" hidden>
+    <summary id="indiceSummary">Índice</summary>
+    <nav class="indice-lista"><ol id="indiceLista"></ol></nav>
+  </details>
+
+  <article class="prose wrap" id="contenido">
+    <p style="color:var(--fg-muted);" id="cargandoTexto">Cargando el manual…</p>
+  </article>
+
+  <p class="estado" id="estadoError" hidden>No se ha podido cargar este manual.</p>
+</main>
+
+<script>
+(function () {
+  // Envoltorio de la pagina (titulo, migas, cargando/error) en ES/EN/EU;
+  // el CONTENIDO del manual (el .md que se pinta en #contenido) se queda
+  // solo en castellano a proposito -- son documentos reales del proyecto
+  // que se editan a menudo, una traduccion se desactualizaria (decision
+  // del usuario, sesion 2026-09-22).
+  var I18N = {
+    en: {
+      eyebrow: 'Manual', indice: 'Index', principal: 'Home', cargando: 'Loading the manual…',
+      error: 'This manual could not be loaded.',
+      titulos: { lanzar: 'How to start everything', taller: 'Our orders website', panda: 'Our production line' },
+    },
+    eu: {
+      eyebrow: 'Eskuliburua', indice: 'Aurkibidea', principal: 'Hasiera', cargando: 'Eskuliburua kargatzen…',
+      error: 'Eskuliburu hau ezin izan da kargatu.',
+      titulos: { lanzar: 'Nola abiarazi dena', taller: 'Gure eskaera webgunea', panda: 'Gure ekoizpen katea' },
+    },
+  };
+  var TITULOS_ES = {
+    lanzar: 'Cómo arrancar todo',
+    taller: 'Nuestra web de pedidos',
+    panda: 'Nuestra cadena de producción',
+  };
+
+  var nombre = location.pathname.replace(/^\/manual\//, '').replace(/\/+$/, '');
+
+  function aplicarIdioma(lang) {
+    var d = I18N[lang];
+    var titulo = (d ? d.titulos[nombre] : null) || TITULOS_ES[nombre] || 'Manual';
+    document.getElementById('pageTitle').textContent = titulo + ' — Virtual Robotic';
+    document.getElementById('tituloManual').textContent = titulo;
+    document.getElementById('migaActual').textContent = titulo;
+    document.getElementById('eyebrowManual').textContent = d ? d.eyebrow : 'Manual';
+    document.getElementById('migaPrincipal').textContent = d ? d.principal : 'Principal';
+    document.getElementById('indiceSummary').textContent = d ? d.indice : 'Índice';
+    document.getElementById('cargandoTexto').textContent = d ? d.cargando : 'Cargando el manual…';
+    document.getElementById('estadoError').textContent = d ? d.error : 'No se ha podido cargar este manual.';
+    document.documentElement.lang = lang;
+  }
+  (function inicializarIdioma() {
+    var sel = document.getElementById('idiomaSel');
+    var lang = 'es';
+    try { lang = localStorage.getItem('vr_idioma') || 'es'; } catch (e) {}
+    if (!{es: 1, en: 1, eu: 1}[lang]) lang = 'es';
+    sel.value = lang;
+    aplicarIdioma(lang);
+    cargarContenido(lang);
+    sel.addEventListener('change', function () {
+      try { localStorage.setItem('vr_idioma', sel.value); } catch (e) {}
+      aplicarIdioma(sel.value);
+      cargarContenido(sel.value);
+    });
+  })();
+
+  function slugify(texto) {
+    return texto
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function construirIndice(contenedor) {
+    var encabezados = contenedor.querySelectorAll('h2, h3');
+    if (encabezados.length < 2) return; // no merece la pena para un documento corto
+    var usados = {};
+    var lista = document.getElementById('indiceLista');
+    var actual = null;
+    encabezados.forEach(function (h) {
+      var base = slugify(h.textContent);
+      var id = base;
+      var n = 1;
+      while (usados[id]) { id = base + '-' + (++n); }
+      usados[id] = true;
+      h.id = id;
+
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = h.textContent;
+      li.appendChild(a);
+
+      if (h.tagName === 'H2') {
+        lista.appendChild(li);
+        actual = li;
+      } else if (actual) {
+        var sub = actual.querySelector('ol.nivel-3');
+        if (!sub) {
+          sub = document.createElement('ol');
+          sub.className = 'nivel-3';
+          actual.appendChild(sub);
+        }
+        li.className = 'nivel-3-item';
+        sub.appendChild(li);
+      } else {
+        lista.appendChild(li);
+      }
+    });
+    document.getElementById('indiceBox').hidden = false;
+  }
+
+  function esRutaRelativa(valor) {
+    if (!valor) return false;
+    if (valor.charAt(0) === '#') return false; // ancla dentro de la propia pagina
+    if (valor.charAt(0) === '/') return false; // absoluta
+    if (valor.indexOf('data:') === 0) return false;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(valor)) return false; // esquema (http:, mailto:, etc.)
+    return true;
+  }
+
+  function arreglarRutasRelativas(contenedor) {
+    // El .md puede traer rutas relativas ("img/foo.png",
+    // "Documentacion/x.html") tal como las resuelve GitHub/Gitea -- de
+    // fabrica, en esta pagina se resolverian contra /manual/<nombre>, que
+    // no es una ruta de ficheros real. Se reescriben para pasar por
+    // /manual/<nombre>/assets/, que las sirve relativas a la carpeta del
+    // propio .md (ver manual_asset() en main.py).
+    var prefijo = '/manual/' + encodeURIComponent(nombre) + '/assets/';
+    contenedor.querySelectorAll('img[src]').forEach(function (img) {
+      var src = img.getAttribute('src');
+      if (esRutaRelativa(src)) img.src = prefijo + src;
+    });
+    contenedor.querySelectorAll('a[href]').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (esRutaRelativa(href)) a.href = prefijo + href;
+    });
+  }
+
+  // El contenido se vuelve a pedir al cambiar de idioma (traduccion real
+  // del .md, no solo del envoltorio -- ver manual_raw() en main.py, que
+  // sirve "<nombre>.<lang>.md" si existe y si no cae al castellano).
+  function cargarContenido(lang) {
+    var indiceBox = document.getElementById('indiceBox');
+    var indiceLista = document.getElementById('indiceLista');
+    indiceBox.hidden = true;
+    indiceLista.innerHTML = '';
+    document.getElementById('estadoError').hidden = true;
+    var contenedor = document.getElementById('contenido');
+    contenedor.innerHTML = '<p style="color:var(--fg-muted);">' + escapeHtmlTexto(document.getElementById('cargandoTexto').textContent) + '</p>';
+    fetch('/manual/' + encodeURIComponent(nombre) + '/raw?lang=' + encodeURIComponent(lang))
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(function (md) {
+        contenedor.innerHTML = marked.parse(md);
+        arreglarRutasRelativas(contenedor);
+        construirIndice(contenedor);
+      })
+      .catch(function () {
+        contenedor.innerHTML = '';
+        document.getElementById('estadoError').hidden = false;
+      });
+  }
+  function escapeHtmlTexto(v) { return String(v).replaceAll('&', '&amp;').replaceAll('<', '&lt;'); }
+})();
+</script>
+</body>
+</html>

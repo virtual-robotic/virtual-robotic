@@ -1,0 +1,28 @@
+# Artefactos de compilacion ROS2 (regenerables con colcon build)
+**/ros2_ws/build/
+**/ros2_ws/install/
+**/ros2_ws/log/
+
+# Python
+__pycache__/
+*.pyc
+
+# Estado interno del harness de Claude Code, no del proyecto
+.claude/
+
+# Cache local de assets de Webots (texturas/mallas descargadas de GitHub,
+# regenerable, no aporta nada al repo)
+Lab.Panda 2.4/.devcontainer/webots_asset_cache/
+
+# Ruta real de la Pico USB del Loader (LOADER_PICO_DEVICE) -- especifica de
+# cada maquina (ID de serie del dispositivo), nunca se commitea. Sin este
+# fichero, docker-compose.yml usa /dev/null de fallback (sin Pico, la celda
+# funciona igual). Ver Lab.Panda 2.4/.devcontainer/docker-compose.yml.
+Lab.Panda 2.4/.devcontainer/.env
+
+# Version mostrada en el panel web y en teleop_gui (Ver. AAMM.NNNNN),
+# generada por generar_version.sh a partir del propio git -- si se
+# commitea queda desfasada en el siguiente commit, mejor recalcularla
+# siempre.
+Taller_Administracion/app/version.py
+Lab.Panda 2.4/ros2_ws/src/panda_controller/panda_controller/version.py

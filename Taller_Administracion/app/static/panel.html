@@ -1,0 +1,2493 @@
+<!-- Version: 2026-09-22 -- selector de idioma ES/EN/EU traduce TODO el panel: las 19 pestañas completas via i18n_panel.js (394 claves EN/EU) -->
+<!doctype html>
+<!-- 2026-09-12: cabecera de marca (Virtual Robotic) anadida para que el
+     panel comparta anagrama/tipografia con la web de aterrizaje ("/"). -->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Virtual Robotic · Sistema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vr-brick: #a8461f;
+    --vr-brick-strong: #8c3717;
+    --vr-copper: #b97a34;
+    --bg: #1c1c1c;
+    --panel: #262626;
+    --cabecera: #2a2a2a;
+    --texto: #eaeaea;
+    --titulo: #f5c400;
+    --borde: #444;
+    --pendiente: #aaa;
+    --en_proceso: #f5c400;
+    --listo: #4aa3df;
+    --completado: #2e9e3b;
+    --cancelado: #c0392b;
+    --urgente-fila: #3a1f1f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--texto);
+    font-family: system-ui, "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+  h1, h2, h3 { color: var(--titulo); font-weight: 600; }
+  button {
+    background: #333; color: var(--texto); border: 1px solid var(--borde);
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { background: #3d3d3d; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  input, select {
+    background: #1a1a1a; color: var(--texto); border: 1px solid var(--borde);
+    padding: 5px 8px; border-radius: 4px; font-size: 13px;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid var(--borde); padding: 6px 8px; text-align: left; }
+  thead th { background: var(--cabecera); }
+  tr.urgente { background: var(--urgente-fila); }
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; border: 1px solid var(--borde);
+  }
+  .bolita {
+    display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+    vertical-align: middle; margin-right: 6px;
+  }
+  .ayuda {
+    background: #241f14; border: 1px solid var(--borde); border-left: 3px solid var(--titulo);
+    border-radius: 4px; padding: 8px 12px; margin: 8px 0 16px;
+    font-size: 13px; line-height: 1.55; color: #c9c2ae; max-width: 68ch;
+  }
+  .ayuda b { color: var(--texto); }
+  .demo-factor {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: #241a14; border: 1px solid #e0a030; border-radius: 4px;
+    padding: 8px 12px; margin: 0 0 16px; font-size: 13px; color: #c9c2ae; max-width: 68ch;
+  }
+  .estado-pendiente { color: var(--pendiente); }
+  .estado-en_proceso { color: var(--en_proceso); }
+  .estado-listo { color: var(--listo); }
+  .estado-completado { color: var(--completado); }
+  .estado-cancelado { color: var(--cancelado); }
+  .vr-topbar {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: #14100c; padding: 0.5rem 1.2rem;
+    border-bottom: 1px solid var(--vr-brick-strong);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .vr-topbar a.vr-brand {
+    display: flex; align-items: center; gap: 0.5rem;
+    text-decoration: none; color: #f2ead9;
+  }
+  .vr-topbar svg { width: 16px; height: auto; flex-shrink: 0; color: var(--vr-copper); }
+  .vr-topbar .vr-word {
+    font-family: 'Big Shoulders Display', sans-serif; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.95rem;
+  }
+  .vr-topbar .vr-caption { color: #9a8f7d; font-size: 0.78rem; margin-left: 0.3rem; }
+  .vr-topbar .vr-version { color: #6b6255; font-size: 0.75rem; margin-left: auto; }
+  .vr-topbar select.vr-idioma {
+    background: #1c1712; color: #c9bfae; border: 1px solid #3a3226;
+    border-radius: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem;
+    padding: 0.15rem 0.3rem;
+  }
+  #pantalla-login {
+    display: flex; align-items: center; justify-content: center; height: calc(100vh - 41px);
+  }
+  #pantalla-login .caja {
+    background: var(--panel); padding: 30px 40px; border-radius: 8px;
+    border: 1px solid var(--borde); min-width: 280px;
+  }
+  #pantalla-login label { display: block; margin: 10px 0 4px; }
+  #pantalla-login input { width: 100%; }
+  #pantalla-login .error { color: var(--cancelado); margin-top: 10px; min-height: 1em; }
+  header.app {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--cabecera); padding: 10px 20px; border-bottom: 1px solid var(--borde);
+  }
+  nav.tabs { display: flex; gap: 4px; padding: 10px 20px 0; flex-wrap: wrap; }
+  nav.tabs button.activa { background: var(--titulo); color: #1c1c1c; font-weight: 600; }
+  /* Nivel 1 (grupos): mas grande, con una linea debajo; el nivel 2 son las pestanas de siempre. */
+  nav.grupos { padding-top: 14px; border-bottom: 1px solid var(--borde); padding-bottom: 0; }
+  nav.grupos button {
+    font-size: 15px; padding: 9px 22px; letter-spacing: 0.05em; text-transform: uppercase;
+    border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: -1px;
+  }
+  nav.grupos button.activa { border-bottom: 1px solid var(--titulo); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0 20px; }
+  .kpi { background: var(--panel); border: 1px solid var(--borde); border-radius: 6px; padding: 12px 14px; }
+  .kpi-t { font-size: 12px; color: #9a8f7d; text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi-v { font-size: 26px; font-weight: 600; margin: 4px 0; }
+  .kpi-d { font-size: 12px; color: #b8b09c; }
+  main { padding: 20px; }
+  .oculto { display: none !important; }
+  #dlg-fondo {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+  }
+  #dlg-caja {
+    background: var(--panel); border: 1px solid var(--borde); border-radius: 8px;
+    padding: 22px 24px; max-width: 460px; width: calc(100% - 32px);
+  }
+  #dlg-texto { margin: 0 0 18px; white-space: pre-line; line-height: 1.5; }
+  #dlg-botones { display: flex; gap: 10px; justify-content: flex-end; }
+  #dlg-ok { background: var(--titulo); color: #1c1c1c; font-weight: 600; }
+  .fila-filtros { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; align-items: center; }
+  .barra-diag { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .barra-diag .etiqueta { width: 140px; }
+  .barra-diag .fondo { flex: 1; background: #111; border-radius: 3px; overflow: hidden; height: 16px; }
+  .barra-diag .relleno { height: 100%; }
+  form.alta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<div class="vr-topbar">
+  <a class="vr-brand" href="/">
+    <svg viewBox="0 0 148 260" aria-hidden="true">
+      <rect x="50" y="64" width="32" height="10" fill="currentColor"/>
+      <rect x="58" y="70" width="16" height="176" fill="currentColor"/>
+      <polygon points="8,136 24,136 46,190 30,190" fill="currentColor"/>
+      <polygon points="74,136 58,136 36,190 52,190" fill="currentColor"/>
+      <rect x="8" y="136" width="16" height="110" fill="currentColor"/>
+      <rect x="58" y="136" width="50" height="14" fill="currentColor"/>
+      <rect x="94" y="136" width="14" height="48" fill="currentColor"/>
+      <rect x="58" y="170" width="50" height="14" fill="currentColor"/>
+      <polygon points="94,184 108,184 128,246 112,246" fill="currentColor"/>
+    </svg>
+    <span class="vr-word">Virtual Robotic</span>
+  </a>
+  <span class="vr-caption" id="vr-caption">· Sistema de pedidos y almacén</span>
+  <select class="vr-idioma" id="vr-idioma" title="Idioma / Language / Hizkuntza">
+    <option value="es">ES</option>
+    <option value="en">EN</option>
+    <option value="eu">EU</option>
+  </select>
+  <span class="vr-version" id="vr-version"></span>
+</div>
+
+<div id="pantalla-login">
+  <div class="caja">
+    <h2 id="login-titulo">Taller - Administracion</h2>
+    <label id="login-lbl-usuario">Usuario</label>
+    <input id="login-usuario" value="admin" autocomplete="username" />
+    <label id="login-lbl-password">Contraseña</label>
+    <input id="login-password" type="password" placeholder="admin" autocomplete="current-password" />
+    <div style="margin-top:16px;"><button id="btn-login">Entrar</button></div>
+    <div class="error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app-principal" class="oculto">
+  <header class="app">
+    <div id="cabecera-sesion"></div>
+    <button id="btn-salir">Salir</button>
+  </header>
+  <nav class="tabs grupos oculto" id="grupos"></nav>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="contenido"></main>
+</div>
+
+<!-- Dialogo propio: NO usar confirm()/alert() del navegador. Firefox (y
+     Chrome) ofrecen "impedir que esta pagina cree mas dialogos" y, una vez
+     marcado, confirm() devuelve false en silencio: los botones de Cancelar
+     pedido / Volver a procesar se quedaban muertos sin ningun aviso. Esto
+     vive fuera de #contenido a proposito, que se repinta entero con
+     innerHTML en cada render. -->
+<div id="dlg-fondo" class="oculto">
+  <div id="dlg-caja">
+    <p id="dlg-texto"></p>
+    <div id="dlg-botones">
+      <button id="dlg-cancelar">Cancelar</button>
+      <button id="dlg-ok">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/i18n_panel.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ------------------------------------------------------------ idioma (i18n)
+  // Sesion 2026-09-22: el selector ES/EN/EU de arriba ya traduce de verdad.
+  // t(clave, es[, vars]) devuelve la traduccion de i18n_panel.js si el idioma
+  // no es "es" y existe la clave; si no, el propio texto castellano 'es' (que
+  // hace de valor por defecto Y de documentacion de que dice ese texto).
+  // 'vars' sustituye {nombre} dentro del texto ya traducido (para plurales,
+  // numeros, etc. sin tener que traducir un texto por cada valor posible).
+  function t(clave, es, vars) {
+    const dic = (window.VR_I18N_PANEL && window.VR_I18N_PANEL[estado.idioma]) || {};
+    let s = dic[clave] !== undefined ? dic[clave] : es;
+    if (vars) Object.keys(vars).forEach((k) => { s = s.replaceAll("{" + k + "}", vars[k]); });
+    return s;
+  }
+
+  // Repinta lo que hay en pantalla en el idioma nuevo, sin perder filtros ni
+  // sesion: la cabecera, el menu de dos niveles y la pestana activa (si el
+  // panel ya esta dentro, no en el login).
+  function aplicarIdioma(lang) {
+    estado.idioma = { es: 1, en: 1, eu: 1 }[lang] ? lang : "es";
+    document.documentElement.lang = estado.idioma;
+    document.getElementById("vr-caption").textContent = t("caption_sistema", "· Sistema de pedidos y almacén");
+    document.getElementById("login-titulo").textContent = t("login_titulo", "Taller - Administracion");
+    document.getElementById("login-lbl-usuario").textContent = t("login_usuario", "Usuario");
+    document.getElementById("login-lbl-password").textContent = t("login_password", "Contraseña");
+    document.getElementById("btn-login").textContent = t("entrar", "Entrar");
+    document.getElementById("btn-salir").textContent = t("salir", "Salir");
+    document.getElementById("dlg-cancelar").textContent = t("cancelar", "Cancelar");
+    document.getElementById("dlg-ok").textContent = t("aceptar", "Aceptar");
+    if (!document.getElementById("app-principal").classList.contains("oculto")) {
+      pintarCabecera();
+      pintarTabs();
+      if (estado.pestanaActiva) irATab(estado.pestanaActiva);
+    }
+  }
+
+  function inicializarSelectorIdioma() {
+    const sel = document.getElementById("vr-idioma");
+    let lang = "es";
+    try { lang = localStorage.getItem("vr_idioma") || "es"; } catch (e) { /* sin almacenamiento: se queda en es */ }
+    sel.value = { es: 1, en: 1, eu: 1 }[lang] ? lang : "es";
+    aplicarIdioma(sel.value);
+    sel.onchange = () => {
+      try { localStorage.setItem("vr_idioma", sel.value); } catch (e) { /* no pasa nada, solo no se recuerda */ }
+      aplicarIdioma(sel.value);
+    };
+  }
+
+  // Sustitutos de confirm()/alert(): ver el comentario del diálogo en el HTML.
+  function dialogo(texto, conCancelar) {
+    return new Promise((resolve) => {
+      const fondo = document.getElementById("dlg-fondo");
+      const btnOk = document.getElementById("dlg-ok");
+      const btnCancelar = document.getElementById("dlg-cancelar");
+      document.getElementById("dlg-texto").textContent = texto;
+      btnCancelar.classList.toggle("oculto", !conCancelar);
+      fondo.classList.remove("oculto");
+      btnOk.focus();
+      function cerrar(valor) {
+        fondo.classList.add("oculto");
+        btnOk.onclick = null;
+        btnCancelar.onclick = null;
+        document.removeEventListener("keydown", teclado);
+        resolve(valor);
+      }
+      function teclado(e) {
+        if (e.key === "Escape") cerrar(!conCancelar);
+        if (e.key === "Enter") cerrar(true);
+      }
+      btnOk.onclick = () => cerrar(true);
+      btnCancelar.onclick = () => cerrar(false);
+      document.addEventListener("keydown", teclado);
+    });
+  }
+  const confirmar = (texto) => dialogo(texto, true);
+  const avisar = (texto) => dialogo(texto, false);
+
+  function duracion(segundos) {
+    if (segundos === null || segundos === undefined) return "—";
+    const s = Math.round(segundos);
+    if (s < 60) return `${s} s`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return s % 60 ? `${m} min ${s % 60} s` : `${m} min`;
+    const h = Math.floor(m / 60);
+    return m % 60 ? `${h} h ${m % 60} min` : `${h} h`;
+  }
+
+  // segundos_proceso === 0 no significa "se fabricó al instante": significa
+  // que salió TODO de golpe de una entrega ya en Stock (una sola fila de
+  // movimiento con toda la cantidad, ver _con_tiempos_de_proceso en
+  // main.py) -- mostrar "0 s" ahí parece un cronómetro roto en vez de lo
+  // que es de verdad (no hizo falta fabricar nada en ese momento).
+  function celdaTiempoProceso(segundos) {
+    if (segundos === null || segundos === undefined) return "—";
+    if (segundos === 0) return t("de_stock", "de stock");
+    return duracion(segundos);
+  }
+  function tituloTiempoProceso(segundos, segundosTotal) {
+    if (segundos === null || segundos === undefined) return t("sin_piezas_aun", "Todavía no ha recibido ninguna pieza.");
+    if (segundos === 0) return t("servido_de_golpe", "Servido de golpe desde lo que ya había en Stock -- no hizo falta fabricar nada en ese momento.");
+    return t("primera_ultima_pieza", "De la primera a la última pieza: {a}. Desde que se hizo el pedido: {b}.", { a: duracion(segundos), b: duracion(segundosTotal) });
+  }
+
+  const ROLES = { ADMIN_SISTEMA: "admin_sistema", ADMIN_CLIENTE: "admin_cliente", NORMAL: "normal" };
+  const NOMBRES_ROL = { admin_sistema: "Admin. sistema", admin_cliente: "Admin. cliente", normal: "Normal" };
+  function nombreRol(rol) { return t("rol_" + rol, NOMBRES_ROL[rol] || rol); }
+  // "completado" significa REPARTIDO (con albaran): se le llama asi al usuario
+  // para que no se confunda con "fabricado" (lo que ahora es "listo").
+  const ORIGEN_PRECIO = { tarifa_general: "tarifa general", tarifa_cliente: "tarifa especial de este cliente", manual: "corregido a mano" };
+  function origenPrecio(o) { return t("origen_" + o, ORIGEN_PRECIO[o] || o); }
+  const ETIQUETA_ESTADO = { pendiente: "pendiente", en_proceso: "en proceso", listo: "listo para reparto",
+    completado: "repartido", cancelado: "cancelado" };
+  function etiquetaEstado(e) { return t("estado_" + e, ETIQUETA_ESTADO[e] || e); }
+  // Los importes viajan en centimos (enteros); solo aqui se pasan a euros para mostrarlos.
+  function euros(centimos) {
+    return (centimos / 100).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  }
+  function centimosDeTexto(texto) {
+    const n = parseFloat(String(texto).replace(",", "."));
+    return Number.isFinite(n) ? Math.round(n * 100) : 0;
+  }
+  const COLOR_ESTADO = { pendiente: "#aaa", en_proceso: "#f5c400", completado: "#2e9e3b", cancelado: "#c0392b" };
+
+  let estado = {
+    token: null,
+    yo: null,
+    paleta: {},
+    pestanaActiva: null,
+    ultimaPorGrupo: {},
+    filtrosPedidos: { cliente: "", producto: "", enAlmacen: "todos", estado: "" },
+    refrescoPedidos: null,
+    idioma: "es",
+    factorPiezas: 1,
+  };
+
+  // ---------------------------------------------------------------- utiles
+
+  // "MUR · Astilleros Murueta S.L.": el codigo del cliente por delante, cuando lo tiene.
+  function etiquetaCliente(c) {
+    return c ? (c.codigo ? c.codigo + " · " : "") + (c.razon_social || "") : "";
+  }
+
+  function escapeHtml(valor) {
+    if (valor === null || valor === undefined) return "";
+    return String(valor)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function guardarSesion() {
+    try {
+      sessionStorage.setItem("taller_token", estado.token || "");
+      sessionStorage.setItem("taller_yo", JSON.stringify(estado.yo || null));
+    } catch (e) { /* almacenamiento no disponible: la sesion no sobrevive a un recargar */ }
+  }
+
+  function borrarSesionGuardada() {
+    try {
+      sessionStorage.removeItem("taller_token");
+      sessionStorage.removeItem("taller_yo");
+    } catch (e) { /* nada que borrar */ }
+  }
+
+  function restaurarSesion() {
+    try {
+      const token = sessionStorage.getItem("taller_token");
+      const yo = sessionStorage.getItem("taller_yo");
+      if (token && yo) {
+        estado.token = token;
+        estado.yo = JSON.parse(yo);
+        return true;
+      }
+    } catch (e) { /* sin sesion previa */ }
+    return false;
+  }
+
+  // [MEJORA M18] cualquier 401 borra la sesion guardada y vuelve al login,
+  // en vez de dejar el panel colgado con un token muerto tras un --reload.
+  async function api(path, opciones) {
+    opciones = opciones || {};
+    const cabeceras = Object.assign({}, opciones.headers || {});
+    if (estado.token) cabeceras["X-Session-Token"] = estado.token;
+    if (opciones.body && !cabeceras["Content-Type"]) cabeceras["Content-Type"] = "application/json";
+    const respuesta = await fetch(path, Object.assign({}, opciones, { headers: cabeceras }));
+    if (respuesta.status === 401 && path !== "/login") {
+      estado.token = null;
+      estado.yo = null;
+      borrarSesionGuardada();
+      mostrarLogin("Sesion no valida -- inicia sesion de nuevo.");
+      throw new Error("401");
+    }
+    let cuerpo = null;
+    const texto = await respuesta.text();
+    try { cuerpo = texto ? JSON.parse(texto) : null; } catch (e) { cuerpo = texto; }
+    if (!respuesta.ok) {
+      const mensaje = (cuerpo && typeof cuerpo === "object" && cuerpo.detail)
+        ? cuerpo.detail
+        : (typeof cuerpo === "string" ? cuerpo : `Error ${respuesta.status}`);
+      throw new Error(mensaje);
+    }
+    return cuerpo;
+  }
+
+  function fechaLocal(iso) {
+    if (!iso) return "";
+    const conZona = iso.endsWith("Z") ? iso : iso + "Z";
+    const d = new Date(conZona);
+    if (isNaN(d.getTime())) return escapeHtml(iso);
+    return d.toLocaleString();
+  }
+
+  // -------------------------------------------------------------- pantallas
+
+  function mostrarLogin(mensajeError) {
+    if (estado.refrescoPedidos) { clearInterval(estado.refrescoPedidos); estado.refrescoPedidos = null; }
+    document.getElementById("app-principal").classList.add("oculto");
+    document.getElementById("pantalla-login").classList.remove("oculto");
+    document.getElementById("login-error").textContent = mensajeError || "";
+  }
+
+  function mostrarApp() {
+    document.getElementById("pantalla-login").classList.add("oculto");
+    document.getElementById("app-principal").classList.remove("oculto");
+    // Factor de piezas (demo, ver Facturacion): sin bloquear el arranque si falla.
+    api("/almacen/configuracion").then((c) => { estado.factorPiezas = c.factor_piezas || 1; }).catch(() => {});
+    pintarCabecera();
+    pintarTabs();
+    // La pestana recordada solo vale si este rol la tiene (se puede haber cerrado
+    // sesion y entrado con otro usuario); si no, la primera de la primera seccion.
+    const disponibles = pestanasDisponibles();
+    if (!disponibles.some((t) => t.id === estado.pestanaActiva)) {
+      estado.pestanaActiva = null;
+      estado.ultimaPorGrupo = {};
+    }
+    irATab(estado.pestanaActiva || disponibles[0].id);
+  }
+
+  async function iniciarSesion() {
+    const username = document.getElementById("login-usuario").value;
+    const password = document.getElementById("login-password").value;
+    document.getElementById("login-error").textContent = "";
+    try {
+      const resultado = await api("/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+      estado.token = resultado.token;
+      estado.yo = resultado.usuario;
+      guardarSesion();
+      await cargarPaleta();
+      mostrarApp();
+    } catch (e) {
+      document.getElementById("login-error").textContent = e.message;
+    }
+  }
+
+  async function cerrarSesion() {
+    try { await api("/logout", { method: "POST" }); } catch (e) { /* aunque falle, cerramos local */ }
+    estado.token = null;
+    estado.yo = null;
+    borrarSesionGuardada();
+    mostrarLogin();
+  }
+
+  async function cargarPaleta() {
+    estado.paleta = await api("/paleta_colores");
+  }
+
+  function pintarCabecera() {
+    const yo = estado.yo;
+    const clienteTxt = yo.cliente_id ? ` · ${t("cliente_num", "cliente #{n}", { n: yo.cliente_id })}` : "";
+    document.getElementById("cabecera-sesion").innerHTML =
+      `${t("sesion", "Sesion")}: <b>${escapeHtml(yo.username)}</b> ` +
+      `<span class="pill">${escapeHtml(nombreRol(yo.rol))}</span>` +
+      `${escapeHtml(clienteTxt)}`;
+  }
+
+  // ------------------------------------------------------------------ tabs
+
+  // Menu de dos niveles (sesion 2026-09-19): tres grupos y, dentro de cada uno,
+  // las pestanas de siempre. El orden de esta lista es el orden en pantalla.
+  const GRUPOS = [
+    { id: "produccion", nombre: "Producción" },
+    { id: "contabilidad", nombre: "Contabilidad" },
+    { id: "administracion", nombre: "Administración" },
+  ];
+  const TODAS_LAS_TABS = [
+    { id: "pedidos", grupo: "produccion", nombre: "Pedidos", roles: [ROLES.ADMIN_SISTEMA, ROLES.ADMIN_CLIENTE, ROLES.NORMAL] },
+    { id: "taller", grupo: "produccion", nombre: "Pedidos Taller", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "reparto", grupo: "produccion", nombre: "Reparto", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "almacen", grupo: "produccion", nombre: "Almacén", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "diagnostico", grupo: "produccion", nombre: "Diagnóstico", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "resumen_conta", grupo: "contabilidad", nombre: "Resumen", roles: [ROLES.ADMIN_SISTEMA, ROLES.ADMIN_CLIENTE] },
+    { id: "tarifas", grupo: "contabilidad", nombre: "Tarifas", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "facturacion", grupo: "contabilidad", nombre: "Facturación", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "albaranes", grupo: "contabilidad", nombre: "Albaranes", roles: [ROLES.ADMIN_CLIENTE] },
+    { id: "facturas", grupo: "contabilidad", nombre: "Facturas", roles: [ROLES.ADMIN_CLIENTE] },
+    { id: "empresa", grupo: "administracion", nombre: "Empresas", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "productos", grupo: "administracion", nombre: "Productos", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "subproductos", grupo: "administracion", nombre: "Subproductos", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "paquetes", grupo: "administracion", nombre: "Paquetes", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "colores", grupo: "administracion", nombre: "Colores", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "catalogo", grupo: "administracion", nombre: "Catálogo", roles: [ROLES.ADMIN_SISTEMA, ROLES.ADMIN_CLIENTE] },
+    { id: "usuarios", grupo: "administracion", nombre: "Usuarios", roles: [ROLES.ADMIN_SISTEMA, ROLES.ADMIN_CLIENTE] },
+    { id: "clientes", grupo: "administracion", nombre: "Clientes", roles: [ROLES.ADMIN_SISTEMA] },
+    { id: "auditoria", grupo: "administracion", nombre: "Auditoría", roles: [ROLES.ADMIN_SISTEMA] },
+  ];
+
+  function pestanasDisponibles() {
+    return TODAS_LAS_TABS.filter((t) => t.roles.includes(estado.yo.rol));
+  }
+
+  function gruposDisponibles() {
+    const con = new Set(pestanasDisponibles().map((t) => t.grupo));
+    return GRUPOS.filter((g) => con.has(g.id));
+  }
+
+  // Nivel 1: los grupos. Se oculta si el rol solo tiene uno (p.ej. un usuario
+  // normal, que solo ve Pedidos): no tiene sentido un menu de una sola opcion.
+  function pintarTabs() {
+    const nav = document.getElementById("grupos");
+    nav.innerHTML = "";
+    const grupos = gruposDisponibles();
+    nav.classList.toggle("oculto", grupos.length < 2);
+    grupos.forEach((g) => {
+      const btn = document.createElement("button");
+      btn.textContent = t("grupo_" + g.id, g.nombre);
+      btn.dataset.grupo = g.id;
+      // Vuelve a la ultima pestana que se estaba mirando en ese grupo.
+      btn.onclick = () => irATab(estado.ultimaPorGrupo[g.id] || pestanasDisponibles().find((t) => t.grupo === g.id).id);
+      nav.appendChild(btn);
+    });
+  }
+
+  // Nivel 2: las pestanas del grupo activo.
+  function pintarSubtabs(grupoId) {
+    const nav = document.getElementById("tabs");
+    nav.innerHTML = "";
+    pestanasDisponibles().filter((tb) => tb.grupo === grupoId).forEach((tb) => {
+      const btn = document.createElement("button");
+      btn.textContent = t("tab_" + tb.id, tb.nombre);
+      btn.onclick = () => irATab(tb.id);
+      btn.dataset.tab = tb.id;
+      nav.appendChild(btn);
+    });
+  }
+
+  function irATab(id) {
+    const tab = TODAS_LAS_TABS.find((t) => t.id === id);
+    estado.pestanaActiva = id;
+    estado.ultimaPorGrupo[tab.grupo] = id;
+    if (estado.refrescoPedidos) { clearInterval(estado.refrescoPedidos); estado.refrescoPedidos = null; }
+    document.querySelectorAll("#grupos button").forEach((b) => {
+      b.classList.toggle("activa", b.dataset.grupo === tab.grupo);
+    });
+    pintarSubtabs(tab.grupo);
+    document.querySelectorAll("#tabs button").forEach((b) => {
+      b.classList.toggle("activa", b.dataset.tab === id);
+    });
+    const render = { pedidos: renderPedidos, taller: renderPedidosTaller, reparto: renderReparto,
+      albaranes: renderAlbaranes, facturas: renderFacturas, tarifas: renderTarifas,
+      resumen_conta: renderResumenContable, empresa: renderEmpresa,
+      facturacion: renderFacturacion, productos: renderProductos, subproductos: renderSubproductos,
+      paquetes: renderPaquetes, colores: renderColores, catalogo: renderCatalogo,
+      usuarios: renderUsuarios, clientes: renderClientes, almacen: renderAlmacen,
+      diagnostico: renderDiagnostico, auditoria: renderAuditoria }[id];
+    if (render) render();
+  }
+
+  // --------------------------------------------------------------- pedidos
+
+  async function renderPedidos() {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<h2>${t("tab_pedidos", "Pedidos")}</h2>
+      <p class="ayuda">${t("ayuda_pedidos", 'Aquí se piden piezas: eliges un producto (una variante concreta) o un paquete entero, la cantidad, y lo metes en la <b>cesta</b> con <b>+ Añadir a la cesta</b>. Cuando la cesta está como quieres, pulsa <b>Pedir la cesta</b>: todo lo de una cesta se entrega <b>junto, en un solo albarán</b>. Un pedido de una sola cosa es simplemente una cesta de una línea; si quieres entregas separadas, haz una cesta para cada una. La cesta se guarda en este navegador hasta que la pidas. Cada pedido pasa por dos etapas: primero se consiguen las piezas (de <b>stock</b> o fabricándolas la celda) y quedan <b>listas</b>; luego se <b>reparten</b> al cliente y queda su albarán. Aquí ves en qué punto está cada uno: "<b>Completado</b>" son las piezas ya listas, "<b>Repartido</b>" las ya entregadas. "<b>Activos</b>" son los que aún no se han entregado del todo; "<b>Histórico</b>" los ya repartidos o cancelados.')}</p>
+      <div id='pedidos-form'></div><div id='pedidos-tabla'></div>`;
+
+    if (estado.yo.rol !== ROLES.ADMIN_SISTEMA) {
+      await pintarFormNuevoPedido();
+    }
+    await pintarTablaPedidos();
+    estado.refrescoPedidos = setInterval(() => {
+      if (estado.pestanaActiva === "pedidos") pintarTablaPedidos();
+    }, 4000);
+  }
+
+  // Controles de una fila de pedido (urgente, maquina, cancelar) -- los comparten
+  // la pestana Pedidos y la de Pedidos Taller; 'repintar' vuelve a dibujar la
+  // que llama.
+  function enlazarAccionesPedido(cont, repintar) {
+    cont.querySelectorAll("[data-urgente]").forEach((chk) => {
+      chk.onchange = async () => {
+        await api(`/pedidos/${chk.dataset.urgente}`, { method: "PATCH", body: JSON.stringify({ urgente: chk.checked }) });
+        repintar();
+      };
+    });
+    cont.querySelectorAll("[data-maquina-asignar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const id = btn.dataset.maquinaAsignar;
+        const input = cont.querySelector(`[data-maquina-input="${id}"]`);
+        const numero = parseInt(input.value, 10);
+        if (!Number.isInteger(numero) || numero < 1) {
+          avisar(t("aviso_num_maquina", 'El número de máquina tiene que ser 1 o mayor (0 es "libre", se usa el botón Liberar para eso).'));
+          return;
+        }
+        try {
+          // forzar:true -- esto es administracion tocandolo a mano, no una
+          // maquina reclamando sola, asi que salta la comprobacion de
+          // "libre o mio" (ver POST /pedidos/{id}/reclamar en el backend).
+          await api(`/pedidos/${id}/reclamar`, { method: "POST", body: JSON.stringify({ numero_maquina: numero, forzar: true }) });
+          repintar();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-maquina-liberar]").forEach((btn) => {
+      btn.onclick = async () => {
+        try {
+          await api(`/pedidos/${btn.dataset.maquinaLiberar}/liberar`, { method: "POST" });
+          repintar();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-cancelar]").forEach((btn) => {
+      btn.onclick = async () => {
+        if (!await confirmar(t("confirmar_cancelar_pedido", "¿Cancelar este pedido?"))) return;
+        try {
+          await api(`/pedidos/${btn.dataset.cancelar}/cancelar`, { method: "POST" });
+          repintar();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  async function pintarFormNuevoPedido() {
+    // Sesion 2026-09-15: se pide un SUBPRODUCTO (variante concreta), no ya
+    // el producto directo -- ver Documentacion/aladin_cambio BBDD.txt. Los
+    // subproductos disponibles son los de los productos asignados a este
+    // cliente (misma asignacion de siempre, a nivel de producto).
+    const [productosAsignados, todosLosSubproductos, paquetes] = await Promise.all([
+      api(`/clientes/${estado.yo.cliente_id}/productos`), api("/subproductos"), api("/paquetes"),
+    ]);
+    const productosPorId = {};
+    productosAsignados.filter((p) => p.activo).forEach((p) => { productosPorId[p.id] = p; });
+    const subproductos = todosLosSubproductos.filter((s) => s.activo && productosPorId[s.producto_id]);
+    const paquetesActivos = paquetes.filter((pq) => pq.activo);
+    const cont = document.getElementById("pedidos-form");
+    cont.innerHTML = `
+      <form class="alta" id="form-nuevo-pedido">
+        <b>${t("nuevo_pedido", "Nuevo pedido")}</b>
+        <select id="np-articulo">
+          <optgroup label="${t("productos_optgroup", "Productos")}">${subproductos.map((s) =>
+            `<option value="p:${s.id}">${escapeHtml(productosPorId[s.producto_id].nombre)} · ${escapeHtml(s.nombre)} (${escapeHtml(s.codigo_completo)})</option>`).join("")}</optgroup>
+          ${paquetesActivos.length ? `<optgroup label="${t("paquetes_optgroup", "Paquetes")}">${paquetesActivos.map((pq) =>
+            `<option value="q:${pq.id}">${t("paquete_prefijo", "Paquete")}: ${escapeHtml(pq.nombre)} (${escapeHtml(pq.codigo)})${pq.precio_centimos !== null ? ` · ${euros(pq.precio_centimos)}` : ""} -- ${pq.componentes.map((c) => `${escapeHtml(c.subproducto.nombre)} x${c.cantidad}`).join(", ")}</option>`).join("")}</optgroup>` : ""}
+        </select>
+        <input id="np-cantidad" type="number" min="1" value="1" style="width:80px" />
+        <button type="submit">${t("anadir_cesta", "+ Añadir a la cesta")}</button>
+        <span id="np-error" style="color:#c0392b"></span>
+      </form>
+      <div id="np-cesta"></div>`;
+
+    // ---- La cesta es la unica forma de pedir: una o varias cosas (productos y/o
+    // paquetes) pedidas de una vez y entregadas juntas en UN albaran. Una cesta de
+    // una sola linea es un pedido normal. Se guarda en el navegador para que una
+    // recarga no la pierda.
+    const claveCesta = `taller_cesta_${estado.yo.id}`;
+    const existe = (it) => it.tipo === "paquete"
+      ? paquetesActivos.some((pq) => pq.id === it.id)
+      : subproductos.some((s) => s.id === it.id);
+    function leerCesta() {
+      try {
+        const guardada = JSON.parse(localStorage.getItem(claveCesta) || "[]");
+        return Array.isArray(guardada) ? guardada.filter((it) => it && existe(it) && it.cantidad >= 1) : [];
+      } catch (e) { return []; }
+    }
+    function guardarCesta() {
+      try { localStorage.setItem(claveCesta, JSON.stringify(estado.cesta)); } catch (e) { /* sin almacenamiento: la cesta vive solo en la pagina */ }
+    }
+    estado.cesta = leerCesta();
+    function pintarCesta() {
+      guardarCesta();
+      const cont = document.getElementById("np-cesta");
+      if (!estado.cesta.length) {
+        cont.innerHTML = `<p style="color:#9a8f7d;font-size:13px;margin:4px 0 0">${t("cesta_vacia", "🛒 Elige un producto o un paquete y pulsa <b>+ Añadir a la cesta</b>. Todo lo de la cesta se entrega <b>junto, en un solo albarán</b>; un pedido de una sola cosa es una cesta de una línea.")}</p>`;
+        return;
+      }
+      cont.innerHTML = `<div style="border:1px solid var(--borde);border-left:3px solid var(--titulo);border-radius:4px;padding:8px 12px;margin:10px 0;max-width:640px">
+        <b>${t("cesta_titulo", "🛒 Cesta")}</b> <span style="color:#9a8f7d">${t("cesta_subtitulo", "— se entrega todo junto, en un solo albarán")}</span>
+        <ul style="margin:8px 0 10px 18px;padding:0">${estado.cesta.map((it, i) =>
+          `<li>${it.cantidad} × ${escapeHtml(it.texto)} <button type="button" data-cesta-quitar="${i}" title="${t("quitar_de_cesta", "Quitar de la cesta")}" style="padding:0 6px">✕</button></li>`).join("")}</ul>
+        <button type="button" id="cesta-pedir">${estado.cesta.length === 1
+          ? t("pedir_cesta_1", "Pedir la cesta (1 línea)")
+          : t("pedir_cesta_n", "Pedir la cesta ({n} líneas)", { n: estado.cesta.length })}</button>
+        <button type="button" id="cesta-vaciar">${t("vaciar", "Vaciar")}</button>
+        <span id="cesta-error" style="color:#c0392b;margin-left:8px"></span></div>`;
+      cont.querySelectorAll("[data-cesta-quitar]").forEach((b) => {
+        b.onclick = () => { estado.cesta.splice(Number(b.dataset.cestaQuitar), 1); pintarCesta(); };
+      });
+      cont.querySelector("#cesta-vaciar").onclick = () => { estado.cesta = []; pintarCesta(); };
+      cont.querySelector("#cesta-pedir").onclick = async () => {
+        const lineas = estado.cesta.filter((i) => i.tipo === "producto").map((i) => ({ subproducto_id: i.id, cantidad_pedida: i.cantidad }));
+        const paquetes = estado.cesta.filter((i) => i.tipo === "paquete").map((i) => ({ paquete_id: i.id, cantidad: i.cantidad }));
+        try {
+          const creados = await api("/pedidos/multiple", { method: "POST", body: JSON.stringify({ lineas, paquetes }) });
+          estado.cesta = [];
+          pintarCesta();
+          await pintarTablaPedidos();
+          avisar(creados.length > 1
+            ? t("pedido_hecho_multiple", "Pedido hecho: {n} pedidos que se entregarán juntos, en un solo albarán, cuando estén todos listos.", { n: creados.length })
+            : t("pedido_hecho", "Pedido hecho."));
+        } catch (e) { const m = document.getElementById("cesta-error"); if (m) m.textContent = e.message; }
+      };
+    }
+    pintarCesta();
+
+    document.getElementById("form-nuevo-pedido").onsubmit = (ev) => {
+      ev.preventDefault();
+      const sel = document.getElementById("np-articulo");
+      const cantidad = Number(document.getElementById("np-cantidad").value);
+      const error = document.getElementById("np-error");
+      if (!sel.value) { error.textContent = t("nada_que_pedir", "No hay nada que pedir."); return; }
+      if (!Number.isInteger(cantidad) || cantidad < 1) { error.textContent = t("cantidad_1_o_mas", "La cantidad tiene que ser 1 o más."); return; }
+      error.textContent = "";
+      const [clase, id] = sel.value.split(":");
+      const tipo = clase === "q" ? "paquete" : "producto";
+      const texto = sel.selectedOptions[0].textContent.split(" -- ")[0];
+      const ya = estado.cesta.find((it) => it.tipo === tipo && it.id === Number(id));
+      if (ya) ya.cantidad += cantidad;
+      else estado.cesta.push({ tipo, id: Number(id), cantidad, texto });
+      pintarCesta();
+    };
+  }
+
+  async function pintarTablaPedidos() {
+    const [pedidos, clientes] = await Promise.all([
+      api("/pedidos"),
+      estado.yo.rol === ROLES.ADMIN_SISTEMA ? api("/clientes") : Promise.resolve([]),
+    ]);
+    const clientesPorId = {};
+    clientes.forEach((c) => { clientesPorId[c.id] = c; });
+
+    const f = estado.filtrosPedidos;
+    const verCliente = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+    const verQuien = estado.yo.rol !== ROLES.NORMAL;
+
+    const activosEstados = ["pendiente", "en_proceso", "listo"];
+    let activos = pedidos.filter((p) => activosEstados.includes(p.estado));
+    const historico = pedidos
+      .filter((p) => !activosEstados.includes(p.estado))
+      .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en));
+
+    function pasaFiltros(p) {
+      if (f.cliente && String(p.cliente_id) !== f.cliente) return false;
+      if (f.producto && String(p.producto_id) !== f.producto) return false;
+      if (f.estado && p.estado !== f.estado) return false;
+      if (f.enAlmacen === "cubre_todo" && !(p.stock_disponible >= (p.cantidad_pedida - p.cantidad_completada))) return false;
+      if (f.enAlmacen === "cubre_parte" && !(p.stock_disponible > 0 && p.stock_disponible < (p.cantidad_pedida - p.cantidad_completada))) return false;
+      if (f.enAlmacen === "sin_stock" && p.stock_disponible > 0) return false;
+      return true;
+    }
+    activos = activos.filter(pasaFiltros);
+
+    const productosUnicos = {};
+    pedidos.forEach((p) => { productosUnicos[p.producto_id] = p.producto; });
+
+    function celdaAlmacen(p) {
+      const restante = p.cantidad_pedida - p.cantidad_completada;
+      if (p.stock_disponible <= 0) return "—";
+      if (p.stock_disponible >= restante) return t("cubre_todo", "cubre todo ({n})", { n: p.stock_disponible });
+      return t("cubre_parte", "cubre {a} de {b}", { a: p.stock_disponible, b: restante });
+    }
+
+    function filaPedido(p, conAcciones) {
+      const puedeGestionar = estado.yo.rol === ROLES.ADMIN_SISTEMA || estado.yo.rol === ROLES.ADMIN_CLIENTE;
+      // /pedidos/{id}/reclamar y /liberar son solo de admin_sistema en el
+      // backend (ver Taller_Administracion/app/main.py) -- ni se ofrece el
+      // control a un admin_cliente, le daria 403 si lo usara.
+      const esAdminSistema = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+      const nombreCliente = etiquetaCliente(clientesPorId[p.cliente_id]) || `#${p.cliente_id}`;
+      return `<tr class="${p.urgente ? "urgente" : ""}">
+        <td>${p.id}</td>
+        ${verCliente ? `<td>${escapeHtml(nombreCliente)}</td>` : ""}
+        ${verQuien ? `<td>${escapeHtml(p.usuario.nombre_completo)}${p.usuario.sucursal ? " / " + escapeHtml(p.usuario.sucursal) : ""}</td>` : ""}
+        <td>${escapeHtml(p.producto.nombre)} · ${escapeHtml(p.subproducto.nombre)}</td>
+        <td>${p.producto.led_codigo
+          ? `<span class="bolita" style="background:${escapeHtml((estado.paleta[p.producto.led_codigo] || {}).rgb || "#888")}"></span>${escapeHtml(p.producto.led_codigo)}`
+          : `<span style="color:#888">${t("sin_led", "sin LED")}</span>`}</td>
+        <td>${p.cantidad_pedida}</td>
+        <td title="${t("titulo_precio_ud", "Precio por unidad, sin IVA ({iva} %). Origen: {origen}", { iva: p.iva_porcentaje, origen: origenPrecio(p.precio_origen) })}">${
+          p.paquete_pedido_id && p.paquete_precio_centimos !== null
+            ? `<small style="color:#9a8f7d" title="${t("titulo_paquete_entero", "El paquete se cobra entero: {n} × {precio}", { n: p.paquete_cantidad, precio: euros(p.paquete_precio_centimos) })}">${t("en_el_paquete", "📦 en el paquete ({precio})", { precio: euros(p.paquete_precio_centimos) })}</small>${conAcciones && esAdminSistema && p.cantidad_repartida === 0 ? ` <button data-precio-paquete="${p.paquete_pedido_id}" data-actual="${(p.paquete_precio_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_paquete", "Corregir el precio del paquete (queda en el historial)")}">✎</button>` : ""}`
+            : `${p.precio_unitario_centimos ? euros(p.precio_unitario_centimos) : `<span style="color:#e0a030">${t("sin_precio", "sin precio")}</span>`}${p.precio_origen !== "tarifa_general" ? ` <small style="color:#9a8f7d">${p.precio_origen === "manual" ? t("manual_corto", "manual") : t("cliente_corto", "cliente")}</small>` : ""}${conAcciones && esAdminSistema && p.cantidad_repartida === 0 ? ` <button data-precio-pedido="${p.id}" data-actual="${(p.precio_unitario_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_pedido", "Corregir el precio de este pedido (queda en el historial)")}">✎</button>` : ""}`}</td>
+        <td>${p.cantidad_completada}</td>
+        <td>${p.cantidad_repartida}</td>
+        <td>${conAcciones ? escapeHtml(celdaAlmacen(p)) : "—"}</td>
+        <td class="estado-${p.estado}">${escapeHtml(etiquetaEstado(p.estado))}</td>
+        <td title="${t("titulo_maquina_0", "0 = libre, sin asignar todavía a ninguna máquina")}">${conAcciones && esAdminSistema
+          ? `<span class="maquina-editor">
+              <input type="number" min="0" max="99" value="${p.numero_maquina}" data-maquina-input="${p.id}" style="width:5.5em" />
+              <button data-maquina-asignar="${p.id}" title="${t("titulo_asignar_maquina", "Asignar este número a mano (fuerza, salta la comprobación de libre/mío)")}">✓</button>
+              ${p.numero_maquina ? `<button data-maquina-liberar="${p.id}" title="${t("titulo_liberar_maquina", "Volver a poner en libre (0)")}">${t("liberar", "Liberar")}</button>` : ""}
+            </span>`
+          : (p.numero_maquina ? t("num_maquina", "Nº {n}", { n: p.numero_maquina }) : "—")}</td>
+        <td title="${escapeHtml(tituloTiempoProceso(p.segundos_proceso, p.segundos_total))}">${
+          escapeHtml(celdaTiempoProceso(p.segundos_proceso))}</td>
+        <td>${conAcciones && puedeGestionar
+          ? `<input type="checkbox" data-urgente="${p.id}" ${p.urgente ? "checked" : ""} />`
+          : (p.urgente ? t("si", "Sí") : t("no", "No"))}</td>
+        <td>${fechaLocal(p.creado_en)}</td>
+        <td>${conAcciones && puedeGestionar && p.estado === "pendiente"
+          ? `<button data-cancelar="${p.id}">${t("cancelar", "Cancelar")}</button>` : ""}${
+          !conAcciones && puedeGestionar && p.estado === "completado"
+          ? `<button data-reprocesar="${p.id}">${t("volver_a_procesar", "Volver a procesar")}</button>` : ""}</td>
+      </tr>`;
+    }
+
+    const colspanExtra = (verCliente ? 1 : 0) + (verQuien ? 1 : 0);
+    const cont = document.getElementById("pedidos-tabla");
+    const cabPedidos = `
+          <th>${t("th_id", "ID")}</th>${verCliente ? `<th>${t("th_cliente", "Cliente")}</th>` : ""}${verQuien ? `<th>${t("th_quien_pide", "Quién pide")}</th>` : ""}
+          <th>${t("th_producto", "Producto")}</th><th>${t("th_color", "Color")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_precio_ud", "Precio ud.")}</th><th>${t("th_completado", "Completado")}</th><th>${t("th_repartido", "Repartido")}</th>
+          <th>${t("th_en_almacen", "En almacén")}</th><th>${t("th_estado", "Estado")}</th><th>${t("th_maquina", "Máquina")}</th><th>${t("th_tiempo", "Tiempo")}</th><th>${t("th_urgente", "Urgente")}</th><th>${t("th_creado", "Creado")}</th><th></th>`;
+    cont.innerHTML = `
+      <h3>${t("pedidos_activos", "Pedidos activos")}</h3>
+      <div class="fila-filtros">
+        ${verCliente ? `<select id="f-cliente"><option value="">${t("filtro_cliente_todos", "Cliente: todos")}</option>${clientes.map((c) =>
+          `<option value="${c.id}" ${f.cliente === String(c.id) ? "selected" : ""}>${escapeHtml(etiquetaCliente(c))}</option>`).join("")}</select>` : ""}
+        <select id="f-producto"><option value="">${t("filtro_producto_todos", "Producto: todos")}</option>${Object.values(productosUnicos).map((p) =>
+          `<option value="${p.id}" ${f.producto === String(p.id) ? "selected" : ""}>${escapeHtml(p.nombre)}</option>`).join("")}</select>
+        <select id="f-almacen">
+          <option value="todos" ${f.enAlmacen === "todos" ? "selected" : ""}>${t("filtro_almacen_todos", "En almacén: todos")}</option>
+          <option value="cubre_todo" ${f.enAlmacen === "cubre_todo" ? "selected" : ""}>${t("filtro_cubre_todo", "Cubre todo")}</option>
+          <option value="cubre_parte" ${f.enAlmacen === "cubre_parte" ? "selected" : ""}>${t("filtro_cubre_parte", "Cubre parte")}</option>
+          <option value="sin_stock" ${f.enAlmacen === "sin_stock" ? "selected" : ""}>${t("filtro_sin_stock", "Sin stock")}</option>
+        </select>
+        <select id="f-estado">
+          <option value="" ${f.estado === "" ? "selected" : ""}>${t("filtro_estado_todos", "Estado: todos")}</option>
+          <option value="pendiente" ${f.estado === "pendiente" ? "selected" : ""}>${t("estado_pendiente_cap", "Pendiente")}</option>
+          <option value="en_proceso" ${f.estado === "en_proceso" ? "selected" : ""}>${t("estado_en_proceso_cap", "En proceso")}</option>
+          <option value="listo" ${f.estado === "listo" ? "selected" : ""}>${t("estado_listo_cap", "Listo para reparto")}</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr>${cabPedidos}</tr></thead>
+        <tbody>${activos.length ? activos.map((p) => filaPedido(p, true)).join("") :
+          `<tr><td colspan="${13 + colspanExtra}">${t("sin_pedidos_activos_filtros", "Sin pedidos activos con estos filtros.")}</td></tr>`}</tbody>
+      </table>
+      <h3>${t("historico", "Histórico")}</h3>
+      <table>
+        <thead><tr>${cabPedidos}</tr></thead>
+        <tbody>${historico.length ? historico.map((p) => filaPedido(p, false)).join("") :
+          `<tr><td colspan="${13 + colspanExtra}">${t("sin_historico", "Sin histórico todavía.")}</td></tr>`}</tbody>
+      </table>`;
+
+    if (verCliente) document.getElementById("f-cliente").onchange = (e) => { f.cliente = e.target.value; pintarTablaPedidos(); };
+    document.getElementById("f-producto").onchange = (e) => { f.producto = e.target.value; pintarTablaPedidos(); };
+    document.getElementById("f-almacen").onchange = (e) => { f.enAlmacen = e.target.value; pintarTablaPedidos(); };
+    document.getElementById("f-estado").onchange = (e) => { f.estado = e.target.value; pintarTablaPedidos(); };
+    enlazarAccionesPedido(cont, pintarTablaPedidos);
+    cont.querySelectorAll("[data-precio-paquete]").forEach((btn) => {
+      btn.onclick = async () => {
+        const id = btn.dataset.precioPaquete;
+        const nuevo = prompt(t("prompt_precio_paquete", "Nuevo precio de UN paquete (€, sin IVA):"), btn.dataset.actual);
+        if (nuevo === null) return;
+        const motivo = prompt(t("prompt_motivo_cambio", "Motivo del cambio (obligatorio, queda en el historial):"));
+        if (motivo === null) return;
+        try {
+          await api(`/pedidos-paquete/${id}/precio`, { method: "PATCH", body: JSON.stringify({ precio_centimos: centimosDeTexto(nuevo), motivo }) });
+          pintarTablaPedidos();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-precio-pedido]").forEach((btn) => {
+      btn.onclick = async () => {
+        const id = btn.dataset.precioPedido;
+        const nuevo = prompt(t("prompt_precio_pedido", "Nuevo precio por unidad (€, sin IVA) del pedido #{id}:", { id }), btn.dataset.actual);
+        if (nuevo === null) return;
+        const motivo = prompt(t("prompt_motivo_cambio", "Motivo del cambio (obligatorio, queda en el historial):"));
+        if (motivo === null) return;
+        try {
+          await api(`/pedidos/${id}/precio`, { method: "PATCH", body: JSON.stringify({ precio_centimos: centimosDeTexto(nuevo), motivo }) });
+          pintarTablaPedidos();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-reprocesar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const id = btn.dataset.reprocesar;
+        if (!await confirmar(t("confirmar_reprocesar", "¿Volver a mandar al taller el lote del pedido #{id}?\n\nSe crea un pedido nuevo con la misma cantidad; el original se queda en el histórico.", { id }))) return;
+        btn.disabled = true;
+        try {
+          const nuevo = await api(`/pedidos/${id}/reprocesar`, { method: "POST" });
+          await pintarTablaPedidos();
+          avisar(nuevo.estado === "completado"
+            ? t("reprocesado_completado", "Pedido #{id} creado y repartido al momento desde el almacén (había stock suficiente).", { id: nuevo.id })
+            : nuevo.estado === "listo"
+              ? t("reprocesado_listo", "Pedido #{id} creado con las piezas ya listas desde el almacén; falta repartirlo (pestaña Reparto).", { id: nuevo.id })
+              : t("reprocesado_cola", "Pedido #{id} creado y en cola para el taller.", { id: nuevo.id }));
+        } catch (e) {
+          btn.disabled = false;
+          avisar(e.message);
+        }
+      };
+    });
+  }
+
+  // --------------------------------------------------------- pedidos taller
+
+  async function renderPedidosTaller() {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<h2>${t("tab_taller", "Pedidos Taller")}</h2>
+      <p class="ayuda">${t("ayuda_taller", "Los pedidos que <b>el almacén no puede cubrir</b>: hay que pedir al taller que fabrique las piezas y las mande al almacén. Aquí solo aparece lo que falta fabricar — lo que ya está listo, o lo cubre el stock, está en la pestaña <b>Reparto</b>. Un pedido puede estar en las dos a la vez si el stock solo cubre una parte. Desde aquí se decide en qué máquina se hace, se marca urgente o se cancela.")}</p>
+      <div id="taller-tabla"></div>`;
+    await pintarTablaTaller();
+    estado.refrescoPedidos = setInterval(() => {
+      if (estado.pestanaActiva === "taller") pintarTablaTaller();
+    }, 4000);
+  }
+
+  async function pintarTablaTaller() {
+    const [pedidos, clientes] = await Promise.all([api("/pedidos"), api("/clientes")]);
+    const clientesPorId = {};
+    clientes.forEach((c) => { clientesPorId[c.id] = c; });
+    const filas = pedidos
+      .filter((p) => ["pendiente", "en_proceso"].includes(p.estado) && p.falta_fabricar > 0)
+      .sort((a, b) => (b.urgente - a.urgente) || (new Date(a.creado_en) - new Date(b.creado_en)));
+    const cont = document.getElementById("taller-tabla");
+    if (!cont) return;
+    cont.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>${t("th_id", "ID")}</th><th>${t("th_cliente", "Cliente")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_color", "Color")}</th><th>${t("th_pedido", "Pedido")}</th><th>${t("th_listas", "Listas")}</th>
+          <th>${t("th_cubre_stock", "Cubre el stock")}</th><th>${t("th_falta_fabricar", "Falta fabricar")}</th><th>${t("th_maquina", "Máquina")}</th><th>${t("th_tiempo", "Tiempo")}</th><th>${t("th_urgente", "Urgente")}</th><th>${t("th_creado", "Creado")}</th><th></th>
+        </tr></thead>
+        <tbody>${filas.length ? filas.map((p) => `
+          <tr class="${p.urgente ? "urgente" : ""}">
+            <td>${p.id}</td>
+            <td>${escapeHtml(etiquetaCliente(clientesPorId[p.cliente_id]) || `#${p.cliente_id}`)}</td>
+            <td>${escapeHtml(p.producto.nombre)} · ${escapeHtml(p.subproducto.nombre)}</td>
+            <td>${p.producto.led_codigo
+              ? `<span class="bolita" style="background:${escapeHtml((estado.paleta[p.producto.led_codigo] || {}).rgb || "#888")}"></span>${escapeHtml(p.producto.led_codigo)}`
+              : `<span style="color:#888">${t("sin_led", "sin LED")}</span>`}</td>
+            <td>${p.cantidad_pedida}</td>
+            <td>${p.cantidad_completada}</td>
+            <td>${p.stock_disponible > 0 ? p.stock_disponible : "—"}</td>
+            <td><b>${p.falta_fabricar}</b></td>
+            <td title="${t("titulo_maquina_0", "0 = libre, sin asignar todavía a ninguna máquina")}"><span class="maquina-editor">
+              <input type="number" min="0" max="99" value="${p.numero_maquina}" data-maquina-input="${p.id}" style="width:5.5em" />
+              <button data-maquina-asignar="${p.id}" title="${t("titulo_asignar_maquina", "Asignar este número a mano (fuerza, salta la comprobación de libre/mío)")}">✓</button>
+              ${p.numero_maquina ? `<button data-maquina-liberar="${p.id}" title="${t("titulo_liberar_maquina", "Volver a poner en libre (0)")}">${t("liberar", "Liberar")}</button>` : ""}
+            </span></td>
+            <td title="${escapeHtml(tituloTiempoProceso(p.segundos_proceso, p.segundos_total))}">${escapeHtml(celdaTiempoProceso(p.segundos_proceso))}</td>
+            <td><input type="checkbox" data-urgente="${p.id}" ${p.urgente ? "checked" : ""} /></td>
+            <td>${fechaLocal(p.creado_en)}</td>
+            <td>${p.estado === "pendiente" ? `<button data-cancelar="${p.id}">${t("cancelar", "Cancelar")}</button>` : ""}</td>
+          </tr>`).join("") : `<tr><td colspan="13">${t("nada_que_fabricar", "Nada que fabricar: el almacén cubre todos los pedidos.")}</td></tr>`}</tbody>
+      </table>`;
+    enlazarAccionesPedido(cont, pintarTablaTaller);
+  }
+
+  // ---------------------------------------------------------------- reparto
+
+  async function renderReparto() {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<h2>${t("tab_reparto", "Reparto")}</h2>
+      <p class="ayuda">${t("ayuda_reparto", "La segunda etapa de un pedido: las piezas ya están <b>listas</b> (o las cubre el stock) y falta <b>entregarlas al cliente</b>. Al repartir se genera un <b>albarán</b> por cliente, que es lo que se facturará más adelante. Hay dos interruptores: el <b>reparto automático</b> asigna solo el stock libre a los pedidos (si lo apagas, el botón <b>Asignar stock</b> lo hace a mano), y el <b>reparto automático de lo listo</b> entrega solo los pedidos completos. Apagado, el pedido espera aquí hasta que lo repartas tú; repartir un pedido que solo lo cubre el stock lo asigna y lo entrega de una vez.")}</p>
+      <div id="reparto-config"></div><div id="reparto-tabla"></div>`;
+    await pintarReparto();
+    estado.refrescoPedidos = setInterval(() => {
+      if (estado.pestanaActiva === "reparto") pintarReparto();
+    }, 4000);
+  }
+
+  async function pintarReparto() {
+    const [config, pedidos, clientes, repartos] = await Promise.all([
+      api("/almacen/configuracion"), api("/pedidos"), api("/clientes"), api("/repartos?limite=50"),
+    ]);
+    const cont = document.getElementById("reparto-config");
+    if (!cont) return;
+    const clientesPorId = {};
+    clientes.forEach((c) => { clientesPorId[c.id] = c; });
+    const pendientes = pedidos
+      .filter((p) => ["pendiente", "en_proceso", "listo"].includes(p.estado) && p.para_repartir > 0)
+      .sort((a, b) => (b.urgente - a.urgente) || (new Date(a.creado_en) - new Date(b.creado_en)));
+    // La seleccion sobrevive al repintado de cada 4 s; se descartan los que ya no estan.
+    const seleccion = estado.seleccionReparto || (estado.seleccionReparto = new Set());
+    const idsPendientes = new Set(pendientes.map((p) => p.id));
+    [...seleccion].forEach((id) => { if (!idsPendientes.has(id)) seleccion.delete(id); });
+
+    cont.innerHTML = `
+      <label><input type="checkbox" id="rep-auto-stock" ${config.reparto_automatico ? "checked" : ""} /> ${t("reparto_auto_stock", "Reparto automático (asignar el stock a los pedidos)")}</label><br>
+      <label><input type="checkbox" id="rep-auto-expedir" ${config.expedicion_automatica ? "checked" : ""} /> ${t("reparto_auto_expedir", "Reparto automático de lo listo (entregar y emitir albarán)")}</label><br>
+      <button id="rep-asignar" style="margin-top:6px" title="${t("titulo_asignar_stock", "Reserva el stock libre para los pedidos que lo cubren, sin entregarlo todavía")}">${t("asignar_stock_pendientes", "Asignar stock a pedidos pendientes")}</button>`;
+    cont.querySelector("#rep-auto-stock").onchange = async (e) => {
+      await api("/almacen/configuracion", { method: "PATCH", body: JSON.stringify({ reparto_automatico: e.target.checked }) });
+    };
+    cont.querySelector("#rep-asignar").onclick = async () => {
+      try {
+        const r = await api("/almacen/repartir", { method: "POST" });
+        await pintarReparto();
+        const m = document.getElementById("rep-msg");
+        if (m) m.textContent = r.repartidos.length
+          ? t("stock_asignado_n", "Stock asignado a {n} pedido(s).", { n: r.repartidos.length })
+          : t("sin_stock_libre_asignar", "No había stock libre que asignar.");
+      } catch (e) { avisar(e.message); }
+    };
+    cont.querySelector("#rep-auto-expedir").onchange = async (e) => {
+      await api("/almacen/configuracion", { method: "PATCH", body: JSON.stringify({ expedicion_automatica: e.target.checked }) });
+      pintarReparto();
+    };
+
+    const tabla = document.getElementById("reparto-tabla");
+    tabla.innerHTML = `
+      <h3>${t("pendientes_reparto", "Pendientes de reparto")}</h3>
+      <p>
+        <button id="rep-sel" ${seleccion.size ? "" : "disabled"}>${t("repartir_seleccionados_n", "Repartir seleccionados ({n})", { n: seleccion.size })}</button>
+        <button id="rep-todo" ${pendientes.length ? "" : "disabled"}>${t("repartir_todo", "Repartir todo")}</button>
+        <span id="rep-msg" style="margin-left:12px"></span>
+      </p>
+      <table>
+        <thead><tr>
+          <th></th><th>${t("th_id", "ID")}</th><th>${t("th_cliente", "Cliente")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_pedido", "Pedido")}</th><th>${t("th_ya_repartido", "Ya repartido")}</th>
+          <th>${t("th_listas", "Listas")}</th><th>${t("th_cubre_stock", "Cubre el stock")}</th><th>${t("th_a_entregar", "A entregar")}</th><th>${t("th_estado", "Estado")}</th><th>${t("th_creado", "Creado")}</th><th></th>
+        </tr></thead>
+        <tbody>${pendientes.length ? pendientes.map((p) => `
+          <tr class="${p.urgente ? "urgente" : ""}">
+            <td><input type="checkbox" data-sel="${p.id}" ${seleccion.has(p.id) ? "checked" : ""} /></td>
+            <td>${p.id}</td>
+            <td>${escapeHtml(etiquetaCliente(clientesPorId[p.cliente_id]) || `#${p.cliente_id}`)}</td>
+            <td>${escapeHtml(p.producto.nombre)} · ${escapeHtml(p.subproducto.nombre)}${p.paquete_nombre ? `<br><small style="color:#9a8f7d" title="${t("titulo_paquete_junto", "Un paquete se reparte entero, en un solo albarán")}">📦 ${escapeHtml(p.paquete_nombre)}</small>` : ""}${p.grupo_entrega ? `<br><small style="color:#9a8f7d" title="${t("titulo_entrega_conjunta", "Se pidió junto con otros: se reparte todo en un solo albarán")}">🛒 ${t("entrega_conjunta", "entrega conjunta")}</small>` : ""}</td>
+            <td>${p.cantidad_pedida}</td>
+            <td>${p.cantidad_repartida}</td>
+            <td>${p.cantidad_completada - p.cantidad_repartida}</td>
+            <td title="${t("titulo_stock_libre_pedido", "Stock libre que cubre este pedido pero aún no está asignado a él")}">${p.stock_disponible > 0 ? p.stock_disponible : "—"}</td>
+            <td><b>${p.para_repartir}</b></td>
+            <td class="estado-${p.estado}">${escapeHtml(etiquetaEstado(p.estado))}</td>
+            <td>${fechaLocal(p.creado_en)}</td>
+            <td><button data-repartir="${p.id}">${t("repartir", "Repartir")}</button></td>
+          </tr>`).join("") : `<tr><td colspan="12">${t("nada_pendiente_reparto", "Nada pendiente de reparto.")}</td></tr>`}</tbody>
+      </table>
+      <h3>${t("albaranes_emitidos", "Albaranes emitidos")}</h3>
+      ${tablaAlbaranes(repartos, true, true)}`;
+
+    async function repartir(ids) {
+      const msg = document.getElementById("rep-msg");
+      try {
+        const emitidos = await api("/reparto/expedir", { method: "POST", body: JSON.stringify({ pedido_ids: ids }) });
+        seleccion.clear();
+        await pintarReparto();
+        const m = document.getElementById("rep-msg");
+        if (m) m.textContent = emitidos.length
+          ? t("emitidos_lista", "Emitido(s): {lista}", { lista: emitidos.map((r) => r.numero).join(", ") })
+          : t("nada_que_entregar", "No había nada que entregar.");
+      } catch (e) { if (msg) msg.textContent = e.message; else avisar(e.message); }
+    }
+    tabla.querySelectorAll("[data-sel]").forEach((chk) => {
+      chk.onchange = () => {
+        const id = Number(chk.dataset.sel);
+        if (chk.checked) seleccion.add(id); else seleccion.delete(id);
+        const b = document.getElementById("rep-sel");
+        b.disabled = seleccion.size === 0;
+        b.textContent = t("repartir_seleccionados_n", "Repartir seleccionados ({n})", { n: seleccion.size });
+      };
+    });
+    tabla.querySelectorAll("[data-repartir]").forEach((btn) => {
+      btn.onclick = () => repartir([Number(btn.dataset.repartir)]);
+    });
+    document.getElementById("rep-sel").onclick = () => repartir([...seleccion]);
+    document.getElementById("rep-todo").onclick = () => repartir(null);
+    enlazarAlbaranes(tabla, repartos, pintarReparto);
+  }
+
+  // ------------------------------------------------- documentos imprimibles
+
+  // Abre una pagina aparte, lista para imprimir o guardar como PDF (Ctrl+P).
+  function abrirDocumento(titulo, cuerpo) {
+    const w = window.open("", "_blank");
+    if (!w) { avisar(t("aviso_popup_bloqueado", "El navegador ha bloqueado la ventana: permite las ventanas emergentes para esta página.")); return; }
+    w.document.write(`<!doctype html><html lang="${estado.idioma}"><head><meta charset="utf-8"><title>${escapeHtml(titulo)}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&display=swap" rel="stylesheet">
+      <style>
+        body { font-family: Arial, sans-serif; color: #111; margin: 32px; font-size: 13px; }
+        h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 18px 0 6px; }
+        .cab { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+        .caja { border: 1px solid #999; padding: 8px 12px; min-width: 240px; }
+        table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+        th, td { border: 1px solid #bbb; padding: 5px 8px; text-align: left; } th { background: #eee; }
+        td.num, th.num { text-align: right; } .total { font-size: 16px; font-weight: bold; }
+        .marca { color: #b00020; font-weight: bold; font-size: 18px; border: 3px solid #b00020; display: inline-block; padding: 2px 12px; transform: rotate(-4deg); }
+        .peq { color: #555; font-size: 11px; } .no-print { margin-top: 24px; }
+        .vr-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .vr-logo svg { width: 30px; height: auto; color: #b97a34; }
+        .vr-logo span { font-family: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif; font-weight: 800;
+          text-transform: uppercase; letter-spacing: 0.02em; font-size: 24px; color: #1a1a1a; }
+        @media print { .no-print { display: none; } body { margin: 12mm; } }
+      </style></head><body>${cuerpo}
+      <p class="no-print"><button onclick="window.print()">${t("imprimir_guardar_pdf", "Imprimir / guardar PDF")}</button></p></body></html>`);
+    w.document.close();
+  }
+
+  // Solo de cara a imprimir (ver factor_piezas en Facturacion): clona el documento y multiplica
+  // cantidad e importes por el factor. El precio unitario NO se toca, asi que sigue cuadrando
+  // (cantidad_nueva x precio = importe_nuevo). No se guarda en ningun sitio, es un dibujo aparte.
+  function escalarPorFactor(doc, factor) {
+    if (!factor || factor === 1) return doc;
+    const d = JSON.parse(JSON.stringify(doc));
+    (d.lineas || []).forEach((l) => {
+      l.cantidad *= factor;
+      if (l.paquete_cantidad != null) l.paquete_cantidad *= factor;
+      l.base_centimos = Math.round(l.base_centimos * factor);
+    });
+    (d.desglose_iva || []).forEach((tramo) => {
+      tramo.base_centimos = Math.round(tramo.base_centimos * factor);
+      tramo.iva_centimos = Math.round(tramo.iva_centimos * factor);
+    });
+    d.base_centimos = Math.round(d.base_centimos * factor);
+    d.iva_centimos = Math.round(d.iva_centimos * factor);
+    d.total_centimos = Math.round(d.total_centimos * factor);
+    return d;
+  }
+
+  function notaFactorPiezas(factor) {
+    return factor > 1
+      ? `<p class="peq">Nota: cantidades e importes multiplicados ×${factor} respecto al pedido real, para ver aquí una factura con más piezas y más volumen (factor de demo, configurable en Facturación — no afecta al stock ni a la contabilidad real).</p>`
+      : "";
+  }
+
+  function filasIva(desglose) {
+    return desglose.map((d) => `<tr><td>${d.iva_porcentaje} %</td><td class="num">${euros(d.base_centimos)}</td><td class="num">${euros(d.iva_centimos)}</td></tr>`).join("");
+  }
+
+  // Agrupa las lineas de un albaran/factura: las de un paquete van juntas bajo su cabecera.
+  //  - paquete CON precio propio: una linea "paquete" (con precio) + sus componentes SIN precio.
+  //  - paquete SIN precio propio: sus productos, cada uno con el suyo, agrupados bajo el nombre.
+  function agruparLineas(lineas) {
+    const bloques = [], porPaquete = {};
+    lineas.forEach((l) => {
+      if (!l.paquete_pedido_id) { bloques.push({ paquete: false, linea: l }); return; }
+      let b = porPaquete[l.paquete_pedido_id];
+      if (!b) {
+        b = porPaquete[l.paquete_pedido_id] = { paquete: true, nombre: l.paquete_nombre, cantidad: l.paquete_cantidad, cabecera: null, componentes: [] };
+        bloques.push(b);
+      }
+      if (l.tipo === "paquete") b.cabecera = l; else b.componentes.push(l);
+    });
+    return bloques;
+  }
+
+  function filasFactura(f) {
+    const vacio = `<td class="num"></td>`;
+    const celdas = (l) => `<td class="num">${euros(l.precio_unitario_centimos)}</td><td class="num">${l.iva_porcentaje} %</td><td class="num">${euros(l.base_centimos)}</td>`;
+    const alb = (l) => escapeHtml((l && l.albaran_numero) || "");
+    return agruparLineas(f.lineas).map((b) => {
+      if (!b.paquete) return `<tr><td>${alb(b.linea)}</td><td>${escapeHtml(b.linea.descripcion)}</td><td class="num">${b.linea.cantidad}</td>${celdas(b.linea)}</tr>`;
+      const cab = b.cabecera;
+      let html = cab
+        ? `<tr><td>${alb(cab)}</td><td><b>📦 ${escapeHtml(cab.descripcion)}</b></td><td class="num">${cab.cantidad}</td>${celdas(cab)}</tr>`
+        : `<tr><td>${alb(b.componentes[0])}</td><td><b>📦 ${escapeHtml(b.nombre)}</b> × ${b.cantidad} <span class="peq">(${t("se_cobra_por_productos", "se cobra por productos")})</span></td><td></td>${vacio}${vacio}${vacio}</tr>`;
+      b.componentes.forEach((l) => {
+        html += `<tr><td></td><td style="padding-left:22px">${t("incluye", "incluye")}: ${escapeHtml(l.descripcion)}</td><td class="num">${l.cantidad}</td>${l.tipo === "componente" ? `${vacio}${vacio}${vacio}` : celdas(l)}</tr>`;
+      });
+      return html;
+    }).join("");
+  }
+
+  function filasAlbaran(r, conPrecio) {
+    const vacio = conPrecio ? `<td class="num"></td><td class="num"></td>` : "";
+    const celdas = (l) => (conPrecio ? `<td class="num">${euros(l.precio_unitario_centimos)}</td><td class="num">${euros(l.base_centimos)}</td>` : "");
+    return agruparLineas(r.lineas).map((b) => {
+      if (!b.paquete) return `<tr><td>${escapeHtml(b.linea.descripcion)}</td><td>#${b.linea.pedido_id}</td><td class="num">${b.linea.cantidad}</td>${celdas(b.linea)}</tr>`;
+      const cab = b.cabecera;
+      let html = cab
+        ? `<tr><td><b>📦 ${escapeHtml(cab.descripcion)}</b></td><td></td><td class="num">${cab.cantidad}</td>${celdas(cab)}</tr>`
+        : `<tr><td><b>📦 ${escapeHtml(b.nombre)}</b> × ${b.cantidad}</td><td></td><td></td>${vacio}</tr>`;
+      b.componentes.forEach((l) => {
+        html += `<tr><td style="padding-left:22px">${t("incluye", "incluye")}: ${escapeHtml(l.descripcion)}</td><td>#${l.pedido_id}</td><td class="num">${l.cantidad}</td>${l.tipo === "componente" ? vacio : celdas(l)}</tr>`;
+      });
+      return html;
+    }).join("");
+  }
+
+  // Lineas de un albaran en texto corto (tabla de Facturacion): el paquete y, debajo, lo que lleva.
+  function resumenLineas(r) {
+    return agruparLineas(r.lineas).map((b) => b.paquete
+      ? `<b>📦 ${b.cantidad} × ${escapeHtml(b.nombre)}</b>${b.cabecera ? ` ${t("a_precio", "a {precio}", { precio: euros(b.cabecera.precio_unitario_centimos) })}` : ""}<br>` +
+        b.componentes.map((l) => `<span style="color:#9a8f7d;margin-left:1.2em">· ${l.cantidad} × ${escapeHtml(l.descripcion)}</span>`).join("<br>")
+      : `${b.linea.cantidad} × ${escapeHtml(b.linea.descripcion)}`).join("<br>");
+  }
+
+  function htmlFactura(f) {
+    f = escalarPorFactor(f, estado.factorPiezas);
+    const rect = f.tipo === "rectificativa";
+    return `
+      <div class="cab">
+        <div><h1>${rect ? t("factura_rectificativa", "FACTURA RECTIFICATIVA") : t("factura", "FACTURA")} ${escapeHtml(f.numero)}</h1>
+          <div>${t("fecha_dosp", "Fecha")}: ${fechaLocal(f.fecha)}</div>
+          ${rect ? `<div>${t("rectifica_la_factura", "Rectifica la factura")} <b>${escapeHtml(f.rectifica_numero || "")}</b>${f.motivo ? ` — ${t("motivo_dosp", "Motivo")}: ${escapeHtml(f.motivo)}` : ""}</div>` : ""}
+          ${f.estado === "anulada" ? `<p><span class="marca">${t("anulada", "ANULADA")}${f.rectificada_por_numero ? ` (${escapeHtml(f.rectificada_por_numero)})` : ""}</span></p>` : ""}
+        </div>
+        <div class="caja"><b>${escapeHtml(f.emisor_razon_social || "")}</b><br>${t("cif", "CIF")} ${escapeHtml(f.emisor_cif || "")}<br>${escapeHtml(f.emisor_direccion || "")}<br>${escapeHtml(f.emisor_email || "")}</div>
+      </div>
+      <div class="caja" style="margin-bottom:12px"><b>${t("cliente_dosp", "Cliente")}:</b> ${escapeHtml(f.cliente_razon_social)}<br>${t("cif", "CIF")} ${escapeHtml(f.cliente_cif)}<br>${escapeHtml(f.cliente_direccion)}${f.cliente_email ? `<br>${escapeHtml(f.cliente_email)}` : ""}</div>
+      <table><thead><tr><th>${t("th_albaran", "Albarán")}</th><th>${t("th_concepto", "Concepto")}</th><th class="num">${t("th_cant", "Cant.")}</th><th class="num">${t("th_precio", "Precio")}</th><th class="num">${t("th_iva", "IVA")}</th><th class="num">${t("th_importe", "Importe")}</th></tr></thead>
+        <tbody>${filasFactura(f)}</tbody></table>
+      <table style="width:auto"><thead><tr><th>${t("th_tipo_iva", "Tipo IVA")}</th><th class="num">${t("th_base_imponible", "Base imponible")}</th><th class="num">${t("th_cuota_iva", "Cuota IVA")}</th></tr></thead><tbody>${filasIva(f.desglose_iva)}</tbody></table>
+      <p>${t("base_imponible_dosp", "Base imponible")}: ${euros(f.base_centimos)} &nbsp; ${t("th_iva", "IVA")}: ${euros(f.iva_centimos)}</p>
+      <p class="total">${t("total_mayus", "TOTAL")}: ${euros(f.total_centimos)}</p>
+      ${f.cobrada ? `<p>${t("cobrada_el", "Cobrada el {fecha}", { fecha: fechaLocal(f.fecha_pago) })}${f.metodo_pago ? ` (${escapeHtml(f.metodo_pago)})` : ""}.</p>` : ""}
+      <p class="peq">Nota: esta es la factura de producción, pero todavía le faltan conceptos que llevaría una factura real (transporte, envío, recargos u otros gastos).</p>
+      ${notaFactorPiezas(estado.factorPiezas)}`;
+  }
+
+  // El anagrama sale de la cabecera de la propia pagina (una sola fuente): si cambia alli, cambia aqui.
+  function htmlLogo() {
+    const svg = document.querySelector(".vr-topbar svg");
+    return svg ? `<div class="vr-logo">${svg.outerHTML}<span>Virtual Robotic</span></div>` : "";
+  }
+
+  function htmlAlbaran(r, emisor) {
+    r = escalarPorFactor(r, estado.factorPiezas);
+    const conPrecio = r.total_centimos > 0;
+    return `
+      <div class="cab">
+        <div>${htmlLogo()}<h1>${t("albaran_mayus", "ALBARÁN")} ${escapeHtml(r.numero)}</h1><div>${t("fecha_dosp", "Fecha")}: ${fechaLocal(r.fecha)}</div>
+          ${(r.paquetes || []).length ? `<div>${t("paquete_dosp", "Paquete")}: <b>${escapeHtml(r.paquetes.join(", "))}</b></div>` : ""}
+          <div class="peq">${r.factura_numero ? t("facturado_en", "Facturado en {numero}", { numero: escapeHtml(r.factura_numero) }) : t("sin_facturar", "Sin facturar")}</div></div>
+        <div class="caja"><b>${escapeHtml((emisor && emisor.razon_social) || "")}</b><br>${escapeHtml((emisor && emisor.direccion) || "")}</div>
+      </div>
+      <div class="caja" style="margin-bottom:12px"><b>${t("entregado_a", "Entregado a")}:</b> ${escapeHtml(r.cliente.razon_social)}${r.cliente.codigo ? ` (${t("cod_punto", "cód.")} ${escapeHtml(r.cliente.codigo)})` : ""}<br>${r.cliente.cif ? `${t("cif", "CIF")} ${escapeHtml(r.cliente.cif)}` : ""}</div>
+      <table><thead><tr><th>${t("th_concepto", "Concepto")}</th><th>${t("th_pedido", "Pedido")}</th><th class="num">${t("th_cant", "Cant.")}</th>${conPrecio ? `<th class="num">${t("th_precio", "Precio")}</th><th class="num">${t("th_importe", "Importe")}</th>` : ""}</tr></thead>
+        <tbody>${filasAlbaran(r, conPrecio)}</tbody></table>
+      ${conPrecio ? `<p>${t("base_dospunto", "Base")}: ${euros(r.base_centimos)} &nbsp; ${t("th_iva", "IVA")}: ${euros(r.iva_centimos)} &nbsp; <b>${t("total_dospunto", "Total")}: ${euros(r.total_centimos)}</b></p>` : ""}
+      <p class="peq">${t("recibi_conforme", "Recibí conforme")}: ______________________</p>
+      ${notaFactorPiezas(estado.factorPiezas)}`;
+  }
+
+  // ------------------------------------------------------------ albaranes
+
+  function tablaAlbaranes(repartos, verCliente, admin) {
+    if (!repartos.length) return `<p style="color:#9a8f7d">${t("todavia_no_hay_albaranes", "Todavía no hay albaranes.")}</p>`;
+    return `<table>
+      <thead><tr><th>${t("th_albaran", "Albarán")}</th><th>${t("th_fecha", "Fecha")}</th>${verCliente ? `<th>${t("th_cliente", "Cliente")}</th>` : ""}<th>${t("th_lineas", "Líneas")}</th>
+        <th>${t("th_base", "Base")}</th><th>${t("th_iva", "IVA")}</th><th>${t("th_total", "Total")}</th><th>${t("th_factura", "Factura")}</th><th>${t("th_salida", "Salida")}</th><th></th></tr></thead>
+      <tbody>${repartos.map((r) => `
+        <tr>
+          <td><code>${escapeHtml(r.numero)}</code></td>
+          <td>${fechaLocal(r.fecha)}</td>
+          ${verCliente ? `<td>${escapeHtml(etiquetaCliente(r.cliente))}</td>` : ""}
+          <td>${agruparLineas(r.lineas).map((b) => {
+            const precio = (l) => (l.precio_unitario_centimos ? `<span style="color:#9a8f7d">${t("a_precio", "a {precio}", { precio: euros(l.precio_unitario_centimos) })}</span>` : `<span style="color:#e0a030">${t("sin_precio", "sin precio")}</span>`);
+            const editar = (l) => (admin && !r.factura_numero ? ` <button data-precio-linea="${l.id}" data-actual="${(l.precio_unitario_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_linea", "Corregir el precio de esta línea (queda en el historial)")}">✎</button>` : "");
+            const suelta = (l) => `${l.cantidad} × ${escapeHtml(l.descripcion)} <span style="color:#888">(${t("pedido_numeral", "pedido #{id}", { id: l.pedido_id })})</span> ${precio(l)}${editar(l)}`;
+            if (!b.paquete) return suelta(b.linea);
+            const cab = b.cabecera
+              ? `<b>📦 ${b.cantidad} × ${escapeHtml(b.nombre)}</b> ${precio(b.cabecera)}${editar(b.cabecera)}`
+              : `<b>📦 ${b.cantidad} × ${escapeHtml(b.nombre)}</b> <span style="color:#9a8f7d">(${t("se_cobra_por_productos", "se cobra por productos")})</span>`;
+            const dentro = b.componentes.map((l) => l.tipo === "componente"
+              ? `<span style="color:#9a8f7d">· ${l.cantidad} × ${escapeHtml(l.descripcion)}</span>`
+              : `<span style="margin-left:0">· ${suelta(l)}</span>`).join("<br>");
+            return `${cab}<div style="margin-left:1.2em">${dentro}</div>`;
+          }).join("<br>")}</td>
+          <td>${r.total_centimos ? euros(r.base_centimos) : "—"}</td>
+          <td>${r.total_centimos ? euros(r.iva_centimos) : "—"}</td>
+          <td>${r.total_centimos ? `<b>${euros(r.total_centimos)}</b>` : "—"}</td>
+          <td>${r.factura_numero ? `<code>${escapeHtml(r.factura_numero)}</code>` : `<span style="color:#9a8f7d">${t("sin_facturar_min", "sin facturar")}</span>`}</td>
+          <td>${r.automatico ? t("automatica", "automática") : t("manual_larga", "manual")}</td>
+          <td><button data-ver-albaran="${r.id}">${t("ver_imprimir", "Ver / imprimir")}</button></td>
+        </tr>`).join("")}</tbody></table>`;
+  }
+
+  // Ver/imprimir y corregir precio de linea: los comparten Reparto y Albaranes.
+  function enlazarAlbaranes(cont, repartos, repintar) {
+    cont.querySelectorAll("[data-ver-albaran]").forEach((btn) => {
+      btn.onclick = async () => {
+        const r = repartos.find((x) => x.id === Number(btn.dataset.verAlbaran));
+        let emisor = null;
+        // Solo administracion puede leer las empresas; un cliente ve el albaran sin cabecera de emisor.
+        try { const l = await api("/emisores"); emisor = l.find((e) => e.por_defecto) || l[0] || null; } catch (e) { /* se ve igual */ }
+        abrirDocumento(t("albaran_num", "Albarán {numero}", { numero: r.numero }), htmlAlbaran(r, emisor));
+      };
+    });
+    cont.querySelectorAll("[data-precio-linea]").forEach((btn) => {
+      btn.onclick = async () => {
+        const nuevo = prompt(t("prompt_precio_unitario", "Nuevo precio por unidad (€, sin IVA):"), btn.dataset.actual);
+        if (nuevo === null) return;
+        const motivo = prompt(t("prompt_motivo_cambio", "Motivo del cambio (obligatorio, queda en el historial):"));
+        if (motivo === null) return;
+        try {
+          await api(`/repartos/lineas/${btn.dataset.precioLinea}/precio`, { method: "PATCH",
+            body: JSON.stringify({ precio_centimos: centimosDeTexto(nuevo), motivo }) });
+          repintar();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  async function renderAlbaranes() {
+    const cont = document.getElementById("contenido");
+    async function pintar() {
+      const repartos = await api("/repartos?limite=200");
+      cont.innerHTML = `<h2>${t("tab_albaranes", "Albaranes")}</h2>
+        <p class="ayuda">${t("ayuda_albaranes", 'Las entregas que se han hecho a tu empresa. Cada albarán recoge qué piezas salieron, de qué pedido y cuándo; los importes aparecen cuando el producto tiene precio, y en "Factura" ves en cuál se ha cobrado. "Ver / imprimir" abre el albarán listo para imprimir.')}</p>
+        ${tablaAlbaranes(repartos, false, false)}`;
+      enlazarAlbaranes(cont, repartos, pintar);
+    }
+    await pintar();
+  }
+
+  // ----------------------------------------------------------------- tarifas
+
+  const AMBITO_PRECIO = { tarifa_general: "Tarifa general", tarifa_cliente: "Tarifa de cliente", pedido: "Pedido", albaran: "Albarán",
+    paquete_general: "Paquete (general)", paquete_cliente: "Paquete (cliente)", pedido_paquete: "Pedido de paquete" };
+  function ambitoPrecio(a) { return t("ambito_" + a, AMBITO_PRECIO[a] || a); }
+
+  async function renderTarifas() {
+    const cont = document.getElementById("contenido");
+    const [clientes, subproductos, productos] = await Promise.all([api("/clientes"), api("/subproductos"), api("/productos")]);
+    const productoPorId = {};
+    productos.forEach((p) => { productoPorId[p.id] = p; });
+    if (!estado.tarifasCliente && clientes.length) estado.tarifasCliente = String(clientes[0].id);
+
+    async function pintar() {
+      const cid = estado.tarifasCliente;
+      const [tarifas, historial, paquetes, tarifasPq] = await Promise.all([
+        cid ? api(`/clientes/${cid}/tarifas`) : Promise.resolve([]), api("/historial_precios?limite=100"),
+        api("/paquetes"), cid ? api(`/clientes/${cid}/tarifas_paquete`) : Promise.resolve([]),
+      ]);
+      const tarifaPorPaquete = {};
+      tarifasPq.forEach((tp) => { tarifaPorPaquete[tp.paquete_id] = tp; });
+      const tarifaPorSub = {};
+      tarifas.forEach((ts) => { tarifaPorSub[ts.subproducto_id] = ts; });
+      const activos = subproductos.filter((s) => s.activo);
+      cont.innerHTML = `<h2>${t("tab_tarifas", "Tarifas")}</h2>
+        <p class="ayuda">${t("ayuda_tarifas", "Aquí se controla qué precio paga cada cliente. La <b>tarifa general</b> es la de la pestaña Subproductos; con una <b>tarifa de cliente</b> ese cliente paga otro precio por esa pieza (vacío = paga la general). Un precio se copia al <b>pedido</b> en el momento de pedir, y de ahí al albarán y a la factura: cambiar una tarifa afecta solo a los pedidos nuevos. Todo cambio queda en el historial de abajo con quién, cuándo y de cuánto a cuánto.")}</p>
+        <label>${t("cliente_label", "Cliente")} <select id="tar-cliente">${clientes.map((c) => `<option value="${c.id}" ${String(c.id) === cid ? "selected" : ""}>${escapeHtml(c.razon_social)}</option>`).join("")}</select></label>
+        <table>
+          <thead><tr><th>${t("th_producto", "Producto")}</th><th>${t("th_subproducto", "Subproducto")}</th><th>${t("th_tarifa_general", "Tarifa general")}</th><th>${t("th_iva", "IVA")}</th><th>${t("th_tarifa_cliente", "Tarifa de este cliente (€)")}</th><th></th></tr></thead>
+          <tbody>${activos.map((s) => {
+            const tf = tarifaPorSub[s.id];
+            return `<tr>
+              <td>${escapeHtml((productoPorId[s.producto_id] || {}).nombre || "?")}</td>
+              <td>${escapeHtml(s.nombre)} <code>${escapeHtml(s.codigo_completo)}</code></td>
+              <td>${euros(s.precio_centimos)}</td><td>${s.iva_porcentaje} %</td>
+              <td><input type="number" min="0" step="0.01" data-tar-input="${s.id}" value="${tf ? (tf.precio_centimos / 100).toFixed(2) : ""}" placeholder="${t("placeholder_general", "general")}" style="width:7em" /></td>
+              <td><button data-tar-guardar="${s.id}">${t("guardar", "Guardar")}</button>${tf ? ` <button data-tar-quitar="${s.id}">${t("quitar", "Quitar")}</button>` : ""}</td></tr>`;
+          }).join("")}</tbody></table>
+        <h3>${t("tab_paquetes", "Paquetes")}</h3>
+        <table>
+          <thead><tr><th>${t("th_paquete", "Paquete")}</th><th>${t("th_tarifa_general", "Tarifa general")}</th><th>${t("th_iva", "IVA")}</th><th>${t("th_tarifa_cliente", "Tarifa de este cliente (€)")}</th><th></th></tr></thead>
+          <tbody>${paquetes.filter((p) => p.activo).map((p) => {
+            const tf = tarifaPorPaquete[p.id];
+            return `<tr>
+              <td>📦 ${escapeHtml(p.nombre)} <code>${escapeHtml(p.codigo)}</code></td>
+              <td>${p.precio_centimos === null ? `<span style="color:#9a8f7d">${t("suma_de_sus_productos", "suma de sus productos")}</span>` : euros(p.precio_centimos)}</td><td>${p.iva_porcentaje} %</td>
+              <td><input type="number" min="0" step="0.01" data-tarpq-input="${p.id}" value="${tf ? (tf.precio_centimos / 100).toFixed(2) : ""}" placeholder="${t("placeholder_general", "general")}" style="width:7em" /></td>
+              <td><button data-tarpq-guardar="${p.id}">${t("guardar", "Guardar")}</button>${tf ? ` <button data-tarpq-quitar="${p.id}">${t("quitar", "Quitar")}</button>` : ""}</td></tr>`;
+          }).join("")}</tbody></table>
+        <h3>${t("historial_cambios_precio", "Historial de cambios de precio")}</h3>
+        <table>
+          <thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_ambito", "Ámbito")}</th><th>${t("th_pieza", "Pieza")}</th><th>${t("th_cliente", "Cliente")}</th><th>${t("th_antes", "Antes")}</th><th>${t("th_despues", "Después")}</th><th>${t("th_motivo", "Motivo")}</th></tr></thead>
+          <tbody>${historial.length ? historial.map((h) => `<tr>
+            <td>${fechaLocal(h.fecha)}</td>
+            <td>${ambitoPrecio(h.tipo)}${h.pedido_id ? ` #${h.pedido_id}` : ""}</td>
+            <td>${escapeHtml(h.subproducto_descripcion)}</td>
+            <td>${escapeHtml(h.cliente_razon_social || "—")}</td>
+            <td>${h.precio_anterior_centimos === null ? "—" : euros(h.precio_anterior_centimos)}${h.iva_anterior !== null && h.iva_anterior !== h.iva_nuevo ? ` (${t("th_iva", "IVA")} ${h.iva_anterior} %)` : ""}</td>
+            <td>${h.precio_nuevo_centimos === null ? `<i>${t("vuelve_a_la_general", "vuelve a la general")}</i>` : euros(h.precio_nuevo_centimos)}${h.iva_nuevo !== null && h.iva_anterior !== h.iva_nuevo ? ` (${t("th_iva", "IVA")} ${h.iva_nuevo} %)` : ""}</td>
+            <td>${escapeHtml(h.motivo || "")}</td></tr>`).join("") : `<tr><td colspan="7">${t("sin_cambios_precio", "Todavía no se ha cambiado ningún precio.")}</td></tr>`}</tbody></table>`;
+      cont.querySelectorAll("[data-tarpq-guardar]").forEach((btn) => {
+        btn.onclick = async () => {
+          const id = btn.dataset.tarpqGuardar;
+          const texto = cont.querySelector(`[data-tarpq-input="${id}"]`).value.trim();
+          try {
+            if (texto === "") { if (tarifaPorPaquete[id]) await api(`/clientes/${cid}/tarifas_paquete/${id}`, { method: "DELETE" }); }
+            else await api(`/clientes/${cid}/tarifas_paquete/${id}`, { method: "PUT", body: JSON.stringify({ precio_centimos: centimosDeTexto(texto) }) });
+            pintar();
+          } catch (e) { avisar(e.message); }
+        };
+      });
+      cont.querySelectorAll("[data-tarpq-quitar]").forEach((btn) => {
+        btn.onclick = async () => {
+          try { await api(`/clientes/${cid}/tarifas_paquete/${btn.dataset.tarpqQuitar}`, { method: "DELETE" }); pintar(); }
+          catch (e) { avisar(e.message); }
+        };
+      });
+      cont.querySelector("#tar-cliente").onchange = (e) => { estado.tarifasCliente = e.target.value; pintar(); };
+      cont.querySelectorAll("[data-tar-guardar]").forEach((btn) => {
+        btn.onclick = async () => {
+          const id = btn.dataset.tarGuardar;
+          const texto = cont.querySelector(`[data-tar-input="${id}"]`).value.trim();
+          try {
+            if (texto === "") {
+              if (tarifaPorSub[id]) await api(`/clientes/${cid}/tarifas/${id}`, { method: "DELETE" });
+            } else {
+              await api(`/clientes/${cid}/tarifas/${id}`, { method: "PUT", body: JSON.stringify({ precio_centimos: centimosDeTexto(texto) }) });
+            }
+            pintar();
+          } catch (e) { avisar(e.message); }
+        };
+      });
+      cont.querySelectorAll("[data-tar-quitar]").forEach((btn) => {
+        btn.onclick = async () => {
+          try { await api(`/clientes/${cid}/tarifas/${btn.dataset.tarQuitar}`, { method: "DELETE" }); pintar(); }
+          catch (e) { avisar(e.message); }
+        };
+      });
+    }
+    await pintar();
+  }
+
+  // ---------------------------------------------------- resumen contable
+
+  function descargarCsv(nombre, filas) {
+    // ';' y coma decimal, con BOM: es lo que abre bien Excel en espanol.
+    const celda = (v) => `"${String(v === null || v === undefined ? "" : v).replaceAll('"', '""')}"`;
+    const texto = "﻿" + filas.map((f) => f.map(celda).join(";")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([texto], { type: "text/csv;charset=utf-8" }));
+    a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  const eurosCsv = (c) => (c / 100).toFixed(2).replace(".", ",");
+
+  async function renderResumenContable() {
+    const cont = document.getElementById("contenido");
+    const admin = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+    const [facturas, repartos] = await Promise.all([api("/facturas?limite=2000"), api("/repartos?limite=2000")]);
+    const ahora = new Date();
+    const vigentes = facturas.filter((f) => f.tipo === "factura" && f.estado === "emitida");
+    const anio = (iso) => new Date(iso.endsWith("Z") ? iso : iso + "Z").getFullYear();
+    const mes = (iso) => new Date(iso.endsWith("Z") ? iso : iso + "Z").getMonth();
+    const dias = (iso) => Math.floor((ahora - new Date(iso.endsWith("Z") ? iso : iso + "Z")) / 86400000);
+    const suma = (lista, campo = "total_centimos") => lista.reduce((t, x) => t + x[campo], 0);
+    const esteAnio = vigentes.filter((f) => anio(f.fecha) === ahora.getFullYear());
+    const esteMes = esteAnio.filter((f) => mes(f.fecha) === ahora.getMonth());
+    const cobradas = esteAnio.filter((f) => f.cobrada);
+    const pendientes = vigentes.filter((f) => !f.cobrada);
+    const sinFacturar = repartos.filter((r) => !r.factura_numero);
+    const sinPrecio = sinFacturar.filter((r) => r.lineas.some((l) => l.precio_unitario_centimos === 0 && l.tipo !== "componente")).length;
+    const tramos = [[t("hasta_30_dias", "hasta 30 días"), (d) => d <= 30], [t("de_31_a_60_dias", "31 a 60 días"), (d) => d > 30 && d <= 60], [t("mas_de_60_dias", "más de 60 días"), (d) => d > 60]];
+
+    const kpi = (titulo, valor, detalle, color) => `<div class="kpi"><div class="kpi-t">${titulo}</div>
+      <div class="kpi-v" ${color ? `style="color:${color}"` : ""}>${valor}</div><div class="kpi-d">${detalle || ""}</div></div>`;
+
+    // Desglose por cliente (solo administracion: un cliente solo se ve a si mismo).
+    let porCliente = "";
+    if (admin) {
+      const g = {};
+      const fila = (c) => g[c.id || c] || (g[c.id || c] = { nombre: c.razon_social || c.cliente_razon_social, facturado: 0, cobrado: 0, pendiente: 0, sinFacturar: 0 });
+      vigentes.forEach((f) => { const x = fila({ id: f.cliente_id, razon_social: f.cliente_razon_social }); x.facturado += f.total_centimos; if (f.cobrada) x.cobrado += f.total_centimos; else x.pendiente += f.total_centimos; });
+      sinFacturar.forEach((r) => { fila(r.cliente).sinFacturar += r.total_centimos; });
+      const filas = Object.values(g).sort((a, b) => b.pendiente - a.pendiente);
+      porCliente = `<h3>${t("por_cliente", "Por cliente")}</h3><table>
+        <thead><tr><th>${t("th_cliente", "Cliente")}</th><th>${t("th_facturado", "Facturado")}</th><th>${t("th_cobrado", "Cobrado")}</th><th>${t("th_pendiente_cobro", "Pendiente de cobro")}</th><th>${t("th_entregado_sin_facturar", "Entregado sin facturar")}</th></tr></thead>
+        <tbody>${filas.length ? filas.map((x) => `<tr><td>${escapeHtml(x.nombre)}</td><td>${euros(x.facturado)}</td><td>${euros(x.cobrado)}</td>
+          <td style="${x.pendiente ? "color:#e0a030;font-weight:600" : ""}">${euros(x.pendiente)}</td><td>${euros(x.sinFacturar)}</td></tr>`).join("")
+          : `<tr><td colspan="5">${t("sin_movimientos", "Todavía no hay movimientos.")}</td></tr>`}</tbody></table>`;
+    }
+
+    cont.innerHTML = `<h2>${t("tab_resumen_conta", "Resumen contable")}</h2>
+      <p class="ayuda">${admin ? t("resumen_ayuda_admin", "El estado de las cuentas de un vistazo") : t("resumen_ayuda_cliente", "El estado de las cuentas de tu empresa")}: ${t("resumen_ayuda_resto", 'lo <b>facturado</b>, lo <b>cobrado</b>, lo que <b>queda por cobrar</b> y lo ya entregado que <b>todavía no se ha facturado</b>. Solo cuentan las facturas vigentes: una anulada (con su rectificativa) no suma. Los importes llevan IVA incluido. Cobrar y facturar se hace en la pestaña Facturación.')}</p>
+      <div class="kpis">
+        ${kpi(t("facturado_este_mes", "Facturado este mes"), euros(suma(esteMes)), t("n_facturas", "{n} factura(s)", { n: esteMes.length }))}
+        ${kpi(t("facturado_en_anio", "Facturado en {anio}", { anio: ahora.getFullYear() }), euros(suma(esteAnio)), t("n_facturas_iva", "{n} factura(s) · IVA repercutido {iva}", { n: esteAnio.length, iva: euros(suma(esteAnio, "iva_centimos")) }))}
+        ${kpi(t("cobrado_en_anio", "Cobrado en {anio}", { anio: ahora.getFullYear() }), euros(suma(cobradas)), t("n_facturas", "{n} factura(s)", { n: cobradas.length }), "#2e9e3b")}
+        ${kpi(t("pendiente_de_cobro", "Pendiente de cobro"), euros(suma(pendientes)), t("n_facturas_sin_cobrar", "{n} factura(s) emitida(s) sin cobrar", { n: pendientes.length }), pendientes.length ? "#e0a030" : "")}
+        ${kpi(t("entregado_sin_facturar", "Entregado sin facturar"), euros(suma(sinFacturar)), t("n_albaranes", "{n} albarán(es)", { n: sinFacturar.length }) + (sinPrecio ? ` · <span style="color:#e0a030">⚠ ${t("n_con_lineas_sin_precio", "{n} con líneas sin precio", { n: sinPrecio })}</span>` : ""))}
+      </div>
+      <h3>${t("pendiente_cobro_antiguedad", "Lo pendiente de cobro, por antigüedad")}</h3>
+      <table style="width:auto"><thead><tr><th>${t("th_antiguedad_factura", "Antigüedad de la factura")}</th><th>${t("th_facturas", "Facturas")}</th><th>${t("th_importe", "Importe")}</th></tr></thead>
+        <tbody>${tramos.map(([tr, ok]) => { const l = pendientes.filter((f) => ok(dias(f.fecha))); return `<tr><td>${tr}</td><td>${l.length}</td><td>${euros(suma(l))}</td></tr>`; }).join("")}</tbody></table>
+      ${porCliente}
+      <h3>${t("exportar", "Exportar")}</h3>
+      <p><button id="res-csv" ${facturas.length ? "" : "disabled"}>${t("descargar_libro_facturas", "Descargar libro de facturas (CSV)")}</button>
+        <span style="color:#9a8f7d;margin-left:8px">${t("descargar_libro_facturas_detalle", "Todas las facturas y rectificativas, para pasarlas a la gestoría o a Excel.")}</span></p>`;
+    cont.querySelector("#res-csv").onclick = () => {
+      const cab = [t("csv_numero", "Número"), t("csv_tipo", "Tipo"), t("csv_fecha", "Fecha"), t("csv_empresa_emisora", "Empresa emisora"), t("th_cliente", "Cliente"), t("cif", "CIF"), t("th_base", "Base"), t("th_iva", "IVA"), t("th_total", "Total"), t("th_estado", "Estado"), t("csv_cobrada", "Cobrada"), t("csv_fecha_cobro", "Fecha cobro"), t("csv_metodo_cobro", "Método cobro"), t("csv_rectifica_a", "Rectifica a")];
+      const fecha = (iso) => (iso ? new Date(iso.endsWith("Z") ? iso : iso + "Z").toLocaleDateString("es-ES") : "");
+      const filas = [...facturas].reverse().map((f) => [f.numero, f.tipo, fecha(f.fecha), f.emisor_razon_social || "", f.cliente_razon_social, f.cliente_cif,
+        eurosCsv(f.base_centimos), eurosCsv(f.iva_centimos), eurosCsv(f.total_centimos), f.estado, f.cobrada ? t("si", "sí") : t("no_min", "no"),
+        fecha(f.fecha_pago), f.metodo_pago || "", f.rectifica_numero || ""]);
+      descargarCsv(`facturas-${ahora.toISOString().slice(0, 10)}.csv`, [cab, ...filas]);
+    };
+  }
+
+  // --------------------------------------------------------------- empresas
+
+  async function renderEmpresa() {
+    const cont = document.getElementById("contenido");
+    async function pintar() {
+      const emisores = await api("/emisores");
+      cont.innerHTML = `<h2>${t("tab_empresa", "Empresas que facturan")}</h2>
+        <p class="ayuda">${t("ayuda_empresa", "Las empresas que <b>emiten facturas</b>: puede haber varias, cada una con su razón social, CIF, dirección y su <b>numeración propia</b> (la serie: p.ej. <code>FAC-2026-000001</code> y las rectificativas <code>RECT-2026-000001</code>). Al facturar eliges con cuál; la marcada como <b>por defecto</b> es la que sale preseleccionada. Los datos se copian a la factura al emitirla, así que cambiarlos aquí no altera las ya emitidas. Una empresa no se borra: se <b>desactiva</b>. Y cuando ya ha emitido facturas, su serie deja de poder cambiarse (se rompería la correlatividad).")}</p>
+        <h3>${t("nueva_empresa", "Nueva empresa")}</h3>
+        <form class="alta" id="form-emisor">
+          <input id="em-razon" placeholder="${t("razon_social", "Razón social")}" style="width:18em" required />
+          <input id="em-cif" placeholder="${t("cif", "CIF")}" style="width:9em" required />
+          <input id="em-dir" placeholder="${t("direccion_completa", "Dirección completa")}" style="width:22em" required />
+          <input id="em-email" type="email" placeholder="${t("email", "Email")}" style="width:16em" />
+          <input id="em-sf" placeholder="${t("serie_facturas", "Serie facturas")}" value="FAC" maxlength="8" style="width:7em;text-transform:uppercase" title="${t("titulo_serie", "2 a 8 letras o números; distinta en cada empresa")}" />
+          <input id="em-sr" placeholder="${t("serie_rectif", "Serie rectif.")}" value="RECT" maxlength="8" style="width:7em;text-transform:uppercase" />
+          <button type="submit">${t("crear", "Crear")}</button><span id="em-msg" style="margin-left:8px"></span>
+        </form>
+        <table>
+          <thead><tr><th>${t("razon_social", "Razón social")}</th><th>${t("cif", "CIF")}</th><th>${t("th_direccion", "Dirección")}</th><th>${t("email", "Email")}</th><th>${t("serie_facturas", "Serie facturas")}</th><th>${t("serie_rectif", "Serie rectif.")}</th><th>${t("th_por_defecto", "Por defecto")}</th><th>${t("th_activa", "Activa")}</th><th></th></tr></thead>
+          <tbody>${emisores.map((e) => `<tr data-fila-emisor="${e.id}" ${e.activo ? "" : 'style="opacity:0.55"'}>
+            <td><input data-campo="razon_social" value="${escapeHtml(e.razon_social)}" style="width:16em" /></td>
+            <td><input data-campo="cif" value="${escapeHtml(e.cif)}" style="width:8em" /></td>
+            <td><input data-campo="direccion" value="${escapeHtml(e.direccion)}" style="width:20em" /></td>
+            <td><input data-campo="email" value="${escapeHtml(e.email || "")}" style="width:14em" /></td>
+            <td><input data-campo="serie_facturas" value="${escapeHtml(e.serie_facturas)}" style="width:6em;text-transform:uppercase" ${e.con_facturas ? `disabled title="${t("titulo_serie_bloqueada", "Ya ha emitido facturas: la serie no se puede cambiar")}"` : ""} /></td>
+            <td><input data-campo="serie_rectificativas" value="${escapeHtml(e.serie_rectificativas)}" style="width:6em;text-transform:uppercase" ${e.con_facturas ? "disabled" : ""} /></td>
+            <td><input type="radio" name="emisor-defecto" data-defecto="${e.id}" ${e.por_defecto ? "checked" : ""} ${e.activo ? "" : "disabled"} /></td>
+            <td><input type="checkbox" data-campo="activo" ${e.activo ? "checked" : ""} /></td>
+            <td><button data-guardar-emisor="${e.id}">${t("guardar", "Guardar")}</button></td></tr>`).join("")}</tbody></table>`;
+      cont.querySelector("#form-emisor").onsubmit = async (ev) => {
+        ev.preventDefault();
+        try {
+          await api("/emisores", { method: "POST", body: JSON.stringify({
+            razon_social: cont.querySelector("#em-razon").value, cif: cont.querySelector("#em-cif").value,
+            direccion: cont.querySelector("#em-dir").value, email: cont.querySelector("#em-email").value || null,
+            serie_facturas: cont.querySelector("#em-sf").value, serie_rectificativas: cont.querySelector("#em-sr").value }) });
+          pintar();
+        } catch (e) { cont.querySelector("#em-msg").style.color = "#c0392b"; cont.querySelector("#em-msg").textContent = e.message; }
+      };
+      cont.querySelectorAll("[data-guardar-emisor]").forEach((btn) => {
+        btn.onclick = async () => {
+          const id = btn.dataset.guardarEmisor;
+          const fila = cont.querySelector(`tr[data-fila-emisor="${id}"]`);
+          const campo = (n) => fila.querySelector(`[data-campo="${n}"]`);
+          const cuerpo = { razon_social: campo("razon_social").value, cif: campo("cif").value,
+            direccion: campo("direccion").value, email: campo("email").value, activo: campo("activo").checked };
+          if (!campo("serie_facturas").disabled) {
+            cuerpo.serie_facturas = campo("serie_facturas").value; cuerpo.serie_rectificativas = campo("serie_rectificativas").value;
+          }
+          if (fila.querySelector("[data-defecto]").checked) cuerpo.por_defecto = true;
+          try { await api(`/emisores/${id}`, { method: "PATCH", body: JSON.stringify(cuerpo) }); pintar(); }
+          catch (e) { avisar(e.message); }
+        };
+      });
+    }
+    await pintar();
+  }
+
+  // ------------------------------------------------------------ facturacion
+
+  function etiquetaFactura(f) {
+    if (f.tipo === "rectificativa") return { texto: t("factura_rectificativa_min", "rectificativa"), color: "#e0a030" };
+    if (f.estado === "anulada") return { texto: t("anulada_min", "anulada"), color: "#c0392b" };
+    if (f.cobrada) return { texto: t("cobrada_min", "cobrada"), color: "#2e9e3b" };
+    return { texto: t("emitida_sin_cobrar", "emitida · sin cobrar"), color: "#4aa3df" };
+  }
+
+  function tablaFacturas(facturas, admin) {
+    if (!facturas.length) return `<p style="color:#9a8f7d">${t("todavia_no_hay_facturas", "Todavía no hay facturas.")}</p>`;
+    return `<table>
+      <thead><tr><th>${t("th_factura", "Factura")}</th><th>${t("th_fecha", "Fecha")}</th><th>${t("th_cliente", "Cliente")}</th><th>${t("th_albaranes", "Albaranes")}</th><th>${t("th_base", "Base")}</th><th>${t("th_iva", "IVA")}</th><th>${t("th_total", "Total")}</th><th>${t("th_estado", "Estado")}</th><th></th></tr></thead>
+      <tbody>${facturas.map((f) => {
+        const e = etiquetaFactura(f);
+        return `<tr>
+          <td><code>${escapeHtml(f.numero)}</code>${f.rectifica_numero ? `<br><span style="color:#888">${t("rectifica", "rectifica")} ${escapeHtml(f.rectifica_numero)}</span>` : ""}</td>
+          <td>${fechaLocal(f.fecha)}</td>
+          <td>${escapeHtml(f.cliente_razon_social)}</td>
+          <td>${f.albaranes.map((a) => `<code>${escapeHtml(a)}</code>`).join(" ")}</td>
+          <td>${euros(f.base_centimos)}</td><td>${euros(f.iva_centimos)}</td><td><b>${euros(f.total_centimos)}</b></td>
+          <td style="color:${e.color}">${e.texto}${f.rectificada_por_numero ? `<br><span style="color:#888">${escapeHtml(f.rectificada_por_numero)}</span>` : ""}</td>
+          <td><button data-ver-factura="${f.id}">${t("ver_imprimir", "Ver / imprimir")}</button>
+            ${admin && f.tipo === "factura" && f.estado === "emitida" && !f.cobrada ? ` <button data-cobrar="${f.id}">${t("cobrar", "Cobrar")}</button>` : ""}
+            ${admin && f.tipo === "factura" && f.estado === "emitida" ? ` <button data-anular="${f.id}">${t("anular", "Anular")}</button>` : ""}</td>
+        </tr>`;
+      }).join("")}</tbody></table>`;
+  }
+
+  function enlazarFacturas(cont, facturas, repintar) {
+    cont.querySelectorAll("[data-ver-factura]").forEach((btn) => {
+      btn.onclick = () => {
+        const f = facturas.find((x) => x.id === Number(btn.dataset.verFactura));
+        abrirDocumento(t("factura_num", "Factura {numero}", { numero: f.numero }), htmlFactura(f));
+      };
+    });
+    cont.querySelectorAll("[data-cobrar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const metodo = prompt(t("prompt_metodo_cobro", "Método de cobro (transferencia, efectivo, tarjeta...). Puede quedar vacío:"), t("transferencia", "transferencia"));
+        if (metodo === null) return;
+        try { await api(`/facturas/${btn.dataset.cobrar}/pagar`, { method: "POST", body: JSON.stringify({ metodo_pago: metodo }) }); repintar(); }
+        catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-anular]").forEach((btn) => {
+      btn.onclick = async () => {
+        const f = facturas.find((x) => x.id === Number(btn.dataset.anular));
+        const motivo = prompt(t("prompt_motivo_anular", "Se anulará {numero} emitiendo su factura rectificativa, y sus albaranes quedarán libres para volver a facturarse.\n\nMotivo (obligatorio):", { numero: f.numero }));
+        if (motivo === null) return;
+        try {
+          const rect = await api(`/facturas/${f.id}/anular`, { method: "POST", body: JSON.stringify({ motivo }) });
+          await repintar();
+          avisar(t("emitida_rect", "Emitida {rect}. Los albaranes de {numero} están otra vez pendientes de facturar.", { rect: rect.numero, numero: f.numero }));
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  async function renderFacturacion() {
+    const cont = document.getElementById("contenido");
+    const seleccion = estado.seleccionFacturar || (estado.seleccionFacturar = new Set());
+    async function pintar() {
+      const [emisores, repartos, facturas, config] = await Promise.all([
+        api("/emisores"), api("/repartos?limite=500"), api("/facturas?limite=200"), api("/almacen/configuracion"),
+      ]);
+      estado.factorPiezas = config.factor_piezas || 1;
+      const pendientes = repartos.filter((r) => !r.factura_numero);
+      const idsPend = new Set(pendientes.map((r) => r.id));
+      [...seleccion].forEach((id) => { if (!idsPend.has(id)) seleccion.delete(id); });
+      const porCliente = {};
+      pendientes.forEach((r) => { (porCliente[r.cliente_id] = porCliente[r.cliente_id] || { cliente: r.cliente, repartos: [] }).repartos.push(r); });
+      const activos = emisores.filter((e) => e.activo);
+      const porDefecto = activos.find((e) => e.por_defecto) || activos[0];
+      if (!estado.emisorFacturar || !activos.some((e) => String(e.id) === estado.emisorFacturar)) {
+        estado.emisorFacturar = porDefecto ? String(porDefecto.id) : "";
+      }
+      cont.innerHTML = `<h2>${t("tab_facturacion", "Facturación")}</h2>
+        <p class="ayuda">${t("ayuda_facturacion", "La factura recoge los <b>albaranes</b> de un cliente que aún no se han facturado: copia sus líneas, precios y los datos fiscales de las dos partes, y ya no cambia. Si hay un error, no se edita: se <b>anula</b> emitiendo una factura rectificativa (numeración propia RECT), y los albaranes quedan libres para facturarse de nuevo, ya corregidos. Antes de facturar hace falta que el cliente tenga CIF y dirección (pestaña Clientes); eliges con qué empresa se factura (puede haber varias) y que estén los datos de quien factura (Administración → Empresas). Las líneas a 0 € se rechazan por si falta un precio.")}</p>
+        <p class="demo-factor">⚠ <b>Factor de piezas al imprimir (solo demo)</b>:
+          <select id="fac-factor">${[1, 10, 100, 1000].map((n) => `<option value="${n}" ${n === estado.factorPiezas ? "selected" : ""}>×${n}</option>`).join("")}</select>
+          multiplica cantidad e importe <b>solo al ver/imprimir</b> un albarán o factura ya emitidos, para que se vean con más piezas y más volumen. No cambia nada en la base de datos: el stock, el reparto y la contabilidad real siguen con los números de verdad.</p>
+        ${activos.length ? `<p>${t("facturar_como", "Facturar como")} <select id="fac-emisor">${activos.map((e) =>
+            `<option value="${e.id}" ${String(e.id) === estado.emisorFacturar ? "selected" : ""}>${escapeHtml(e.razon_social)} (${t("cif", "CIF")} ${escapeHtml(e.cif)}) · ${t("serie_min", "serie")} ${escapeHtml(e.serie_facturas)}</option>`).join("")}</select>
+          <button id="ir-empresa">${t("gestionar_empresas", "Gestionar empresas")}</button></p>`
+          : `<p style="color:#e0a030">⚠ ${t("sin_empresa_facturar", "No hay ninguna empresa que pueda facturar.")} <button id="ir-empresa">${t("crear_en_administracion_empresas", "Crear una en Administración → Empresas")}</button></p>`}
+        <h3>${t("albaranes_pendientes_facturar", "Albaranes pendientes de facturar")}</h3>
+        <p>${pendientes.length ? `<label style="margin-right:14px"><input type="checkbox" id="fac-todos" /> ${t("seleccionar_todos_n", "Seleccionar todos ({n})", { n: pendientes.length })}</label>` : ""}
+           <button id="fac-sel" ${seleccion.size ? "" : "disabled"}>${t("facturar_seleccionados_n", "Facturar seleccionados ({n})", { n: seleccion.size })}</button>
+           <span id="fac-msg" style="margin-left:12px"></span></p>
+        ${Object.keys(porCliente).length ? Object.values(porCliente).map((g) => `
+          <h4 style="margin:14px 0 4px"><label title="${t("titulo_sel_todos_cliente", "Seleccionar todos los albaranes de este cliente")}" style="font-weight:normal"><input type="checkbox" data-fac-cliente="${g.cliente.id}" /></label>
+            ${escapeHtml(etiquetaCliente(g.cliente))}
+            <button data-fac-todo="${g.cliente.id}" style="margin-left:10px">${t("facturar_todo_pendiente_n", "Facturar todo lo pendiente ({n})", { n: g.repartos.length })}</button></h4>
+          <table><thead><tr><th></th><th>${t("th_albaran", "Albarán")}</th><th>${t("th_fecha", "Fecha")}</th><th>${t("th_lineas", "Líneas")}</th><th>${t("th_base", "Base")}</th><th>${t("th_total", "Total")}</th></tr></thead>
+            <tbody>${g.repartos.map((r) => `<tr>
+              <td><input type="checkbox" data-fac-sel="${r.id}" ${seleccion.has(r.id) ? "checked" : ""} /></td>
+              <td><code>${escapeHtml(r.numero)}</code></td><td>${fechaLocal(r.fecha)}</td>
+              <td>${resumenLineas(r)}</td>
+              <td>${euros(r.base_centimos)}${r.lineas.some((l) => l.precio_unitario_centimos === 0 && l.tipo !== "componente") ? ` <span style="color:#e0a030">⚠ ${t("linea_sin_precio", "línea sin precio")}</span>` : ""}</td>
+              <td><b>${euros(r.total_centimos)}</b></td></tr>`).join("")}</tbody></table>`).join("")
+          : `<p style="color:#9a8f7d">${t("sin_albaranes_pendientes_facturar", "No hay albaranes pendientes de facturar.")}</p>`}
+        <h3>${t("facturas_emitidas", "Facturas emitidas")}</h3>
+        ${tablaFacturas(facturas, true)}`;
+
+      cont.querySelector("#ir-empresa").onclick = () => irATab("empresa");
+      const selEmisor = cont.querySelector("#fac-emisor");
+      if (selEmisor) selEmisor.onchange = () => { estado.emisorFacturar = selEmisor.value; };
+      cont.querySelector("#fac-factor").onchange = async (e) => {
+        const factor = Number(e.target.value);
+        await api("/almacen/configuracion", { method: "PATCH", body: JSON.stringify({ factor_piezas: factor }) });
+        estado.factorPiezas = factor;
+      };
+      async function facturar(clienteId, repartoIds) {
+        const msg = () => document.getElementById("fac-msg");
+        async function intentar(permitir) {
+          return api("/facturas", { method: "POST", body: JSON.stringify({
+            cliente_id: clienteId, reparto_ids: repartoIds, permitir_lineas_a_cero: permitir,
+            emisor_id: estado.emisorFacturar ? Number(estado.emisorFacturar) : null }) });
+        }
+        try {
+          let f;
+          try { f = await intentar(false); }
+          catch (e) {
+            if (!String(e.message).startsWith("Hay lineas sin precio")) throw e;
+            if (!await confirmar(t("confirmar_facturar_a_cero", "{mensaje}\n\n¿Facturar igualmente esas líneas a 0 € (por ejemplo, si son gratuitas)?", { mensaje: e.message }))) return;
+            f = await intentar(true);
+          }
+          seleccion.clear();
+          await pintar();
+          if (msg()) msg().textContent = t("emitida_por", "Emitida {numero} por {total}.", { numero: f.numero, total: euros(f.total_centimos) });
+        } catch (e) { if (msg()) msg().textContent = e.message; else avisar(e.message); }
+      }
+      // Seleccion: por albaran, por cliente y todos a la vez. Las casillas de cliente y "todos"
+      // quedan marcadas, a medias o vacias segun lo elegido; la seleccion sobrevive al repintado.
+      const idsPorCliente = {};
+      pendientes.forEach((r) => { (idsPorCliente[r.cliente_id] = idsPorCliente[r.cliente_id] || []).push(r.id); });
+      function marca(chk, ids) {
+        const n = ids.filter((id) => seleccion.has(id)).length;
+        chk.checked = ids.length > 0 && n === ids.length;
+        chk.indeterminate = n > 0 && n < ids.length;
+      }
+      function sincronizar() {
+        const b = cont.querySelector("#fac-sel");
+        b.disabled = seleccion.size === 0; b.textContent = t("facturar_seleccionados_n", "Facturar seleccionados ({n})", { n: seleccion.size });
+        cont.querySelectorAll("[data-fac-sel]").forEach((c) => { c.checked = seleccion.has(Number(c.dataset.facSel)); });
+        cont.querySelectorAll("[data-fac-cliente]").forEach((c) => marca(c, idsPorCliente[c.dataset.facCliente] || []));
+        const todos = cont.querySelector("#fac-todos");
+        if (todos) marca(todos, pendientes.map((r) => r.id));
+      }
+      function fijar(ids, marcado) { ids.forEach((id) => { if (marcado) seleccion.add(id); else seleccion.delete(id); }); sincronizar(); }
+      cont.querySelectorAll("[data-fac-sel]").forEach((chk) => {
+        chk.onchange = () => fijar([Number(chk.dataset.facSel)], chk.checked);
+      });
+      cont.querySelectorAll("[data-fac-cliente]").forEach((chk) => {
+        chk.onchange = () => fijar(idsPorCliente[chk.dataset.facCliente] || [], chk.checked);
+      });
+      const todosChk = cont.querySelector("#fac-todos");
+      if (todosChk) todosChk.onchange = () => fijar(pendientes.map((r) => r.id), todosChk.checked);
+      sincronizar();
+      cont.querySelectorAll("[data-fac-todo]").forEach((btn) => {
+        btn.onclick = () => facturar(Number(btn.dataset.facTodo), null);
+      });
+      cont.querySelector("#fac-sel").onclick = async () => {
+        // una factura por cliente con lo seleccionado de cada uno
+        const porCli = {};
+        pendientes.filter((r) => seleccion.has(r.id)).forEach((r) => { (porCli[r.cliente_id] = porCli[r.cliente_id] || []).push(r.id); });
+        for (const [cid, ids] of Object.entries(porCli)) await facturar(Number(cid), ids);
+      };
+      enlazarFacturas(cont, facturas, pintar);
+    }
+    await pintar();
+  }
+
+  async function renderFacturas() {
+    const cont = document.getElementById("contenido");
+    async function pintar() {
+      const facturas = await api("/facturas?limite=200");
+      cont.innerHTML = `<h2>${t("tab_facturas", "Facturas")}</h2>
+        <p class="ayuda">${t("ayuda_facturas", 'Las facturas emitidas a tu empresa. "Ver / imprimir" abre la factura lista para imprimir o guardar como PDF. Si una factura se corrige, verás su rectificativa (RECT) y la nueva factura.')}</p>
+        ${tablaFacturas(facturas, false)}`;
+      enlazarFacturas(cont, facturas, pintar);
+    }
+    await pintar();
+  }
+
+  // ------------------------------------------------------------- productos
+
+  async function renderProductos() {
+    // Sesion 2026-09-15: el color deja de ser el producto (ver
+    // Documentacion/aladin_cambio BBDD.txt) -- ahora el producto tiene un
+    // codigo (3 car.) y un LED OPCIONAL. estado.colores viene de /colores
+    // (catalogo con alta/baja/RGB propios, pestaña Colores).
+    const [productos, colores] = await Promise.all([api("/productos"), api("/colores")]);
+    const usados = {};
+    productos.filter((p) => p.activo && p.id_led).forEach((p) => { usados[p.id_led] = p.id; });
+
+    // Lista desplegable en vez de bolitas de click (sesion 2026-09-15, a
+    // peticion del usuario: con muchos colores las bolitas no escalan).
+    // Un <option> no puede llevar un <span> de color de verdad (el
+    // navegador solo pinta el texto), asi que la "bolita" es un "●"
+    // delante del nombre, coloreado con el mismo style="color:" del
+    // option -- eso si lo respetan los navegadores. El propio <select>
+    // tambien se colorea al elegir, para verse igual cerrado que abierto.
+    function selectLed(idAttr, idLedSeleccionado, idProductoActual) {
+      const rgbDe = (c) => `rgb(${c.r},${c.g},${c.b})`;
+      const opciones = colores.filter((c) => c.activo).map((c) => {
+        const usadoPorOtro = usados[c.id] && usados[c.id] !== idProductoActual;
+        const etiqueta = `● ${c.nombre} (${c.codigo})${c.fisico ? "" : " · solo LED"}${usadoPorOtro ? " -- en uso" : ""}`;
+        return `<option value="${c.id}" data-rgb="${rgbDe(c)}" style="color:${rgbDe(c)}"
+          ${c.id === idLedSeleccionado ? "selected" : ""} ${usadoPorOtro ? "disabled" : ""}>${escapeHtml(etiqueta)}</option>`;
+      }).join("");
+      const seleccionado = colores.find((c) => c.id === idLedSeleccionado);
+      const colorInicial = seleccionado ? rgbDe(seleccionado) : "inherit";
+      return `<select id="${idAttr}" style="color:${colorInicial}" onchange="
+          this.style.color = this.selectedOptions[0].dataset.rgb || 'inherit';
+        "><option value="" style="color:inherit" ${idLedSeleccionado === null ? "selected" : ""}>${t("sin_led_op", "Sin LED")}</option>${opciones}</select>`;
+    }
+
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_productos", "Productos")}</h2>
+      <p class="ayuda">${t("ayuda_productos", 'El catálogo de qué se fabrica en general — p.ej. "Tornillos" o "Tuercas". Cada producto lleva un código corto y, si quieres, un <b>LED</b> asignado: es solo para verlo encendido de ese color en el brazo mientras lo fabrica, decorativo, no hace falta para que la producción funcione (un producto sin LED se fabrica exactamente igual). El "Grupo cadena" dice qué línea de producción fabrica ese producto por defecto cuando entra un pedido nuevo.')}</p>
+      <form class="alta" id="form-nuevo-producto">
+        <input id="pr-nombre" placeholder="${t("nombre_del_producto", "Nombre del producto")}" />
+        <input id="pr-codigo" placeholder="${t("codigo_3", "Código (3)")}" maxlength="3" style="width:4.5em;text-transform:uppercase" />
+        <span title="${t("titulo_led_opcional", "LED opcional: enciende este producto en el Loader/Sorter reales. Puedes no asignar ninguno.")}">${selectLed("pr-led-nuevo", null, null)}</span>
+        <label title="${t("titulo_grupo_cadena", "Grupo Cadena que fabrica este producto: sus pedidos nuevos nacen con este Nº Máquina, y solo los fabrican las cadenas de ese mismo grupo. 0 = cualquier cadena. Buena práctica: no uses para grupos los números que ya tengan las máquinas (p. ej. máquinas 1-49, grupos 50-99).")}">${t("grupo_cadena", "Grupo cadena")}
+          <input id="pr-grupo" type="number" min="0" max="99" value="0" style="width:4em" /></label>
+        <button type="submit">${t("crear", "Crear")}</button>
+        <span id="pr-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_led", "LED")}</th><th title="${t("titulo_grupo_cadena_corto", "Los pedidos nuevos de este producto nacen con este Nº Máquina (0 = cualquier cadena). No cambia los pedidos ya existentes.")}">${t("grupo_cadena", "Grupo cadena")}</th><th>${t("th_activo", "Activo")}</th><th></th></tr></thead>
+        <tbody>${productos.map((p) => `
+          <tr data-fila-producto="${p.id}">
+            <td>${p.id}</td>
+            <td><input value="${escapeHtml(p.nombre)}" data-campo="nombre" /></td>
+            <td><input value="${escapeHtml(p.codigo)}" data-campo="codigo" maxlength="3" style="width:4.5em;text-transform:uppercase" /></td>
+            <td>${selectLed(`pr-led-${p.id}`, p.id_led, p.id)}</td>
+            <td><input type="number" min="0" max="99" value="${p.grupo_cadena || 0}" data-campo="grupo_cadena" style="width:4em" /></td>
+            <td><input type="checkbox" data-campo="activo" ${p.activo ? "checked" : ""} /></td>
+            <td><button data-guardar="${p.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+
+    document.getElementById("form-nuevo-producto").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const nombre = document.getElementById("pr-nombre").value;
+      const codigo = document.getElementById("pr-codigo").value.toUpperCase();
+      try {
+        const grupo_cadena = parseInt(document.getElementById("pr-grupo").value || "0", 10);
+        if (Number.isNaN(grupo_cadena)) throw new Error(t("grupo_cadena_no_valido", "Grupo cadena no válido."));
+        const idLedTexto = document.getElementById("pr-led-nuevo").value;
+        const id_led = idLedTexto ? parseInt(idLedTexto, 10) : null;
+        await api("/productos", { method: "POST", body: JSON.stringify({ nombre, codigo, grupo_cadena, id_led }) });
+        renderProductos();
+      } catch (e) {
+        document.getElementById("pr-error").textContent = e.message;
+      }
+    };
+    cont.querySelectorAll("[data-guardar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-producto="${btn.dataset.guardar}"]`);
+        const nombre = fila.querySelector('[data-campo="nombre"]').value;
+        const codigo = fila.querySelector('[data-campo="codigo"]').value.toUpperCase();
+        const activo = fila.querySelector('[data-campo="activo"]').checked;
+        const grupo_cadena = parseInt(fila.querySelector('[data-campo="grupo_cadena"]').value || "0", 10);
+        const idLedTexto = document.getElementById(`pr-led-${btn.dataset.guardar}`).value;
+        const id_led = idLedTexto ? parseInt(idLedTexto, 10) : null;
+        try {
+          if (Number.isNaN(grupo_cadena)) throw new Error(t("grupo_cadena_no_valido", "Grupo cadena no válido."));
+          await api(`/productos/${btn.dataset.guardar}`, { method: "PATCH", body: JSON.stringify({ nombre, codigo, activo, grupo_cadena, id_led }) });
+          await cargarPaleta();
+          renderProductos();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // --------------------------------------------------------------- colores
+
+  async function renderColores() {
+    const colores = await api("/colores");
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_colores", "Colores")}</h2>
+      <p class="ayuda">${t("ayuda_colores", 'El catálogo de colores de LED que puedes asignar a un producto (pestaña Productos). Los que marques como "<b>físico</b>" existen de verdad como cubo de ese color en la simulación; el resto son solo luces decorativas, útiles para productos que no tienen un cubo real (por ejemplo, variantes que se distinguen solo por el nombre). Cada producto puede llevar como mucho un color asignado.')}</p>
+      <form class="alta" id="form-nuevo-color">
+        <input id="co-codigo" placeholder="${t("codigo_letras", "Código (letras)")}" maxlength="8" title="${t("titulo_solo_letras", "Solo letras -- se manda tal cual a la celda física para lanzar producción")}"
+               style="width:8em;text-transform:uppercase" />
+        <input id="co-nombre" placeholder="${t("nombre", "Nombre")}" />
+        <input id="co-r" type="number" min="0" max="255" placeholder="R" style="width:4.5em" />
+        <input id="co-g" type="number" min="0" max="255" placeholder="G" style="width:4.5em" />
+        <input id="co-b" type="number" min="0" max="255" placeholder="B" style="width:4.5em" />
+        <label><input id="co-fisico" type="checkbox" /> ${t("fisico_cubo_real", "físico (cubo real)")}</label>
+        <button type="submit">${t("crear", "Crear")}</button>
+        <span id="co-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_muestra", "Muestra")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_nombre", "Nombre")}</th><th>R</th><th>G</th><th>B</th><th>${t("th_fisico", "Físico")}</th><th>${t("th_activo", "Activo")}</th><th></th></tr></thead>
+        <tbody>${colores.map((c) => `
+          <tr data-fila-color="${c.id}">
+            <td>${c.id}</td>
+            <td><span class="bolita" style="background:rgb(${c.r},${c.g},${c.b})"></span></td>
+            <td><input value="${escapeHtml(c.codigo)}" data-campo="codigo" maxlength="8" style="width:6em;text-transform:uppercase" title="${t("titulo_solo_letras_corto", "Solo letras -- se manda tal cual a la celda física")}" /></td>
+            <td><input value="${escapeHtml(c.nombre)}" data-campo="nombre" /></td>
+            <td><input type="number" min="0" max="255" value="${c.r}" data-campo="r" style="width:4.5em" /></td>
+            <td><input type="number" min="0" max="255" value="${c.g}" data-campo="g" style="width:4.5em" /></td>
+            <td><input type="number" min="0" max="255" value="${c.b}" data-campo="b" style="width:4.5em" /></td>
+            <td><input type="checkbox" data-campo="fisico" ${c.fisico ? "checked" : ""} /></td>
+            <td><input type="checkbox" data-campo="activo" ${c.activo ? "checked" : ""} /></td>
+            <td><button data-guardar="${c.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+    document.getElementById("form-nuevo-color").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try {
+        const codigo = document.getElementById("co-codigo").value.toUpperCase();
+        const nombre = document.getElementById("co-nombre").value;
+        const r = parseInt(document.getElementById("co-r").value || "0", 10);
+        const g = parseInt(document.getElementById("co-g").value || "0", 10);
+        const b = parseInt(document.getElementById("co-b").value || "0", 10);
+        const fisico = document.getElementById("co-fisico").checked;
+        await api("/colores", { method: "POST", body: JSON.stringify({ codigo, nombre, r, g, b, fisico }) });
+        await cargarPaleta();
+        renderColores();
+      } catch (e) { document.getElementById("co-error").textContent = e.message; }
+    };
+    cont.querySelectorAll("[data-guardar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-color="${btn.dataset.guardar}"]`);
+        const cambios = {
+          codigo: fila.querySelector('[data-campo="codigo"]').value.toUpperCase(),
+          nombre: fila.querySelector('[data-campo="nombre"]').value,
+          r: parseInt(fila.querySelector('[data-campo="r"]').value || "0", 10),
+          g: parseInt(fila.querySelector('[data-campo="g"]').value || "0", 10),
+          b: parseInt(fila.querySelector('[data-campo="b"]').value || "0", 10),
+          fisico: fila.querySelector('[data-campo="fisico"]').checked,
+          activo: fila.querySelector('[data-campo="activo"]').checked,
+        };
+        try {
+          await api(`/colores/${btn.dataset.guardar}`, { method: "PATCH", body: JSON.stringify(cambios) });
+          await cargarPaleta();
+          renderColores();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // ----------------------------------------------------------- subproductos
+
+  async function renderSubproductos() {
+    const [subproductos, productos] = await Promise.all([api("/subproductos"), api("/productos")]);
+    const productoPorId = {};
+    productos.forEach((p) => { productoPorId[p.id] = p; });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_subproductos", "Subproductos")}</h2>
+      <p class="ayuda">${t("ayuda_subproductos", 'Las variantes concretas dentro de un producto — por ejemplo, dentro de "Tornillos" puedes tener "Tornillo 10mm" y "Tornillo 20mm" como subproductos distintos. Es lo que de verdad se pide en un pedido (no el producto suelto). El código completo, el que identifica la pieza del todo, se calcula solo juntando el código del producto y el del subproducto — no hace falta escribirlo tú. El <b>precio</b> (en euros, sin IVA) y el <b>IVA</b> se copian a cada pedido en el momento de pedirlo: si luego cambias la tarifa, los pedidos ya hechos y sus albaranes conservan el precio de entonces.')}</p>
+      <form class="alta" id="form-nuevo-subproducto">
+        <select id="sp-producto">${productos.filter((p) => p.activo).map((p) => `<option value="${p.id}">${escapeHtml(p.nombre)} (${escapeHtml(p.codigo)})</option>`).join("")}</select>
+        <input id="sp-nombre" placeholder="${t("nombre_ejemplo_subproducto", "Nombre (p.ej. Tornillo 10mm)")}" />
+        <input id="sp-codigo" placeholder="${t("codigo_4", "Código (4)")}" maxlength="4" style="width:5em;text-transform:uppercase" />
+        <input id="sp-precio" type="number" min="0" step="0.01" placeholder="${t("precio_euros", "Precio €")}" style="width:6em" />
+        <input id="sp-iva" type="number" min="0" max="100" value="21" title="${t("th_iva_pct", "IVA %")}" style="width:4em" />
+        <button type="submit">${t("crear", "Crear")}</button>
+        <span id="sp-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_codigo_completo", "Código completo")}</th><th>${t("th_precio_eur", "Precio €")}</th><th>${t("th_iva_pct", "IVA %")}</th><th>${t("th_activo", "Activo")}</th><th></th></tr></thead>
+        <tbody>${subproductos.map((s) => `
+          <tr data-fila-subproducto="${s.id}">
+            <td>${s.id}</td>
+            <td>${escapeHtml((productoPorId[s.producto_id] || {}).nombre || "?")}</td>
+            <td><input value="${escapeHtml(s.nombre)}" data-campo="nombre" /></td>
+            <td><input value="${escapeHtml(s.codigo)}" data-campo="codigo" maxlength="4" style="width:5em;text-transform:uppercase" /></td>
+            <td><code>${escapeHtml(s.codigo_completo)}</code></td>
+            <td><input type="number" min="0" step="0.01" data-campo="precio" value="${(s.precio_centimos / 100).toFixed(2)}" style="width:6em" /></td>
+            <td><input type="number" min="0" max="100" data-campo="iva" value="${s.iva_porcentaje}" style="width:4em" /></td>
+            <td><input type="checkbox" data-campo="activo" ${s.activo ? "checked" : ""} /></td>
+            <td><button data-guardar="${s.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+    document.getElementById("form-nuevo-subproducto").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try {
+        const producto_id = parseInt(document.getElementById("sp-producto").value, 10);
+        const nombre = document.getElementById("sp-nombre").value;
+        const codigo = document.getElementById("sp-codigo").value.toUpperCase();
+        const precio_centimos = centimosDeTexto(document.getElementById("sp-precio").value);
+        const iva_porcentaje = parseInt(document.getElementById("sp-iva").value, 10);
+        await api("/subproductos", { method: "POST", body: JSON.stringify({ producto_id, nombre, codigo, precio_centimos, iva_porcentaje: Number.isFinite(iva_porcentaje) ? iva_porcentaje : 21 }) });
+        renderSubproductos();
+      } catch (e) { document.getElementById("sp-error").textContent = e.message; }
+    };
+    cont.querySelectorAll("[data-guardar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-subproducto="${btn.dataset.guardar}"]`);
+        const nombre = fila.querySelector('[data-campo="nombre"]').value;
+        const codigo = fila.querySelector('[data-campo="codigo"]').value.toUpperCase();
+        const activo = fila.querySelector('[data-campo="activo"]').checked;
+        const precio_centimos = centimosDeTexto(fila.querySelector('[data-campo="precio"]').value);
+        const iva_porcentaje = parseInt(fila.querySelector('[data-campo="iva"]').value, 10);
+        try {
+          await api(`/subproductos/${btn.dataset.guardar}`, { method: "PATCH", body: JSON.stringify({ nombre, codigo, activo, precio_centimos, iva_porcentaje: Number.isFinite(iva_porcentaje) ? iva_porcentaje : 21 }) });
+          renderSubproductos();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // --------------------------------------------------------------- paquetes
+
+  async function renderPaquetes() {
+    const [paquetes, subproductos] = await Promise.all([api("/paquetes"), api("/subproductos")]);
+    const cont = document.getElementById("contenido");
+    const filasComponente = () => `
+      <div class="fila-componente" style="display:flex;gap:6px;margin:3px 0">
+        <select data-comp-subproducto>${subproductos.filter((s) => s.activo).map((s) => `<option value="${s.id}">${escapeHtml(s.codigo_completo)} · ${escapeHtml(s.nombre)}</option>`).join("")}</select>
+        <input data-comp-cantidad type="number" min="1" value="1" style="width:5em" placeholder="${t("th_cantidad", "Cantidad")}" />
+        <button type="button" data-quitar-fila>✕</button>
+      </div>`;
+    cont.innerHTML = `
+      <h2>${t("tab_paquetes", "Paquetes")}</h2>
+      <p class="ayuda">${t("ayuda_paquetes", 'Un pack cerrado de varias piezas a la vez — por ejemplo, "Paquete de 10" podría llevar 10 tornillos + 10 tuercas + 10 arandelas. Cada paquete puede tener un <b>precio propio</b> (por paquete, sin IVA): se cobra ese precio y no la suma de sus productos, y en el albarán y la factura sale una línea del paquete con lo que lleva debajo, sin precio. Sin precio (vacío), se cobra la suma de sus productos. Un paquete se entrega siempre <b>entero</b>. Los paquetes nunca guardan stock propio: en cuanto alguien lo pide, por debajo se crea un pedido normal de cada pieza que lo compone, y esos sí que se fabrican/sirven como cualquier otro pedido.')}</p>
+      <form class="alta" id="form-nuevo-paquete" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;gap:8px">
+          <input id="pq-nombre" placeholder="${t("nombre_del_paquete", "Nombre del paquete")}" />
+          <input id="pq-codigo" placeholder="${t("th_codigo", "Código")}" style="width:6em;text-transform:uppercase" />
+          <input id="pq-precio" type="number" min="0" step="0.01" placeholder="${t("precio_eur_vacio_suma", "Precio € (vacío = suma)")}" style="width:11em" title="${t("titulo_precio_paquete_vacio", "Precio de UN paquete, sin IVA. Vacío: se cobra la suma de sus productos")}" />
+          <input id="pq-iva" type="number" min="0" max="100" value="21" title="${t("th_iva_pct", "IVA %")}" style="width:4em" />
+        </div>
+        <div id="pq-componentes">${filasComponente()}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button type="button" id="pq-anadir-fila">${t("mas_componente", "+ componente")}</button>
+          <button type="submit">${t("crear_paquete", "Crear paquete")}</button>
+        </div>
+        <span id="pq-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_componentes", "Componentes")}</th><th>${t("th_precio_eur", "Precio €")} <small style="font-weight:normal">(${t("vacio_igual_suma", "vacío = suma")})</small></th><th>${t("th_iva_pct", "IVA %")}</th><th>${t("th_activo", "Activo")}</th><th></th></tr></thead>
+        <tbody>${paquetes.map((pq) => `
+          <tr data-fila-paquete="${pq.id}">
+            <td>${pq.id}</td>
+            <td><input value="${escapeHtml(pq.nombre)}" data-campo="nombre" /></td>
+            <td><input value="${escapeHtml(pq.codigo)}" data-campo="codigo" style="width:6em;text-transform:uppercase" /></td>
+            <td>${pq.componentes.map((c) => `${escapeHtml(c.subproducto.nombre)} x${c.cantidad}`).join(", ")}</td>
+            <td><input type="number" min="0" step="0.01" data-campo="precio" value="${pq.precio_centimos === null ? "" : (pq.precio_centimos / 100).toFixed(2)}" placeholder="${t("suma", "suma")}" style="width:7em" /></td>
+            <td><input type="number" min="0" max="100" data-campo="iva" value="${pq.iva_porcentaje}" style="width:4em" /></td>
+            <td><input type="checkbox" data-campo="activo" ${pq.activo ? "checked" : ""} /></td>
+            <td><button data-guardar="${pq.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+
+    function activarFila(fila) {
+      fila.querySelector("[data-quitar-fila]").onclick = () => {
+        if (document.querySelectorAll(".fila-componente").length > 1) fila.remove();
+      };
+    }
+    document.querySelectorAll(".fila-componente").forEach(activarFila);
+    document.getElementById("pq-anadir-fila").onclick = () => {
+      const div = document.createElement("div");
+      div.innerHTML = filasComponente();
+      const nueva = div.firstElementChild;
+      document.getElementById("pq-componentes").appendChild(nueva);
+      activarFila(nueva);
+    };
+    document.getElementById("form-nuevo-paquete").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try {
+        const nombre = document.getElementById("pq-nombre").value;
+        const codigo = document.getElementById("pq-codigo").value.toUpperCase();
+        const componentes = [...document.querySelectorAll(".fila-componente")].map((fila) => ({
+          subproducto_id: parseInt(fila.querySelector("[data-comp-subproducto]").value, 10),
+          cantidad: parseInt(fila.querySelector("[data-comp-cantidad]").value || "1", 10),
+        }));
+        const textoPrecio = document.getElementById("pq-precio").value.trim();
+        const iva = parseInt(document.getElementById("pq-iva").value, 10);
+        await api("/paquetes", { method: "POST", body: JSON.stringify({ nombre, codigo, componentes,
+          precio_centimos: textoPrecio === "" ? null : centimosDeTexto(textoPrecio), iva_porcentaje: Number.isFinite(iva) ? iva : 21 }) });
+        renderPaquetes();
+      } catch (e) { document.getElementById("pq-error").textContent = e.message; }
+    };
+    cont.querySelectorAll("[data-guardar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-paquete="${btn.dataset.guardar}"]`);
+        const nombre = fila.querySelector('[data-campo="nombre"]').value;
+        const codigo = fila.querySelector('[data-campo="codigo"]').value.toUpperCase();
+        const activo = fila.querySelector('[data-campo="activo"]').checked;
+        const textoPrecio = fila.querySelector('[data-campo="precio"]').value.trim();
+        const iva = parseInt(fila.querySelector('[data-campo="iva"]').value, 10);
+        try {
+          await api(`/paquetes/${btn.dataset.guardar}`, { method: "PATCH", body: JSON.stringify({ nombre, codigo, activo,
+            precio_centimos: textoPrecio === "" ? null : centimosDeTexto(textoPrecio), iva_porcentaje: Number.isFinite(iva) ? iva : 21 }) });
+          renderPaquetes();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // -------------------------------------------------------------- catalogo
+
+  async function renderCatalogo() {
+    const cont = document.getElementById("contenido");
+    let clientes = [];
+    if (estado.yo.rol === ROLES.ADMIN_SISTEMA) {
+      clientes = await api("/clientes");
+    } else {
+      clientes = [await obtenerMiCliente()];
+    }
+    cont.innerHTML = `
+      <h2>${t("tab_catalogo", "Catálogo")}</h2>
+      <p class="ayuda">${t("ayuda_catalogo", 'Aquí se decide qué productos puede pedir cada cliente. Si un producto no está marcado aquí para un cliente en concreto, esa empresa ni lo verá en el desplegable de "Nuevo pedido" — así cada cliente solo ve lo suyo.')}</p>
+      ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<select id="cat-cliente"><option value="">${t("elige_un_cliente", "Elige un cliente...")}</option>${clientes.map((c) =>
+        `<option value="${c.id}">${escapeHtml(etiquetaCliente(c))}</option>`).join("")}</select>` : ""}
+      <div id="cat-detalle"></div>`;
+    if (estado.yo.rol === ROLES.ADMIN_SISTEMA) {
+      document.getElementById("cat-cliente").onchange = (e) => pintarDetalleCatalogo(Number(e.target.value) || null);
+    } else {
+      pintarDetalleCatalogo(clientes[0].id);
+    }
+  }
+
+  async function obtenerMiCliente() {
+    const clientes = await api("/clientes");
+    return clientes[0];
+  }
+
+  async function pintarDetalleCatalogo(clienteId) {
+    const det = document.getElementById("cat-detalle");
+    if (!clienteId) { det.innerHTML = ""; return; }
+    const [cliente, todosProductos, asignados] = await Promise.all([
+      api("/clientes").then((cs) => cs.find((c) => c.id === clienteId)),
+      api("/productos"),
+      api(`/clientes/${clienteId}/productos`),
+    ]);
+    const idsAsignados = new Set(asignados.map((p) => p.id));
+    det.innerHTML = `
+      ${estado.yo.rol === ROLES.ADMIN_CLIENTE ? `
+        <form class="alta" id="form-empresa">
+          <label>${t("razon_social", "Razón social")} <input id="emp-razon" value="${escapeHtml(cliente.razon_social)}" /></label>
+          <label>${t("cif", "CIF")} <input id="emp-cif" value="${escapeHtml(cliente.cif || "")}" /></label>
+          <button type="submit">${t("guardar", "Guardar")}</button>
+        </form>` : ""}
+      <h3>${t("productos_activos", "Productos activos")}</h3>
+      <div>${(await api("/productos")).filter((p) => p.activo).map((p) => `
+        <label style="margin-right:14px">
+          <input type="checkbox" data-cat-producto="${p.id}" ${idsAsignados.has(p.id) ? "checked" : ""} />
+          ${p.led_codigo ? `<span class="bolita" style="background:${(estado.paleta[p.led_codigo] || {}).rgb || "#888"}"></span>` : ""}
+          ${escapeHtml(p.nombre)} (${escapeHtml(p.codigo)})
+        </label>`).join("")}</div>`;
+    const formEmpresa = document.getElementById("form-empresa");
+    if (formEmpresa) {
+      formEmpresa.onsubmit = async (ev) => {
+        ev.preventDefault();
+        await api(`/clientes/${clienteId}`, { method: "PATCH", body: JSON.stringify({
+          razon_social: document.getElementById("emp-razon").value,
+          cif: document.getElementById("emp-cif").value,
+        }) });
+      };
+    }
+    det.querySelectorAll("[data-cat-producto]").forEach((chk) => {
+      chk.onchange = async () => {
+        const productoId = chk.dataset.catProducto;
+        if (chk.checked) {
+          await api(`/clientes/${clienteId}/productos`, { method: "POST", body: JSON.stringify({ producto_id: Number(productoId) }) });
+        } else {
+          await api(`/clientes/${clienteId}/productos/${productoId}`, { method: "DELETE" });
+        }
+      };
+    });
+  }
+
+  // -------------------------------------------------------------- usuarios
+
+  async function renderUsuarios() {
+    const [usuarios, clientes] = await Promise.all([
+      api("/usuarios"),
+      estado.yo.rol === ROLES.ADMIN_SISTEMA ? api("/clientes") : Promise.resolve([]),
+    ]);
+    const clientesPorId = {};
+    clientes.forEach((c) => { clientesPorId[c.id] = c; });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_usuarios", "Usuarios")}</h2>
+      <p class="ayuda">${t("ayuda_usuarios", 'Las personas que pueden entrar a este sistema. Un usuario "<b>Normal</b>" solo puede hacer pedidos y consultarlos; un "<b>Admin. cliente</b>" además gestiona el catálogo y los usuarios de su propia empresa; "<b>Admin. sistema</b>" lo ve y toca absolutamente todo, de todos los clientes. Si dejas el usuario <b>vacío</b>, se forma solo con el código del cliente y la sucursal (<b>mur-bilbao</b>, o <b>mur-admin</b> para un administrador de empresa).')}</p>
+      <form class="alta" id="form-nuevo-usuario">
+        <input id="us-username" placeholder="${t("usuario_vacio_automatico", "usuario (vacío = automático)")}" style="width:14em" title="${t("titulo_usuario_automatico", "Si lo dejas vacío se forma con el código del cliente y la sucursal: mur-bilbao (o mur-admin para un administrador de empresa).")}" />
+        <input id="us-nombre" placeholder="${t("nombre_completo_min", "nombre completo")}" required />
+        <select id="us-rol">
+          <option value="normal">${nombreRol("normal")}</option>
+          <option value="admin_cliente">${nombreRol("admin_cliente")}</option>
+        </select>
+        ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<select id="us-cliente">
+          <option value="">${t("elige_cliente_paren", "(elige cliente)")}</option>
+          ${clientes.map((c) => `<option value="${c.id}">${escapeHtml(etiquetaCliente(c))}</option>`).join("")}
+        </select>` : ""}
+        <input id="us-sucursal" placeholder="${t("sucursal_opcional", "sucursal (opcional)")}" />
+        <input id="us-password" type="password" placeholder="${t("contrasena_opcional", "contraseña (opcional)")}" />
+        <button type="submit">${t("crear", "Crear")}</button>
+        <span id="us-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_usuario", "Usuario")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_rol", "Rol")}</th>${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<th>${t("th_cliente", "Cliente")}</th>` : ""}<th>${t("th_sucursal", "Sucursal")}</th><th>${t("th_activo", "Activo")}</th><th>${t("th_nueva_password", "Nueva contraseña")}</th><th></th></tr></thead>
+        <tbody>${usuarios.map((u) => `
+          <tr data-fila-usuario="${u.id}">
+            <td>${u.id}</td>
+            <td>${escapeHtml(u.username)}</td>
+            <td><input data-campo="nombre_completo" value="${escapeHtml(u.nombre_completo)}" /></td>
+            <td><select data-campo="rol">
+              <option value="normal" ${u.rol === "normal" ? "selected" : ""}>${nombreRol("normal")}</option>
+              <option value="admin_cliente" ${u.rol === "admin_cliente" ? "selected" : ""}>${nombreRol("admin_cliente")}</option>
+              ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<option value="admin_sistema" ${u.rol === "admin_sistema" ? "selected" : ""}>${nombreRol("admin_sistema")}</option>` : ""}
+            </select></td>
+            ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<td>${escapeHtml(u.cliente_id ? etiquetaCliente(clientesPorId[u.cliente_id]) || ("#" + u.cliente_id) : "—")}</td>` : ""}
+            <td><input data-campo="sucursal" value="${escapeHtml(u.sucursal || "")}" /></td>
+            <td><input type="checkbox" data-campo="activo" ${u.activo ? "checked" : ""} /></td>
+            <td><input type="password" data-campo="password" placeholder="${t("sin_cambios_paren", "(sin cambios)")}" /></td>
+            <td><button data-guardar-usuario="${u.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+
+    document.getElementById("form-nuevo-usuario").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try {
+        await api("/usuarios", { method: "POST", body: JSON.stringify({
+          username: document.getElementById("us-username").value || null,
+          nombre_completo: document.getElementById("us-nombre").value,
+          rol: document.getElementById("us-rol").value,
+          cliente_id: estado.yo.rol === ROLES.ADMIN_SISTEMA
+            ? (Number(document.getElementById("us-cliente").value) || null) : undefined,
+          sucursal: document.getElementById("us-sucursal").value || null,
+          password: document.getElementById("us-password").value || null,
+        }) });
+        renderUsuarios();
+      } catch (e) { document.getElementById("us-error").textContent = e.message; }
+    };
+    cont.querySelectorAll("[data-guardar-usuario]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-usuario="${btn.dataset.guardarUsuario}"]`);
+        const payload = {
+          nombre_completo: fila.querySelector('[data-campo="nombre_completo"]').value,
+          rol: fila.querySelector('[data-campo="rol"]').value,
+          sucursal: fila.querySelector('[data-campo="sucursal"]').value || null,
+          activo: fila.querySelector('[data-campo="activo"]').checked,
+        };
+        const password = fila.querySelector('[data-campo="password"]').value;
+        if (password) payload.password = password;
+        try {
+          await api(`/usuarios/${btn.dataset.guardarUsuario}`, { method: "PATCH", body: JSON.stringify(payload) });
+          renderUsuarios();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // -------------------------------------------------------------- clientes
+
+  async function renderClientes() {
+    const clientes = await api("/clientes");
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_clientes", "Clientes")}</h2>
+      <p class="ayuda">${t("ayuda_clientes", "Las empresas que usan este sistema para pedir producción. Cada cliente es un mundo aparte — sus propios usuarios, su propio catálogo de productos permitidos (pestaña Catálogo) y sus propios pedidos, sin mezclarse con los de otro cliente. Al crear uno nuevo aquí se crea a la vez su primer usuario administrador. Los datos fiscales (dirección, email de facturación) son opcionales ahora, pero harán falta en cuanto se emitan facturas. El <b>código</b> del cliente (3 letras, por ejemplo <b>MUR</b>) es el que da nombre a sus usuarios: <b>mur-admin</b> para el administrador y <b>mur-bilbao</b> para la sucursal de Bilbao, así dos clientes pueden tener cada uno su sucursal de Bilbao sin chocar.")}</p>
+      <form class="alta" id="form-nuevo-cliente">
+        <input id="cl-razon" placeholder="${t("razon_social", "Razón social")}" required />
+        <input id="cl-codigo" placeholder="${t("codigo_3", "Código (3)")}" maxlength="3" style="width:5.5em;text-transform:uppercase" title="${t("titulo_codigo_cliente", "3 letras o cifras (por ejemplo MUR). Si lo dejas vacío se saca de la razón social. De él salen los usuarios: mur-admin, mur-bilbao…")}" />
+        <input id="cl-cif" placeholder="${t("cif_opcional", "CIF (opcional)")}" />
+        <input id="cl-direccion" placeholder="${t("direccion_opcional", "Dirección (opcional)")}" />
+        <input id="cl-cp" placeholder="${t("cp_abrev", "C.P.")}" style="width:5em" />
+        <input id="cl-poblacion" placeholder="${t("poblacion", "Población")}" />
+        <input id="cl-provincia" placeholder="${t("provincia", "Provincia")}" />
+        <input id="cl-email" type="email" placeholder="${t("email_facturacion", "Email facturación")}" />
+        <input id="cl-username" placeholder="${t("usuario_primer_admin", "Usuario del primer admin (vacío = código-admin)")}" style="width:18em" />
+        <input id="cl-nombre" placeholder="${t("nombre_primer_admin", "Nombre del primer admin")}" required />
+        <input id="cl-password" type="password" placeholder="${t("contrasena_opcional_cap", "Contraseña (opcional)")}" />
+        <button type="submit">${t("crear", "Crear")}</button>
+        <span id="cl-error" style="color:#c0392b"></span>
+      </form>
+      <table>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_codigo", "Código")}</th><th>${t("razon_social", "Razón social")}</th><th>${t("cif", "CIF")}</th><th>${t("th_direccion", "Dirección")}</th><th>${t("cp_abrev", "C.P.")}</th><th>${t("poblacion", "Población")}</th><th>${t("provincia", "Provincia")}</th><th>${t("email_facturacion", "Email facturación")}</th><th>${t("th_activo", "Activo")}</th><th></th></tr></thead>
+        <tbody>${clientes.map((c) => `
+          <tr data-fila-cliente="${c.id}">
+            <td>${c.id}</td>
+            <td><input data-campo="codigo" value="${escapeHtml(c.codigo || "")}" maxlength="3" style="width:4em;text-transform:uppercase" /></td>
+            <td><input data-campo="razon_social" value="${escapeHtml(c.razon_social)}" /></td>
+            <td><input data-campo="cif" value="${escapeHtml(c.cif || "")}" /></td>
+            <td><input data-campo="direccion" value="${escapeHtml(c.direccion || "")}" /></td>
+            <td><input data-campo="codigo_postal" value="${escapeHtml(c.codigo_postal || "")}" style="width:5em" /></td>
+            <td><input data-campo="poblacion" value="${escapeHtml(c.poblacion || "")}" /></td>
+            <td><input data-campo="provincia" value="${escapeHtml(c.provincia || "")}" /></td>
+            <td><input data-campo="email_facturacion" value="${escapeHtml(c.email_facturacion || "")}" /></td>
+            <td><input type="checkbox" data-campo="activo" ${c.activo ? "checked" : ""} /></td>
+            <td><button data-guardar-cliente="${c.id}">${t("guardar", "Guardar")}</button></td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+
+    document.getElementById("form-nuevo-cliente").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try {
+        await api("/clientes", { method: "POST", body: JSON.stringify({
+          razon_social: document.getElementById("cl-razon").value,
+          codigo: document.getElementById("cl-codigo").value || null,
+          cif: document.getElementById("cl-cif").value || null,
+          direccion: document.getElementById("cl-direccion").value || null,
+          codigo_postal: document.getElementById("cl-cp").value || null,
+          poblacion: document.getElementById("cl-poblacion").value || null,
+          provincia: document.getElementById("cl-provincia").value || null,
+          email_facturacion: document.getElementById("cl-email").value || null,
+          primer_usuario: {
+            username: document.getElementById("cl-username").value || null,
+            nombre_completo: document.getElementById("cl-nombre").value,
+            password: document.getElementById("cl-password").value || null,
+          },
+        }) });
+        renderClientes();
+      } catch (e) { document.getElementById("cl-error").textContent = e.message; }
+    };
+    cont.querySelectorAll("[data-guardar-cliente]").forEach((btn) => {
+      btn.onclick = async () => {
+        const fila = cont.querySelector(`tr[data-fila-cliente="${btn.dataset.guardarCliente}"]`);
+        try {
+          await api(`/clientes/${btn.dataset.guardarCliente}`, { method: "PATCH", body: JSON.stringify({
+            razon_social: fila.querySelector('[data-campo="razon_social"]').value,
+            codigo: fila.querySelector('[data-campo="codigo"]').value || null,
+            cif: fila.querySelector('[data-campo="cif"]').value || null,
+            direccion: fila.querySelector('[data-campo="direccion"]').value || null,
+            codigo_postal: fila.querySelector('[data-campo="codigo_postal"]').value || null,
+            poblacion: fila.querySelector('[data-campo="poblacion"]').value || null,
+            provincia: fila.querySelector('[data-campo="provincia"]').value || null,
+            email_facturacion: fila.querySelector('[data-campo="email_facturacion"]').value || null,
+            activo: fila.querySelector('[data-campo="activo"]').checked,
+          }) });
+          renderClientes();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // --------------------------------------------------------------- almacen
+
+  async function renderAlmacen() {
+    const [config, stock, movimientos, productos, pedidos] = await Promise.all([
+      api("/almacen/configuracion"), api("/stock"), api("/movimientos_stock"), api("/productos"),
+      api("/pedidos"),
+    ]);
+    const productosPorId = {};
+    productos.forEach((p) => { productosPorId[p.id] = p; });
+    // Desglose por subproducto (sesion 2026-09-15, a peticion del usuario:
+    // "almacen tambien tiene que estar desglosado en subproductos") -- el
+    // stock fisico sigue siendo por producto (no se puede distinguir un
+    // Clavo de 10 de uno de 20 una vez en el almacen), pero se puede
+    // mostrar cuanto de ese stock hace falta para cada variante pendiente,
+    // igual que en el resumen del panel de control.
+    const ACTIVOS = ["pendiente", "en_proceso"];
+    const pendientePorProducto = {};
+    pedidos.filter((p) => ACTIVOS.includes(p.estado)).forEach((p) => {
+      const restante = p.cantidad_pedida - p.cantidad_completada;
+      if (restante <= 0) return;
+      const porSub = pendientePorProducto[p.producto_id] || (pendientePorProducto[p.producto_id] = {});
+      porSub[p.subproducto.nombre] = (porSub[p.subproducto.nombre] || 0) + restante;
+    });
+    // Orden logico: por codigo de producto, no por orden de alta en la BBDD.
+    const stockOrdenado = [...stock].sort((a, b) => a.producto.codigo.localeCompare(b.producto.codigo));
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_almacen", "Almacén")}</h2>
+      <p class="ayuda">${t("ayuda_almacen", "El stock de piezas ya fabricadas y guardadas, listas para servir sin esperar a que la celda las haga de nuevo. Aquí se ve y se ajusta a mano lo que hay guardado. Repartir ese stock entre los pedidos (asignarlo y entregarlo, con su albarán) se hace en la pestaña <b>Reparto</b>, donde están también los interruptores automáticos. Los \"Movimientos\" de más abajo son el histórico de cada entrada y salida, por si algún día hay que rastrear de dónde salió o a dónde fue una pieza.")}</p>
+      <h3>${t("stock", "Stock")}</h3>
+      <table>
+        <thead><tr><th>${t("th_producto", "Producto")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_actualizado", "Actualizado")}</th><th></th></tr></thead>
+        <tbody>${stockOrdenado.map((s) => {
+          const porSub = pendientePorProducto[s.producto_id] || {};
+          // Una fila propia por variante pendiente (sesion 2026-09-15, a
+          // peticion del usuario: "en almacen me gustaria ver como en
+          // panel de control en resumen por producto, en varias lineas")
+          // -- mismo estilo que el resumen de teleop_gui.py, no todo en
+          // una linea con comas.
+          const filasSub = Object.entries(porSub).sort(([a], [b]) => a.localeCompare(b))
+            .map(([nombre, cantidad]) => `
+              <tr>
+                <td colspan="5" style="color:#9a8f7d;padding-left:2em">· ${t("pendientes_n", "{nombre}: {n} pendiente(s)", { nombre: escapeHtml(nombre), n: cantidad })}</td>
+              </tr>`).join("");
+          return `
+          <tr>
+            <td>${escapeHtml(s.producto.nombre)}</td>
+            <td>${escapeHtml(s.producto.codigo)}</td>
+            <td>${s.cantidad_actual}</td>
+            <td>${fechaLocal(s.actualizado_en)}</td>
+            <td>
+              <input type="number" min="1" value="1" style="width:60px" data-cant="${s.producto_id}" />
+              <button data-anadir="${s.producto_id}">${t("anadir_a_stock", "Añadir a stock")}</button>
+              <button data-quitar="${s.producto_id}">${t("quitar_de_stock", "Quitar de stock")}</button>
+            </td>
+          </tr>${filasSub}`;
+        }).join("")}</tbody>
+      </table>
+      <h3>${t("movimientos", "Movimientos")}</h3>
+      <table>
+        <thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_tipo", "Tipo")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_motivo", "Motivo")}</th><th>${t("th_pedido", "Pedido")}</th></tr></thead>
+        <tbody>${movimientos.map((m) => `
+          <tr>
+            <td>${fechaLocal(m.fecha)}</td>
+            <td>${escapeHtml((productosPorId[m.producto_id] || {}).nombre || m.producto_id)}</td>
+            <td>${escapeHtml(m.tipo)}</td>
+            <td>${m.cantidad}</td>
+            <td>${escapeHtml(m.motivo)}</td>
+            <td>${m.pedido_id || "—"}</td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+
+    cont.querySelectorAll("[data-anadir]").forEach((btn) => {
+      btn.onclick = async () => {
+        const cantidad = Number(cont.querySelector(`[data-cant="${btn.dataset.anadir}"]`).value);
+        try {
+          await api("/almacen/ajustar", { method: "POST", body: JSON.stringify({ producto_id: Number(btn.dataset.anadir), cantidad }) });
+          renderAlmacen();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-quitar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const cantidad = Number(cont.querySelector(`[data-cant="${btn.dataset.quitar}"]`).value);
+        try {
+          await api("/almacen/quitar", { method: "POST", body: JSON.stringify({ producto_id: Number(btn.dataset.quitar), cantidad }) });
+          renderAlmacen();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+  }
+
+  // ----------------------------------------------------------- diagnostico
+
+  async function renderDiagnostico() {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_diagnostico", "Diagnóstico")}</h2>
+      <p class="ayuda">${t("ayuda_diagnostico", "Un vistazo a cómo está yendo la producción de verdad: cuántas piezas ha hecho cada producto, cuántas veces ha fallado el agarre, y si algo se ha quedado atascado sin arreglarse solo. Es información técnica para depurar la celda robótica — no hace falta mirarla para el día a día de pedir y servir producción.")}</p>
+      <select id="diag-ventana">
+        <option value="15">${t("15_minutos", "15 minutos")}</option>
+        <option value="60" selected>${t("1_hora", "1 hora")}</option>
+        <option value="360">${t("6_horas", "6 horas")}</option>
+        <option value="1440">${t("1_dia", "1 día")}</option>
+      </select>
+      <div id="diag-cuerpo"></div>`;
+    document.getElementById("diag-ventana").onchange = (e) => pintarDiagnostico(Number(e.target.value));
+    pintarDiagnostico(60);
+  }
+
+  async function pintarDiagnostico(minutos) {
+    const diag = await api(`/taller/diagnostico?ventana_minutos=${minutos}`);
+    const maximo = Math.max(1, ...diag.por_color.map((c) =>
+      Math.max(c.piezas_reales, c.led_loader, c.led_sorter, c.agarre_falso, c.limite_alcance, c.fallo_definitivo)));
+    function barra(etiqueta, valor, color) {
+      return `<div class="barra-diag"><span class="etiqueta">${escapeHtml(etiqueta)}</span>
+        <div class="fondo"><div class="relleno" style="width:${(valor / maximo) * 100}%;background:${color}"></div></div>
+        <span>${valor}</span></div>`;
+    }
+    const cuerpo = document.getElementById("diag-cuerpo");
+    cuerpo.innerHTML = `
+      ${diag.por_color.map((c) => `
+        <div style="border:1px solid #444;border-radius:6px;padding:10px;margin:10px 0">
+          <h3>${escapeHtml(c.producto_nombre)} ${c.color ? `(${escapeHtml(c.color)})` : `(${t("sin_led_op", "Sin LED")})`}
+            <span class="pill" style="border-color:${COLOR_ESTADO[c.estado] || "#444"};color:${COLOR_ESTADO[c.estado] || "#eaeaea"}">${escapeHtml(c.estado)}</span>
+          </h3>
+          ${barra(t("piezas_reales", "Piezas reales"), c.piezas_reales, "#2e9e3b")}
+          ${barra(t("led_loader", "LED Loader"), c.led_loader, "#1f5a8a")}
+          ${barra(t("led_sorter", "LED Sorter"), c.led_sorter, "#6a3ea1")}
+          ${barra(t("agarre_falso", "Agarre falso"), c.agarre_falso, "#c0392b")}
+          ${barra(t("limite_de_alcance", "Límite de alcance"), c.limite_alcance, "#e07b39")}
+          ${barra(t("fallo_definitivo", "Fallo definitivo"), c.fallo_definitivo, "#ff4d4d")}
+          <div style="font-size:12px;color:#999">${t("piezas_totales_historicas", "Piezas totales históricas")}: ${c.piezas_reales_total}</div>
+        </div>`).join("")}
+      <h3>${t("ultimos_eventos", "Últimos eventos")}</h3>
+      <table><thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_robot", "Robot")}</th><th>${t("th_color", "Color")}</th><th>${t("th_tipo", "Tipo")}</th></tr></thead>
+        <tbody>${diag.eventos_recientes.map((e) => `
+          <tr><td>${fechaLocal(e.fecha)}</td><td>${escapeHtml(e.robot)}</td><td>${escapeHtml(e.color)}</td><td>${escapeHtml(e.tipo)}</td></tr>`).join("")}</tbody>
+      </table>`;
+  }
+
+  // ------------------------------------------------------------- auditoria
+
+  async function renderAuditoria() {
+    const filas = await api("/audit");
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `
+      <h2>${t("tab_auditoria", "Auditoría")}</h2>
+      <p class="ayuda">${t("ayuda_auditoria", "El registro de quién ha tocado qué y cuándo: cada alta, cambio o baja de las demás pestañas queda apuntada aquí con su fecha y su usuario, por si algún día hace falta reconstruir qué pasó.")}</p>
+      <table>
+        <thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_tabla", "Tabla")}</th><th>${t("th_registro", "Registro")}</th><th>${t("th_accion", "Acción")}</th><th>${t("th_usuario", "Usuario")}</th><th>${t("th_detalle", "Detalle")}</th></tr></thead>
+        <tbody>${filas.map((f) => `
+          <tr>
+            <td>${fechaLocal(f.fecha)}</td><td>${escapeHtml(f.tabla)}</td><td>${f.registro_id}</td>
+            <td>${escapeHtml(f.accion)}</td><td>${f.usuario_id || "—"}</td><td>${escapeHtml(f.detalle || "")}</td>
+          </tr>`).join("")}</tbody>
+      </table>`;
+  }
+
+  // -------------------------------------------------------------- arranque
+
+  document.getElementById("btn-login").onclick = iniciarSesion;
+  document.getElementById("login-password").addEventListener("keydown", (e) => { if (e.key === "Enter") iniciarSesion(); });
+  document.getElementById("btn-salir").onclick = cerrarSesion;
+
+  (async function mostrarVersion() {
+    try {
+      const { version } = await api("/version");
+      document.getElementById("vr-version").textContent = `Ver. ${version}`;
+    } catch (e) { /* sin version disponible: se deja el hueco vacio */ }
+  })();
+
+  // Selector de idioma: ES/EN/EU de verdad (sesion 2026-09-22), ver aplicarIdioma()
+  // e inicializarSelectorIdioma() mas arriba y el diccionario en i18n_panel.js.
+  inicializarSelectorIdioma();
+
+  (async function inicio() {
+    if (restaurarSesion()) {
+      try {
+        estado.yo = await api("/me");
+        await cargarPaleta();
+        mostrarApp();
+        return;
+      } catch (e) { /* sesion muerta: api() ya nos ha devuelto al login */ }
+    }
+    mostrarLogin();
+  })();
+})();
+</script>
+</body>
+</html>

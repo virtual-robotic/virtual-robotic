@@ -1,0 +1,14 @@
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+# Numero de maquina configurado en el panel de control -- estado local de
+# CADA celda, no del codigo (un fichero por hostname de contenedor, ya
+# que ros2_ws se comparte entre lineas -- ver teleop_gui.py).
+ros2_ws/config_maquina_*.json
+# Que cadena tiene asignada cada Raspberry Pi Pico (compartido entre
+# lineas, pestaña Configuracion del panel -- ver teleop_gui.py).
+ros2_ws/pico_asignacion.json
+**/__pycache__/
+*.pyc
+worlds/.panda_bolas.wbproj
+.vscode/
