@@ -12,8 +12,8 @@ bezala eramaten dituen webgune bat.
 
 **Gelaxka lanean ikusteko bideoak** (30 segundo bakoitza; sakatu irudia ikusteko):
 
-[![Bideoa: Loaderrak kuboak uhalean uzten ditu eta Sorterrak jaso eta kolorearen arabera sailkatzen ditu](Virtual_Robotic/img/celda_trabajando_1.jpg)](Virtual_Robotic/img/celda_trabajando_1.mp4)
-[![Bideoa: bi besoak aldi berean lanean simulazioan](Virtual_Robotic/img/celda_trabajando_2.jpg)](Virtual_Robotic/img/celda_trabajando_2.mp4)
+[![Bideoa: Loaderrak kuboak uhalean uzten ditu eta Sorterrak jaso eta kolorearen arabera sailkatzen ditu](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
+[![Bideoa: bi besoak aldi berean lanean simulazioan](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
 ## Zer dago hemen
 

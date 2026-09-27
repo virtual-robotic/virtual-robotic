@@ -10,10 +10,10 @@ como si fuera un taller real.
 
 ![Los dos brazos robóticos trabajando sobre la cinta, con cubos de colores y las ventanas de las cámaras de visión artificial](Virtual_Robotic/img/webots_cell.jpg)
 
-**Vídeos de la celda trabajando** (30 segundos cada uno; pulsa la imagen para verlo):
+**Vídeos de la celda trabajando** (30 segundos cada uno; se mueven solos; si pulsas uno, te bajas el vídeo en buena calidad):
 
-[![Vídeo: el Loader deja los cubos en la cinta y el Sorter los recoge y los clasifica por color](Virtual_Robotic/img/celda_trabajando_1.jpg)](Virtual_Robotic/img/celda_trabajando_1.mp4)
-[![Vídeo: los dos brazos trabajando a la vez en la simulación](Virtual_Robotic/img/celda_trabajando_2.jpg)](Virtual_Robotic/img/celda_trabajando_2.mp4)
+[![Vídeo: el Loader deja los cubos en la cinta y el Sorter los recoge y los clasifica por color](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
+[![Vídeo: los dos brazos trabajando a la vez en la simulación](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
 ## Qué hay aquí
 

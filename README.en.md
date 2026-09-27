@@ -12,8 +12,8 @@ a real workshop.
 
 **Videos of the cell at work** (30 seconds each; click the picture to watch it):
 
-[![Video: the Loader puts the cubes on the belt and the Sorter picks them up and sorts them by colour](Virtual_Robotic/img/celda_trabajando_1.jpg)](Virtual_Robotic/img/celda_trabajando_1.mp4)
-[![Video: both arms working at the same time in the simulation](Virtual_Robotic/img/celda_trabajando_2.jpg)](Virtual_Robotic/img/celda_trabajando_2.mp4)
+[![Video: the Loader puts the cubes on the belt and the Sorter picks them up and sorts them by colour](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
+[![Video: both arms working at the same time in the simulation](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
 ## What is here
 
