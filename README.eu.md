@@ -1,4 +1,4 @@
-**Hizkuntza:** [Español](README.md) · [English](README.en.md) · Euskara
+**Hizkuntza:** [English](README.md) · [Español](README.es.md) · Euskara
 
 # Virtual Robotic
 
