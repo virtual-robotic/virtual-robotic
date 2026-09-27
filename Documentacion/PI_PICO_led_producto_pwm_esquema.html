@@ -1,0 +1,366 @@
+<!-- Version: 2026-09-18 14:59 -- PI_PICO_led_producto_pwm_esquema.html (migrado al diseno de marca, mismos tokens que PI_PICO_cableado_oled.html) -->
+<title>LED RGB por PWM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0e8;
+  --surface:#ffffff;
+  --surface-2:#f5f6f8;
+  --ink:#16211f;
+  --muted:#55655f;
+  --line:rgba(22,33,31,0.14);
+  --grid-line:rgba(0,0,0,0.07);
+  --accent:#a8461f;
+  --accent-soft:#f2dfc7;
+  --red:#c8433f;
+  --green:#2f8f5b;
+  --blue:#3572b8;
+  --ground:#6b7480;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Archivo',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101817;
+    --surface:#182322;
+    --surface-2:#20252d;
+    --ink:#eee7da;
+    --muted:#9fb0ac;
+    --line:rgba(238,231,218,0.14);
+    --grid-line:rgba(255,255,255,0.08);
+    --accent:#c9683c;
+    --accent-soft:#3a2c14;
+    --red:#ef6a66;
+    --green:#5cc98c;
+    --blue:#6fa8dd;
+    --ground:#9aa4b2;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101817;
+  --surface:#182322;
+  --surface-2:#20252d;
+  --ink:#eee7da;
+  --muted:#9fb0ac;
+  --line:rgba(238,231,218,0.14);
+  --grid-line:rgba(255,255,255,0.08);
+  --accent:#c9683c;
+  --accent-soft:#3a2c14;
+  --red:#ef6a66;
+  --green:#5cc98c;
+  --blue:#6fa8dd;
+  --ground:#9aa4b2;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.55;
+  display:flex;
+  justify-content:center;
+  padding:56px 20px 80px;
+  margin:0;
+}
+.page{
+  width:100%;
+  max-width:760px;
+  display:flex;
+  flex-direction:column;
+  gap:34px;
+}
+header{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:24px;
+}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+h1{
+  font-family:'Big Shoulders Display',sans-serif;
+  text-transform:uppercase;
+  font-size:clamp(28px,4vw,36px);
+  margin:0;
+  font-weight:600;
+  text-wrap:balance;
+  letter-spacing:-0.01em;
+}
+.dek{
+  color:var(--muted);
+  font-size:16px;
+  max-width:62ch;
+}
+
+p{margin:0 0 12px;max-width:66ch;}
+p:last-child{margin-bottom:0;}
+h2{
+  font-size:13px;
+  font-family:'Big Shoulders Display',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--muted);
+  margin:0 0 14px;
+  font-weight:500;
+}
+
+section{display:flex;flex-direction:column;}
+
+.panel{
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:20px;
+}
+
+figure{margin:0;}
+.schematic-frame{
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/28px 28px,
+    var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+}
+svg{display:block;width:100%;height:auto;color:var(--ink);}
+figcaption{
+  margin-top:14px;
+  font-size:14px;
+  color:var(--muted);
+}
+figcaption b{color:var(--ink);font-weight:600;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14.5px;
+}
+thead th{
+  text-align:left;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:500;
+  padding:0 12px 10px;
+  border-bottom:1px solid var(--line);
+}
+tbody td{
+  padding:12px;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+tbody tr:last-child td{border-bottom:none;}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.swatch{
+  display:inline-block;
+  width:10px;height:10px;
+  border-radius:50%;
+  margin-right:8px;
+  vertical-align:middle;
+}
+.chan{display:flex;align-items:center;font-weight:600;}
+.value{
+  font-family:var(--mono);
+  font-weight:600;
+  color:var(--accent);
+  white-space:nowrap;
+}
+.formula{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--muted);
+}
+
+.callout{
+  border-left:3px solid var(--accent);
+  background:var(--accent-soft);
+  border-radius:0 10px 10px 0;
+  padding:16px 18px;
+  font-size:14.5px;
+}
+.callout p{max-width:none;}
+.callout b{color:var(--ink);}
+
+code{
+  font-family:var(--mono);
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:0.9em;
+}
+
+footer{
+  color:var(--muted);
+  font-size:13px;
+  border-top:1px solid var(--line);
+  padding-top:18px;
+}
+
+/* ---------- Migas de pan (mismo patron que PI_PICO_cableado_oled.html) ---------- */
+.migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+.migas a { color: var(--muted); text-decoration: none; }
+.migas a:hover { color: var(--ink); }
+.migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+.migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<div class="page">
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <a href="PI_PICO_montaje.html">Montaje de las Pico</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">LED RGB por PWM</span>
+  </nav>
+
+  <header>
+    <span class="eyebrow">Rasberry_Pi_Pico_USB_Loader</span>
+    <h1>LED de producto: resistencias para PWM</h1>
+    <p class="dek">Antes había una sola resistencia de 220&nbsp;Ω en la pata común, válida porque solo se encendía un color a la vez. En PWM se mezclan los tres canales al mismo tiempo, así que cada uno necesita su propia resistencia — si no, se cargan entre sí y el color mezclado sale mal.</p>
+  </header>
+
+  <section>
+    <h2>Por qué cambia el cableado</h2>
+    <p>Con una resistencia compartida en el cátodo común, la corriente total de los tres LEDs internos pasa por la <b>misma</b> resistencia. Mientras solo hay un color encendido da igual — pero en cuanto PWM enciende dos o tres canales a la vez para mezclar un color, esa resistencia cae más voltaje del que le corresponde a cada canal, y el color mezclado se desvía (y cambia según cuántos canales estén encendidos a la vez, que es justo lo que no quieres si vas a mostrar tonos continuos).</p>
+    <p>La solución de siempre: <b>una resistencia por canal</b>, entre cada pin PWM y su LED — el cátodo común va directo a GND, sin resistencia.</p>
+  </section>
+
+  <section>
+    <h2>Esquema</h2>
+    <div class="panel schematic-frame">
+      <figure>
+        <svg viewBox="0 0 760 420" role="img" aria-label="Esquema: los pines GP16, GP17 y GP18 de la Pico salen cada uno por su propia resistencia (150, 68 y 68 ohmios) hacia las patas roja, verde y azul del LED; el cátodo común del LED y el pin GND de la Pico comparten el mismo nodo de tierra.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <!-- Pico board -->
+          <rect x="34" y="34" width="150" height="300" rx="14" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"/>
+          <text x="109" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="currentColor">Pico</text>
+          <text x="109" y="88" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="currentColor" opacity="0.6">USB Loader</text>
+
+          <!-- pin stubs from pico -->
+          <!-- GP16 row y=110 -->
+          <line x1="184" y1="110" x2="222" y2="110" stroke="var(--red)" stroke-width="2.4"/>
+          <text x="150" y="103" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP16</text>
+
+          <!-- GP17 row y=184 -->
+          <line x1="184" y1="184" x2="222" y2="184" stroke="var(--green)" stroke-width="2.4"/>
+          <text x="150" y="177" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP17</text>
+
+          <!-- GP18 row y=258 -->
+          <line x1="184" y1="258" x2="222" y2="258" stroke="var(--blue)" stroke-width="2.4"/>
+          <text x="150" y="251" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP18</text>
+
+          <!-- GND stub y=310 -->
+          <line x1="184" y1="310" x2="222" y2="310" stroke="var(--ground)" stroke-width="2.4"/>
+          <text x="150" y="303" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GND</text>
+          <line x1="222" y1="310" x2="222" y2="366" stroke="var(--ground)" stroke-width="2.2"/>
+
+          <!-- resistor boxes: R row y=110 -->
+          <rect x="222" y="99" width="58" height="22" rx="2" fill="none" stroke="var(--red)" stroke-width="2"/>
+          <text x="251" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--red)">150 Ω</text>
+          <line x1="280" y1="110" x2="446" y2="110" stroke="var(--red)" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+          <!-- G row y=184 -->
+          <rect x="222" y="173" width="58" height="22" rx="2" fill="none" stroke="var(--green)" stroke-width="2"/>
+          <text x="251" y="164" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--green)">68 Ω</text>
+          <line x1="280" y1="184" x2="446" y2="184" stroke="var(--green)" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+          <!-- B row y=258 -->
+          <rect x="222" y="247" width="58" height="22" rx="2" fill="none" stroke="var(--blue)" stroke-width="2"/>
+          <text x="251" y="238" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--blue)">68 Ω</text>
+          <line x1="280" y1="258" x2="446" y2="258" stroke="var(--blue)" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+          <!-- LED package -->
+          <rect x="446" y="80" width="120" height="200" rx="16" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"/>
+          <text x="506" y="66" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="currentColor">LED RGB (4 patas)</text>
+          <!-- emission ticks -->
+          <line x1="524" y1="70" x2="538" y2="56" stroke="currentColor" stroke-width="1.6" opacity="0.6" marker-end="url(#arrow)"/>
+          <line x1="542" y1="76" x2="556" y2="62" stroke="currentColor" stroke-width="1.6" opacity="0.6" marker-end="url(#arrow)"/>
+
+          <circle cx="446" cy="110" r="4.5" fill="var(--red)"/>
+          <text x="462" y="132" font-family="IBM Plex Mono" font-size="11" fill="var(--red)">R (ánodo)</text>
+          <circle cx="446" cy="184" r="4.5" fill="var(--green)"/>
+          <text x="462" y="206" font-family="IBM Plex Mono" font-size="11" fill="var(--green)">G (ánodo)</text>
+          <circle cx="446" cy="258" r="4.5" fill="var(--blue)"/>
+          <text x="462" y="280" font-family="IBM Plex Mono" font-size="11" fill="var(--blue)">B (ánodo)</text>
+
+          <!-- cathode from led bottom -->
+          <line x1="506" y1="280" x2="506" y2="366" stroke="var(--ground)" stroke-width="2.4"/>
+          <text x="516" y="300" font-family="IBM Plex Mono" font-size="11" fill="var(--ground)">cátodo común</text>
+
+          <!-- ground junction -->
+          <line x1="222" y1="366" x2="506" y2="366" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="364" y1="366" x2="364" y2="380" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="346" y1="380" x2="382" y2="380" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="352" y1="386" x2="376" y2="386" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="358" y1="392" x2="370" y2="392" stroke="var(--ground)" stroke-width="2.2"/>
+          <text x="364" y="410" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--ground)">GND común</text>
+
+        </svg>
+        <figcaption>Cada pin PWM (GP16/17/18) lleva su <b>propia</b> resistencia hacia su pata del LED; el cátodo común y el GND de la Pico comparten el mismo nodo — ya no hay una resistencia única compartida.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Valores por canal</h2>
+    <div class="panel" style="background:var(--surface);overflow-x:auto;">
+      <table>
+        <thead>
+          <tr><th>Canal</th><th>V<sub>f</sub> típica</th><th>Corriente objetivo</th><th>Cálculo</th><th>Resistencia</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="chan"><span class="swatch" style="background:var(--red)"></span>Rojo — GP16</td>
+            <td class="num">≈ 2.0 V</td>
+            <td class="num">≈ 9 mA</td>
+            <td class="formula">(3.3−2.0)/0.009</td>
+            <td class="value">150 Ω</td>
+          </tr>
+          <tr>
+            <td class="chan"><span class="swatch" style="background:var(--green)"></span>Verde — GP17</td>
+            <td class="num">≈ 3.0 V</td>
+            <td class="num">≈ 4–7 mA</td>
+            <td class="formula">(3.3−3.0)/0.005</td>
+            <td class="value">68 Ω</td>
+          </tr>
+          <tr>
+            <td class="chan"><span class="swatch" style="background:var(--blue)"></span>Azul — GP18</td>
+            <td class="num">≈ 3.0–3.2 V</td>
+            <td class="num">≈ 4–7 mA</td>
+            <td class="formula">(3.3−3.1)/0.005</td>
+            <td class="value">68 Ω</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px;color:var(--muted);font-size:14px;">Fórmula: R&nbsp;=&nbsp;(V<sub>Pico</sub>&nbsp;−&nbsp;V<sub>f</sub>)&nbsp;/&nbsp;I. La Pico entrega 3.3&nbsp;V tanto en digital como en PWM (el resistor solo ve la tensión de pico, no el duty cycle), así que el cálculo es idéntico al de un LED normal. El verde y el azul quedan con poco margen a 3.3&nbsp;V — <code>68&nbsp;Ω</code> es una opción prudente; si sale muy tenue, <code>47&nbsp;Ω</code> sigue siendo seguro.</p>
+  </section>
+
+  <div class="callout">
+    <p><b>Antes de dar la resistencia de 220&nbsp;Ω por sustituible sin más:</b> tal cual estaba (una sola resistencia en la pata común), el rojo salía más brillante que el verde/azul con el mismo valor — normal, decían el mismo número pero cada color caía distinto voltaje. Con una resistencia por canal puedes ahora ajustar el brillo de cada uno por separado si el mezclado de color no sale equilibrado a simple vista, sin miedo a desequilibrar los otros dos.</p>
+  </div>
+
+  <footer>Cátodo común asumido (igual que el LED de agarre existente, pines 13/14/15) — si el nuevo LED es de ánodo común, la lógica se invierte: la pata común va a 3V3, no a GND, y "encendido" pasa a ser <code>duty_u16</code> bajo en vez de alto.</footer>
+
+</div>

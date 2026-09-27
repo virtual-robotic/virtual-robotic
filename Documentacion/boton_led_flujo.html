@@ -1,0 +1,308 @@
+<!-- Version: 2026-09-18 14:57 -- boton_led_flujo.html (migrado a la paleta y tipografia de marca + migas de pan) -->
+<title>Botón Enciende el LED Rojo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --surface-2: #f4f5ef;
+    --ink: #16211f;
+    --ink-soft: #55655f;
+    --line: rgba(22,33,31,0.14);
+    --line-soft: rgba(22,33,31,0.08);
+    --accent: #a8461f;
+    --accent-ink: #ffffff;
+    --accent-wash: #f7e0d4;
+    --led: #d33636;
+    --led-wash: #f8dcdc;
+    --font-display: 'Big Shoulders Display', sans-serif;
+    --font-body: 'Archivo', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --surface-2: #1c2827;
+      --ink: #eee7da;
+      --ink-soft: #9fb0ac;
+      --line: rgba(238,231,218,0.14);
+      --line-soft: rgba(238,231,218,0.08);
+      --accent: #c9683c;
+      --accent-ink: #17202b;
+      --accent-wash: #3a2415;
+      --led: #ff6b6b;
+      --led-wash: #3a1c1c;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --surface-2: #1c2827;
+    --ink: #eee7da;
+    --ink-soft: #9fb0ac;
+    --line: rgba(238,231,218,0.14);
+    --line-soft: rgba(238,231,218,0.08);
+    --accent: #c9683c;
+    --accent-ink: #17202b;
+    --accent-wash: #3a2415;
+    --led: #ff6b6b;
+    --led-wash: #3a1c1c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(36px, 6vw, 56px);
+    letter-spacing: 0.01em;
+    margin: 2px 0 4px;
+    text-wrap: balance;
+  }
+
+  .dek {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    margin: 0;
+  }
+
+  section { margin-top: 40px; }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+    margin: 0 0 14px;
+  }
+
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--ink-soft); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--ink-soft); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+
+  figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 14px;
+  }
+
+  .diagram-scroll { overflow-x: auto; display: flex; justify-content: center; }
+
+  svg.schema {
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+  }
+
+  figcaption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    max-width: 70ch;
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  code { font-family: var(--font-mono); }
+
+  .kw { color: var(--accent); }
+  .cm { color: var(--ink-soft); font-style: italic; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .wiring {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  .wiring b { color: var(--ink); font-weight: 600; }
+
+  footer {
+    margin-top: 52px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+</style>
+
+<main>
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Botón enciende el LED rojo</span>
+  </nav>
+
+  <header>
+    <span class="eyebrow">Rasberry_Pi_Pico · MicroPython · prueba de hardware</span>
+    <h1>Botón Enciende el LED Rojo</h1>
+    <p class="dek">Diagrama de flujo del programa más simple posible para probar el cableado: mientras se mantiene pulsado el botón, el LED rojo está encendido; al soltarlo, se apaga.</p>
+  </header>
+
+  <section>
+    <h2>Diagrama de flujo</h2>
+    <figure>
+      <div class="diagram-scroll">
+        <svg class="schema" viewBox="0 0 380 620" role="img" aria-label="Diagrama de flujo: inicio, configurar pines, y un bucle infinito que lee el botón en GPIO16 y, si está pulsado (valor 0), enciende el LED rojo en GPIO13; si no, lo apaga; después vuelve a leer el botón.">
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+            </marker>
+          </defs>
+
+          <g font-family="IBM Plex Mono" font-size="12.5">
+
+            <!-- INICIO -->
+            <ellipse cx="190" cy="30" rx="60" ry="22" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="190" y="35" text-anchor="middle" font-weight="600">INICIO</text>
+            <line x1="190" y1="52" x2="190" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+
+            <!-- configurar pines -->
+            <rect x="80" y="80" width="220" height="52" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="190" y="102" text-anchor="middle">Configurar pines</text>
+            <text x="190" y="119" text-anchor="middle" font-size="11" opacity="0.65">LED rojo=OUT(13) · botón=IN(16) pull-up</text>
+
+            <line x1="190" y1="132" x2="190" y2="168" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+
+            <!-- loop label -->
+            <text x="330" y="185" font-size="11" fill="var(--accent)" text-anchor="middle">bucle</text>
+            <text x="330" y="199" font-size="11" fill="var(--accent)" text-anchor="middle">infinito</text>
+
+            <!-- leer boton -->
+            <rect x="90" y="170" width="200" height="46" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="190" y="198" text-anchor="middle">Leer botón (GPIO16)</text>
+
+            <line x1="190" y1="216" x2="190" y2="248" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+
+            <!-- decision -->
+            <polygon points="190,250 270,310 190,370 110,310" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1.5" />
+            <text x="190" y="305" text-anchor="middle" font-weight="600">¿botón == 0?</text>
+            <text x="190" y="321" text-anchor="middle" font-size="11" opacity="0.7">(pulsado)</text>
+
+            <!-- YES branch -->
+            <line x1="110" y1="310" x2="60" y2="310" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+            <text x="82" y="300" text-anchor="middle" font-size="11" fill="var(--led)" font-weight="600">sí</text>
+            <rect x="10" y="286" width="100" height="48" rx="4" fill="var(--led-wash)" stroke="var(--led)" stroke-width="1.5" />
+            <text x="60" y="306" text-anchor="middle" font-size="11.5">LED rojo</text>
+            <text x="60" y="322" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--led)">encendido</text>
+
+            <!-- NO branch -->
+            <line x1="270" y1="310" x2="320" y2="310" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+            <text x="298" y="300" text-anchor="middle" font-size="11" opacity="0.7">no</text>
+            <rect x="320" y="286" width="90" height="48" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" transform="translate(-30,0)" />
+            <text x="330" y="306" text-anchor="middle" font-size="11.5">LED rojo</text>
+            <text x="330" y="322" text-anchor="middle" font-size="11.5" font-weight="600">apagado</text>
+
+            <!-- merge both back down to loop -->
+            <line x1="60" y1="334" x2="60" y2="460" stroke="currentColor" stroke-width="1.5" />
+            <line x1="330" y1="334" x2="330" y2="460" stroke="currentColor" stroke-width="1.5" />
+            <line x1="60" y1="460" x2="190" y2="460" stroke="currentColor" stroke-width="1.5" />
+            <line x1="330" y1="460" x2="190" y2="460" stroke="currentColor" stroke-width="1.5" />
+
+            <!-- pausa -->
+            <rect x="110" y="462" width="160" height="42" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="190" y="488" text-anchor="middle" font-size="11.5">pausa 0.05s</text>
+
+            <!-- loop back to leer boton -->
+            <path d="M 190 504 L 190 540 L 20 540 L 20 193 L 88 193" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow)" />
+          </g>
+        </svg>
+      </div>
+      <figcaption>Diagrama de flujo del bucle principal. El programa nunca "termina" — vuelve a leer el botón una y otra vez, cada 0.05s, actualizando el LED según el estado actual.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Código MicroPython</h2>
+    <pre><code><span class="kw">from</span> machine <span class="kw">import</span> Pin
+<span class="kw">import</span> time
+
+led_rojo = Pin(<span class="num">13</span>, Pin.OUT)
+boton = Pin(<span class="num">16</span>, Pin.IN, Pin.PULL_UP)
+
+led_rojo.value(<span class="num">0</span>)  <span class="cm"># apagado al arrancar</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="kw">if</span> boton.value() == <span class="num">0</span>:      <span class="cm"># pull-up: reposo=1, pulsado=0</span>
+        led_rojo.value(<span class="num">1</span>)
+    <span class="kw">else</span>:
+        led_rojo.value(<span class="num">0</span>)
+    time.sleep(<span class="num">0.05</span>)</code></pre>
+
+    <div class="wiring">
+      <div><b>LED rojo</b> · GPIO13 → resistencia ~220Ω → LED → GND</div>
+      <div><b>Botón</b> · GPIO16 (pin físico 21) — GND (pull-up interna, sin resistencia extra)</div>
+    </div>
+  </section>
+
+  <footer>
+    Rasberry_Pi_Pico · pensado para probar el cableado del botón antes de tocar <code>main.py</code> (que además maneja Wi-Fi, el servidor TCP del LED RGB y el aviso de parada a ROS2). Guarda esto como un archivo aparte, p.ej. <code>test_boton_led.py</code>, para no mezclarlo con el firmware principal.
+  </footer>
+
+</main>

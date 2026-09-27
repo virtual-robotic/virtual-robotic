@@ -296,6 +296,24 @@
     border-radius: 4px; border: 1px solid var(--line);
   }
 
+  /* Videos de la celda trabajando (2026-09-26): dos clips cortos grabados en
+     Webots, en bucle y sin sonido, como una foto animada. */
+  .videos-celda {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin: -1.5rem 0 2.5rem;
+  }
+  .videos-celda figure { margin: 0; }
+  .videos-celda video {
+    width: 100%; display: block;
+    border-radius: 4px; border: 1px solid var(--line);
+  }
+  .videos-celda figcaption {
+    font-size: 0.85rem; color: var(--fg-muted); margin-top: 0.4rem;
+  }
+  @media (max-width: 640px) {
+    .videos-celda { grid-template-columns: 1fr; }
+  }
+
   .codeblock {
     background: var(--bg-elevated);
     border: 1px solid var(--line);
@@ -478,6 +496,16 @@
       <p data-i18n="t36c58c" class="eyebrow">Cómo funciona</p>
       <h2 data-i18n="t48980b">Tres piezas de una misma celda</h2>
       <img data-i18n-alt="t4b1415" class="section-photo reveal" src="/static/img/webots_cell.jpg" alt="Captura de la simulación en Webots: los dos brazos Panda, la cinta con cubos de colores y las dos ventanas de cámara de visión artificial en las esquinas.">
+      <div class="videos-celda reveal">
+        <figure>
+          <video src="/static/img/celda_trabajando_1.mp4" poster="/static/img/celda_trabajando_1.jpg" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption data-i18n="tvideo1">El Loader deja los cubos en la cinta y el Sorter los recoge y los clasifica por color.</figcaption>
+        </figure>
+        <figure>
+          <video src="/static/img/celda_trabajando_2.mp4" poster="/static/img/celda_trabajando_2.jpg" autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption data-i18n="tvideo2">Los dos brazos trabajando a la vez, grabado en la simulación (Webots).</figcaption>
+        </figure>
+      </div>
       <div class="cards">
         <div class="card reveal">
           <p data-i18n="t2e7ad2" class="eyebrow">Loader &amp; Sorter</p>
@@ -533,6 +561,12 @@
           <a class="btn-ghost" href="/manual/lanzar">📘 Cómo arrancar todo</a>
           <a class="btn-ghost" href="/manual/taller">📦 Nuestra web de pedidos</a>
           <a class="btn-ghost" href="/manual/panda">🤖 Nuestra cadena de producción</a>
+        </div>
+        <!-- 2026-09-27 18:41: plantillas Word de configuracion del taller (ES/EN/EU). -->
+        <p data-i18n="tplant1" style="color:var(--fg-muted); margin-top:1.4rem;">Plantillas en Word para apuntar la configuración de tu taller: cadenas, ordenadores, productos, usuarios y la puesta en marcha paso a paso.</p>
+        <div class="manuales-links">
+          <a data-i18n="tplant2" class="btn-ghost" href="/plantillas/Configuracion_Taller_EJEMPLO.docx" download>📄 Plantilla con un ejemplo relleno</a>
+          <a data-i18n="tplant3" class="btn-ghost" href="/plantillas/Configuracion_Taller_VACIA.docx" download>📄 Plantilla vacía para rellenar</a>
         </div>
       </div>
     </div>
@@ -603,8 +637,9 @@ docker compose up -d --build</div>
           <div class="req-col">
             <h3 data-i18n="taea234">Windows</h3>
             <ul>
-              <li data-i18n="t906fa5"><strong>Solo la web de pedidos:</strong> <strong>Docker Desktop</strong> (con WSL&nbsp;2 activado) y <strong>Git for Windows</strong>. Después <code>docker compose up -d --build</code> y abres <code>http://localhost:8000</code>. Es una imagen normal de Python, pero <strong>no la hemos probado en Windows</strong>.</li>
-              <li data-i18n="t1a6a87"><strong>La celda con los robots:</strong> <strong>no está probada en Windows</strong>. Usa Docker con ventanas gráficas de Linux. El camino que sí hemos probado es una <strong>máquina virtual Linux</strong> (VirtualBox con Linux Mint). Otra opción, sin probar: WSL&nbsp;2 con Ubuntu, que en Windows&nbsp;11 ya trae ventanas gráficas, y seguir ahí los pasos de Linux.</li>
+              <li data-i18n="t906fa5"><strong>Solo la web de pedidos:</strong> <strong>Docker Desktop</strong> (con WSL&nbsp;2 activado) y <strong>Git for Windows</strong>. Después <code>docker compose up -d --build</code> y abres <code>http://localhost:8000</code>. <strong>Probada en un PC con Windows&nbsp;10</strong> (2026-09-23).</li>
+              <li data-i18n="t1a6a87"><strong>La celda con los robots:</strong> <strong>funciona en Windows</strong> (probado el 2026-09-24 y el 2026-09-26): Webots instalado en Windows y solo ROS&nbsp;2 en Docker, arrancando con doble clic en <code>arrancar_windows.bat</code>. En un portátil con Windows&nbsp;11 (Ryzen&nbsp;7, 30&nbsp;GB) han trabajado <strong>4 cadenas a la vez</strong> para la misma web de pedidos, cada una con su Webots y su panel: <code>crear_linea_windows.bat</code> añade otra y <code>cerrar_windows.bat</code> lo apaga todo. Paso a paso en <code>INSTALAR_WINDOWS.md</code>.</li>
+              <li data-i18n="twinprob"><strong>Si Docker Desktop no arranca:</strong> necesita <strong>WSL&nbsp;2</strong> (si <code>wsl</code> solo muestra su ayuda, hay que activarlo con <code>dism</code>). <strong>Con Windows dentro de VirtualBox no funciona</strong>: WSL&nbsp;2 necesita Hyper-V y VirtualBox no soporta Hyper-V anidado (comprobado a fondo: ni con virtualización anidada, 8&nbsp;GB y 6 procesadores — no expone el bit NPT al huésped). Para probar en Windows hace falta un PC con Windows de verdad. El error <code>500 Internal Server Error ... dockerDesktopLinuxEngine/_ping</code> solo significa que el motor de Docker no está en marcha: ábrelo y espera a <em>Engine running</em>. En Windows no uses <code>arrancar_todo.sh</code> (es el de Linux): para la web sola, <code>docker compose up -d --build</code>; para todo, <code>arrancar_windows.bat</code>. Todo esto, paso a paso, está en <code>INSTALAR_WINDOWS.md</code>, junto con los robots y las varias cadenas.</li>
             </ul>
             <details class="req-pasos">
               <summary data-i18n="t92e27d">Cómo se instala, paso a paso</summary>
@@ -626,7 +661,7 @@ docker compose up -d --build</div>
       <a class="footer-mail" href="https://github.com/virtual-robotic/virtual-robotic" target="_blank" rel="noopener">github.com/virtual-robotic/virtual-robotic</a>
       <p data-i18n="tc240fc" class="footer-loc">Ría de Gernika, Bizkaia</p>
     </div>
-    <p class="footer-fine">© 2026 Virtual Robotic<br>Proyecto personal, en marcha.<br>Construido con <a href="https://claude.com/claude-code" style="color:inherit;">Claude Code</a> (Anthropic).</p>
+    <p class="footer-fine" data-i18n="tfooter">© 2026 Virtual Robotic<br>Proyecto personal, en marcha.<br>Construido con <a href="https://claude.com/claude-code" style="color:inherit;">Claude Code</a> (Anthropic).</p>
   </div>
 </footer>
 

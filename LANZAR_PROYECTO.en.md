@@ -1,6 +1,41 @@
-_Last updated: 2026-09-21 20:55_
+_Last updated: 2026-09-26 11:37_
 
-# Starting the project
+# Starting the project (Linux)
+
+Guide for **Linux**. On Windows, see [INSTALAR_WINDOWS.en.md](INSTALAR_WINDOWS.en.md).
+
+## First of all: install what you need
+
+Tested on **Linux Mint / Ubuntu 24.04**. You need:
+
+- **Only the orders website:** Docker (with Docker Compose v2) and Git.
+- **The cell with the robots:** the above, plus a graphical desktop (logging
+  in over SSH is not enough), about 15 GB of disk, 8 GB of RAM or more, and
+  internet the first time. With a graphics card it runs smoothly; without one
+  you have to remove one line (`/dev/dri`) from `docker-compose.yml`, as
+  explained below, and it runs slower.
+
+Everything else (Python, ROS 2, Webots…) goes inside Docker; you do not
+have to install it. The Raspberry Pi Pico boards are optional.
+
+```bash
+sudo apt update
+sudo apt install -y git docker.io docker-compose-v2
+sudo apt install -y x11-xserver-utils      # only for the cell with robots
+sudo usermod -aG docker $USER              # then log out and back in
+docker --version && docker compose version # check that it works
+
+git clone https://github.com/virtual-robotic/virtual-robotic.git
+```
+
+To see **only the orders website**, this is enough:
+
+```bash
+cd virtual-robotic/Taller_Administracion
+docker compose up -d --build               # and open http://localhost:8000
+```
+
+## Starting it
 
 Every `cd` below is **relative to the project folder** (wherever you
 cloned or copied `virtual-robotic`, or `Robotica` if it's your own
@@ -421,6 +456,11 @@ connect):
 ./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
 ```
 
+The lines do not have to be on the same computer or the same system: on
+2026-09-24 one line on Windows and two on a Linux virtual machine worked at
+the same time, all against the Windows website (see
+[INSTALAR_WINDOWS.en.md](INSTALAR_WINDOWS.en.md), *Lines on other computers*).
+
 Full step-by-step guide (what each part does, how many lines fit at
 most, how to launch a line on another physical computer) in
 [Documentacion/anadir_cadena_produccion.html](Documentacion/anadir_cadena_produccion.html).
@@ -428,6 +468,8 @@ most, how to launch a line on another physical computer) in
 ---
 
 ## If something gets stuck (cubes piling up on the belt, both robots stopped)
+
+_More known problems and their fixes: [PROBLEMAS_CONOCIDOS.en.md](PROBLEMAS_CONOCIDOS.en.md)._
 
 This can happen if an arm gives up on a difficult cube after several
 tries: until 2026-08-31 it could get stuck blocking its own camera

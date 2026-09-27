@@ -86,7 +86,17 @@ window.VR_I18N_GUIA = {
   "si_recortado": "Yes, cut down to their own",
   "no_solo_pedidos": "No, only Orders",
   "si_solo_las_suyas": "Yes (only their own)",
-  "footer_texto": "Guide written from the code's real behaviour (not what it \"should\" do) — every rule here is checked against <code>app/main.py</code>, <code>app/schemas.py</code> and the project's automated tests."
+  "footer_texto": "Guide written from the code's real behaviour (not what it \"should\" do) — every rule here is checked against <code>app/main.py</code>, <code>app/schemas.py</code> and the project's automated tests.",
+  "g_almacen_eyebrow": "The workshop and the warehouse",
+  "g_almacen_h2": "Who orders, who makes it, and parts added by hand",
+  "g_almacen_p1": "<strong>The administrator (the workshop) does not place orders</strong>: orders are placed by the customers. What the administrator does is decide what happens to each order:",
+  "g_almacen_li1": "If the parts <strong>are already in the warehouse</strong>, they are given to the customer from the <strong>Delivery</strong> tab.",
+  "g_almacen_li2": "If <strong>parts are missing</strong>, the order appears in the <strong>Workshop orders</strong> tab: that is what has to be sent to the robots to make. There it gets a machine, can be marked urgent or cancelled.",
+  "g_almacen_p2": "The parts the robots make go into the warehouse by themselves. But they can also be <strong>added by hand</strong>, without going through production: for example parts bought elsewhere, found during a stock count or returned by a customer.",
+  "g_almacen_li3": "In the <strong>Warehouse</strong> tab, each product has a box for the quantity and two buttons: <strong>«Add to stock»</strong> and <strong>«Remove from stock»</strong>. Only the administrator sees them.",
+  "g_almacen_li4": "<strong>Are they given to the orders automatically?</strong> With <strong>automatic delivery</strong> on (the default), yes: every few seconds the website checks the warehouse and gives the parts to the orders it can complete <strong>in full</strong>. If there are only enough for part of an order, they wait until the robots make the rest, or until you press <strong>«Assign stock to pending orders»</strong> in the <strong>Delivery</strong> tab. With automatic delivery off, you always have to press that button.",
+  "g_almacen_li5": "It does not let you remove more parts than there are.",
+  "g_almacen_li6": "Every entry and exit is recorded below, in <strong>Movements</strong>, as «ajuste_manual» (manual adjustment), so you always know where each part came from."
  },
  "eu": {
   "titulo_pagina": "Administrazio gida · Virtual Robotic",
@@ -171,7 +181,17 @@ window.VR_I18N_GUIA = {
   "si_recortado": "Bai, berera mugatuta",
   "no_solo_pedidos": "Ez, Eskaerak bakarrik",
   "si_solo_las_suyas": "Bai (bereak bakarrik)",
-  "footer_texto": "Gida kodearen benetako portaeratik idatzia (ez \"egin beharko lukeenetik\") — hemengo arau bakoitza <code>app/main.py</code>, <code>app/schemas.py</code> eta proiektuaren test automatikoen kontra egiaztatuta dago."
+  "footer_texto": "Gida kodearen benetako portaeratik idatzia (ez \"egin beharko lukeenetik\") — hemengo arau bakoitza <code>app/main.py</code>, <code>app/schemas.py</code> eta proiektuaren test automatikoen kontra egiaztatuta dago.",
+  "g_almacen_eyebrow": "Tailerra eta biltegia",
+  "g_almacen_h2": "Nork eskatzen duen, nork fabrikatzen duen, eta eskuz sartutako piezak",
+  "g_almacen_p1": "<strong>Administratzaileak (tailerrak) ez du eskaerarik egiten</strong>: eskaerak bezeroek egiten dituzte. Administratzaileak egiten duena da eskaera bakoitzarekin zer gertatzen den erabakitzea:",
+  "g_almacen_li1": "Piezak <strong>biltegian badaude jada</strong>, bezeroari <strong>Banaketa</strong> fitxatik ematen zaizkio.",
+  "g_almacen_li2": "<strong>Piezak falta badira</strong>, eskaera <strong>Tailerreko eskaerak</strong> fitxan agertzen da: robotei fabrikatzeko bidali behar zaiena da. Hor makina bat esleitzen zaio, presazkotzat markatzen da edo bertan behera uzten da.",
+  "g_almacen_p2": "Robotek fabrikatzen dituzten piezak berez sartzen dira biltegian. Baina <strong>eskuz ere sar daitezke</strong>, ekoizpenetik pasatu gabe: adibidez kanpoan erositako piezak, inbentarioa egitean aurkitutakoak edo bezero batek itzulitakoak.",
+  "g_almacen_li3": "<strong>Biltegia</strong> fitxan, produktu bakoitzak kopururako lauki bat eta bi botoi ditu: <strong>«Stockera gehitu»</strong> eta <strong>«Stocketik kendu»</strong>. Administratzaileak bakarrik ikusten ditu.",
+  "g_almacen_li4": "<strong>Berez ematen al zaizkie eskaerei?</strong> <strong>Banaketa automatikoa</strong> piztuta dagoenean (horrela dator), bai: webguneak segundo gutxian behin begiratzen du biltegia eta <strong>osorik</strong> osa ditzakeen eskaerei ematen dizkie piezak. Eskaera baten zati baterako bakarrik badaude, itxaron egiten dute robotek gainerakoa fabrikatu arte, edo <strong>Banaketa</strong> fitxako <strong>«Stocka eskaera zain daudenei esleitu»</strong> sakatu arte. Banaketa automatikoa itzalita badago, beti sakatu behar da botoi hori.",
+  "g_almacen_li5": "Ez du dagoena baino pieza gehiago kentzen uzten.",
+  "g_almacen_li6": "Sarrera eta irteera bakoitza behean apuntatzen da, <strong>Mugimenduak</strong> atalean, «ajuste_manual» (eskuzko doikuntza) gisa, pieza bakoitza nondik atera zen beti jakiteko."
  }
 };
 (function () {

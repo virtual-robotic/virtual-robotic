@@ -1,5 +1,5 @@
-# Version: 2026-09-21 20:40 -- Pico: manteniendo 10 s el boton (fisico o simulado) se restablece la clave de configuracion, con confirmacion y aviso en la OLED
 #!/usr/bin/env python3
+# Version: 2026-09-26 11:38 -- panel de control: traducciones EN/EU de restablecer la clave
 """
 Teleoperacion manual del Panda con botones (Tkinter), en vez de teclado
 (`teleop_manual.py`). Mismo motor por debajo (misma cinematica DH
@@ -465,6 +465,14 @@ TRADUCCIONES = {
         'La clave nueva tiene que tener al menos {n} caracteres.': 'The new password must be at least {n} characters long.',
         'La clave nueva es igual que la actual.': 'The new password is the same as the current one.',
         'Clave cambiada. Desde ahora se pide la nueva para desbloquear.': 'Password changed. From now on the new one is asked to unlock.',
+        # 2026-09-26: restablecer la clave (pulsacion larga del boton del Loader)
+        'Clave restablecida a la de fábrica ({clave}).': 'Key reset to the factory one ({clave}).',
+        'Mantén pulsado {s} s para restablecer la clave': 'Hold for {s} s to reset the key',
+        'Pulsación larga ignorada: para restablecer la clave hay que tener abierta la pestaña Configuración o Raspberry Pi Pico.': 'Long press ignored: to reset the key, the Settings or Raspberry Pi Pico tab has to be open.',
+        'Restablecer la clave': 'Reset the key',
+        'Restableciendo la clave en {s} s... suelta para cancelar': 'Resetting the key in {s} s... release to cancel',
+        'Restablecimiento de la clave cancelado.': 'Key reset cancelled.',
+        '¿Restablecer la clave de configuración a la de fábrica ({clave})?': 'Reset the settings key to the factory one ({clave})?',
     },
     'eu': {
         'PANEL DE CONTROL MANUAL': 'ESKUZKO KONTROL-PANELA',
@@ -712,6 +720,14 @@ TRADUCCIONES = {
         'La clave nueva tiene que tener al menos {n} caracteres.': 'Klabe berriak {n} karaktere izan behar ditu gutxienez.',
         'La clave nueva es igual que la actual.': 'Klabe berria egungoaren berdina da.',
         'Clave cambiada. Desde ahora se pide la nueva para desbloquear.': 'Klabea aldatu da. Hemendik aurrera berria eskatuko da desblokeatzeko.',
+        # 2026-09-26: restablecer la clave (pulsacion larga del boton del Loader)
+        'Clave restablecida a la de fábrica ({clave}).': 'Gakoa fabrikakora berrezarri da ({clave}).',
+        'Mantén pulsado {s} s para restablecer la clave': 'Eutsi {s} s gakoa berrezartzeko',
+        'Pulsación larga ignorada: para restablecer la clave hay que tener abierta la pestaña Configuración o Raspberry Pi Pico.': 'Sakatze luzea ez da kontuan hartu: gakoa berrezartzeko Konfigurazioa edo Raspberry Pi Pico fitxak irekita egon behar du.',
+        'Restablecer la clave': 'Gakoa berrezarri',
+        'Restableciendo la clave en {s} s... suelta para cancelar': 'Gakoa {s} s barru berrezarriko da... askatu bertan behera uzteko',
+        'Restablecimiento de la clave cancelado.': 'Gakoa berrezartzea bertan behera utzi da.',
+        '¿Restablecer la clave de configuración a la de fábrica ({clave})?': 'Konfigurazio-gakoa fabrikakora berrezarri ({clave})?',
     },
 }
 

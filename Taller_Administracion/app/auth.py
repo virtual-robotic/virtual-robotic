@@ -1,3 +1,4 @@
+# Version: 2026-09-26 18:40 -- auth: empleados de la empresa con permiso por grupo (produccion/contabilidad)
 import hashlib
 import os
 import secrets
@@ -11,7 +12,14 @@ from .database import get_db
 ROL_ADMIN_SISTEMA = "admin_sistema"
 ROL_ADMIN_CLIENTE = "admin_cliente"
 ROL_NORMAL = "normal"
-ROLES_VALIDOS = {ROL_ADMIN_SISTEMA, ROL_ADMIN_CLIENTE, ROL_NORMAL}
+# Empleado de NUESTRA empresa (sin cliente): ve solo los grupos del panel que
+# tenga marcados (sesion 2026-09-26). Administracion sigue siendo solo del
+# admin_sistema: quien gestiona usuarios podria darse permisos a si mismo.
+ROL_EMPLEADO = "empleado"
+ROLES_VALIDOS = {ROL_ADMIN_SISTEMA, ROL_ADMIN_CLIENTE, ROL_NORMAL, ROL_EMPLEADO}
+
+PRODUCCION = "produccion"
+CONTABILIDAD = "contabilidad"
 
 MASTER_PASSWORD = os.environ.get("TALLER_MASTER_PASSWORD", "1111")
 
@@ -83,6 +91,34 @@ def require_roles(*roles: str):
         if usuario.rol not in roles:
             raise HTTPException(status_code=403, detail="No tienes permiso para esto.")
         return usuario
+
+    return dependency
+
+
+def tiene_permiso(usuario: models.Usuario, grupo: str) -> bool:
+    """admin_sistema: todo. empleado: lo que tenga marcado. Clientes: nada de esto."""
+    if usuario.rol == ROL_ADMIN_SISTEMA:
+        return True
+    if usuario.rol == ROL_EMPLEADO:
+        return bool(getattr(usuario, f"permiso_{grupo}", False))
+    return False
+
+
+def es_interno(usuario: models.Usuario) -> bool:
+    """Gente de nuestra empresa con algun permiso: ve los datos de TODOS los clientes."""
+    return tiene_permiso(usuario, PRODUCCION) or tiene_permiso(usuario, CONTABILIDAD)
+
+
+def require_permiso(*grupos: str, roles_extra: tuple[str, ...] = ()):
+    """Como require_roles, pero por grupo del panel: pasa quien tenga permiso
+    en ALGUNO de 'grupos' (el admin_sistema siempre), o sea de roles_extra
+    (p. ej. admin_cliente, que luego se limita a lo de su cliente)."""
+    def dependency(
+        usuario: models.Usuario = Depends(get_current_usuario),
+    ) -> models.Usuario:
+        if usuario.rol in roles_extra or any(tiene_permiso(usuario, g) for g in grupos):
+            return usuario
+        raise HTTPException(status_code=403, detail="No tienes permiso para esto.")
 
     return dependency
 

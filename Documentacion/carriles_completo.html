@@ -1,0 +1,239 @@
+<!-- Version: 2026-09-18 14:58 -- carriles_completo.html (migrado al diseno de marca: tokens de color, tipografia y migas de pan) -->
+<title>Carriles de la cinta: estado completo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (mismos que landing.html / PI_PICO_montaje.html) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --ink: #16211f;
+    --muted: #55655f;
+    --border: rgba(22,33,31,0.14);
+    --accent: #a8461f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --ink: #eee7da;
+      --muted: #9fb0ac;
+      --border: rgba(238,231,218,0.14);
+      --accent: #c9683c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --ink: #eee7da;
+    --muted: #9fb0ac;
+    --border: rgba(238,231,218,0.14);
+    --accent: #c9683c;
+  }
+
+  body{max-width:680px;margin:2rem auto;padding:0 1rem;font-family:'Archivo', system-ui, sans-serif;color:var(--ink);background:var(--bg)}
+  h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;color:var(--accent);font-size:1.3rem;margin:1.8rem 0 .5rem}
+  h3{font-size:.95rem;margin:1.2rem 0 .4rem;opacity:.85}
+  p.note{font-size:.85rem;opacity:.75;margin:0 0 1rem}
+  figure{margin:0}
+  figcaption{font-size:.85rem;opacity:.75;margin-top:.6rem}
+  svg{display:block;max-width:100%;height:auto}
+  table{border-collapse:collapse;margin-top:.8rem;font-size:.88rem;width:100%}
+  td,th{border:1px solid currentColor;border-opacity:.2;padding:.35rem .6rem;text-align:left;vertical-align:top}
+  th{opacity:.7;font-weight:600}
+  code{font-family:'IBM Plex Mono', monospace;font-size:.85em}
+
+  /* ---------- Migas de pan ---------- */
+  .migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+  .migas a { color: var(--muted); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<nav class="migas" aria-label="Ruta">
+  <a href="/">Principal</a>
+  <span class="migas-sep">→</span>
+  <a href="/manual/lanzar">Cómo arranca todo</a>
+  <span class="migas-sep">→</span>
+  <span class="migas-actual" aria-current="page">Carriles de la cinta</span>
+</nav>
+
+<p class="note">Documento de referencia único (sesión 2026-09-04) sobre los cuatro carriles de la cinta, con su numeración y el estado REAL aplicado ahora mismo en <code>panda_industrial_cell.wbt</code>. Sustituye a los esquemas sueltos anteriores (<code>cuatro_palos_embudo.html</code>, <code>carril_recto_rampa_lateral_esquema.html</code>, <code>palos_3_4_rampa_esquema.html</code>) — este junta numeración + corte + estado final en un solo sitio.</p>
+
+<h2>1. Numeración: los cuatro palos, vistos desde arriba</h2>
+<figure>
+<svg viewBox="0 0 460 460" role="img" aria-label="Vista aérea de toda la cinta, desde donde el Loader suelta el cubo hasta donde el Sorter lo recoge. Los cuatro palos están marcados: 1 y 2, el embudo de entrada; 3 y 4, el tramo recto junto a la pinza">
+  <defs>
+    <marker id="arrY2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="150" y="30" width="96" height="380" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"/>
+  <text x="198" y="20" text-anchor="middle" font-size="12" opacity=".65">cinta (30 cm de ancho)</text>
+
+  <circle cx="198" cy="168" r="4" fill="currentColor" opacity=".55"/>
+  <text x="340" y="172" text-anchor="middle" font-size="10.5" opacity=".65">suelta el Loader (y=0,70)</text>
+  <line x1="208" y1="168" x2="280" y2="168" stroke="currentColor" stroke-width="1" opacity=".4"/>
+
+  <line x1="160" y1="120" x2="182" y2="264" stroke="#c9691f" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="160" cy="120" r="12" fill="#c9691f"/>
+  <text x="160" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+
+  <line x1="236" y1="120" x2="214" y2="264" stroke="#2f6e3d" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="236" cy="120" r="12" fill="#2f6e3d"/>
+  <text x="236" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+
+  <rect x="130" y="264" width="52" height="90" fill="#1f6fb2" opacity=".25"/>
+  <line x1="182" y1="264" x2="182" y2="354" stroke="#1f6fb2" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="182" cy="309" r="12" fill="#1f6fb2"/>
+  <text x="182" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+
+  <rect x="214" y="264" width="52" height="90" fill="#9a3fa8" opacity=".25"/>
+  <line x1="214" y1="264" x2="214" y2="354" stroke="#9a3fa8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="214" cy="309" r="12" fill="#9a3fa8"/>
+  <text x="214" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text>
+
+  <text x="340" y="300" text-anchor="middle" font-size="10.5" opacity=".7">franjas anchas = con cuña</text>
+  <text x="340" y="313" text-anchor="middle" font-size="10.5" opacity=".7">(9 cm hacia fuera)</text>
+
+  <rect x="147" y="356" width="102" height="8" fill="#b2451f" opacity=".4"/>
+  <rect x="147" y="356" width="102" height="20" fill="#b2451f"/>
+  <circle cx="198" cy="366" r="12" fill="#b2451f"/>
+  <text x="198" y="370" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">5</text>
+  <text x="198" y="390" text-anchor="middle" font-size="10.5" opacity=".65">tope, belt_end_stop (y=1,30)</text>
+  <text x="340" y="366" text-anchor="middle" font-size="10.5" opacity=".7">propuesto: crece</text>
+  <text x="340" y="379" text-anchor="middle" font-size="10.5" opacity=".7">hacia atrás (9cm)</text>
+
+  <circle cx="198" cy="344" r="4" fill="none" stroke="#b23327" stroke-width="2"/>
+  <text x="198" y="400" text-anchor="middle" font-size="10.5" fill="#b23327" opacity=".85">agarra el Sorter aquí</text>
+  <line x1="198" y1="348" x2="198" y2="392" stroke="#b23327" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>
+
+  <line x1="60" y1="60" x2="60" y2="340" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrY2)" opacity=".5"/>
+  <text x="48" y="200" font-size="10.5" opacity=".6" transform="rotate(-90 48 200)">avance del cubo</text>
+</svg>
+<figcaption>1 y 2 = embudo de entrada (donde el Loader suelta el cubo). 3 y 4 = tramo recto, justo antes de donde el Sorter cierra la pinza. 5 = pared de atrás / tope físico (<code>belt_end_stop</code>), contra la que se acumulan los cubos.</figcaption>
+</figure>
+
+<h2>2. La "caída": corte del perfil en cuña (aplicado en 3 y 4)</h2>
+<p class="note" style="border-left:3px solid #c0392b;padding-left:.7rem"><strong>Corrección de altura (2026-09-10).</strong> El corte de abajo todavía dibuja la pared del canal a "2 cm" — el valor real desde hoy es <strong>1,5 cm</strong>, y además toda la pieza bajó 1,5 cm (base de z=0,755 a z=0,740). Ver el porqué completo en "Los 1,5cm de flotación", al final de esta página.</p>
+<figure>
+<svg viewBox="0 0 360 230" role="img" aria-label="Corte transversal: hacia el canal, donde pasa el cubo y opera la pinza, la pieza se queda plana 1 centímetro a 2 centímetros de alto; después sube en rampa recta hasta 9 centímetros hacia el borde de la cinta">
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+  <line x1="30" y1="190" x2="330" y2="190" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4" opacity=".5"/>
+  <text x="30" y="205" font-size="10.5" opacity=".65">superficie de la cinta</text>
+
+  <polygon points="120,190 280,190 280,60 148,150 120,150" fill="#c9691f" opacity=".8"/>
+  <line x1="120" y1="150" x2="148" y2="150" stroke="currentColor" stroke-width="2.5"/>
+
+  <text x="80" y="175" text-anchor="end" font-size="11">2 cm</text>
+  <line x1="88" y1="150" x2="88" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="300" y="128" font-size="11">9 cm</text>
+  <line x1="290" y1="60" x2="290" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="134" y="138" text-anchor="middle" font-size="10">1 cm plano</text>
+
+  <circle cx="120" cy="205" r="10" fill="#1f6fb2"/>
+  <text x="120" y="209" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">3</text>
+  <text x="60" y="222" font-size="10.5" opacity=".7">← canal (pinza opera aquí)</text>
+  <text x="280" y="222" text-anchor="middle" font-size="10.5" opacity=".7">hacia fuera →</text>
+
+  <line x1="160" y1="140" x2="255" y2="72" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arr3)" opacity=".7"/>
+</svg>
+<figcaption>El 4 lleva este mismo corte, pero con los vértices recorridos al revés (ver el aviso del final). La "caída" cae de 9cm (fuera) a 2cm (canal) según se acerca a donde pasa el cubo y opera la pinza.</figcaption>
+</figure>
+
+<h2>2b. Propuesto: la misma cuña en el 5 (pared de atrás)</h2>
+<figure>
+<svg viewBox="0 0 360 230" role="img" aria-label="Corte transversal propuesto para el palo 5: hacia la cinta, de donde vienen los cubos, se queda plano 1 centímetro a 2 centímetros de alto; hacia el final de la cinta sube en rampa recta hasta 9 centímetros, para que ningún cubo se cuele más allá del tope">
+  <defs>
+    <marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+  <line x1="30" y1="190" x2="330" y2="190" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4" opacity=".5"/>
+  <text x="30" y="205" font-size="10.5" opacity=".65">superficie de la cinta</text>
+
+  <polygon points="120,190 280,190 280,60 148,150 120,150" fill="#b2451f" opacity=".8"/>
+  <line x1="120" y1="150" x2="148" y2="150" stroke="currentColor" stroke-width="2.5"/>
+
+  <text x="80" y="175" text-anchor="end" font-size="11">2 cm</text>
+  <line x1="88" y1="150" x2="88" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="300" y="128" font-size="11">9 cm</text>
+  <line x1="290" y1="60" x2="290" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="134" y="138" text-anchor="middle" font-size="10">1 cm plano</text>
+
+  <circle cx="120" cy="205" r="10" fill="#b2451f"/>
+  <text x="120" y="209" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">5</text>
+  <text x="60" y="222" font-size="10.5" opacity=".7">← desde la cinta (cubos llegan aquí)</text>
+  <text x="280" y="222" text-anchor="middle" font-size="10.5" opacity=".7">hacia el final de la cinta →</text>
+
+  <line x1="160" y1="140" x2="255" y2="72" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arr5)" opacity=".7"/>
+</svg>
+<figcaption>Mismo perfil que 3 y 4 (2cm + 1cm plano / rampa a 9cm), pero orientado en la otra dirección: el lado bajo mira hacia la cinta (de donde vienen los cubos, sin tocar esa cara), y el lado alto crece hacia el final de la cinta -- para que un cubo que se cuele por encima del tope actual (como le pasó al verde) se encuentre una pared de 9cm en vez de escaparse más allá.</figcaption>
+</figure>
+
+<h2>3. Estado real aplicado ahora mismo (no solo el diseño)</h2>
+<table>
+<tr><th>#</th><th>Pieza</th><th>Geometría actual</th><th>Notas</th></tr>
+<tr><td>1</td><td><code>belt_rail_l_embudo</code></td><td><code>Box</code> simple, 1,5×45,5×3 cm</td><td>Revertido a como estaba siempre, a petición del usuario.</td></tr>
+<tr><td>2</td><td><code>belt_rail_r_embudo</code></td><td><code>Box</code> simple, 1,5×45,5×3 cm</td><td>Revertido igual que el 1.</td></tr>
+<tr><td>3</td><td><code>belt_rail_l_recto</code></td><td><code>Extrusion</code> en cuña: 1cm plano a <strong>1,5cm</strong> hacia el canal, rampa recta a 9cm hacia fuera. Base en <strong>z=0,740</strong> (apoyada en la cinta)</td><td><strong>Al día 2026-09-10 (dos cambios el mismo día, ver abajo):</strong> canal de 11 cm de hueco real entre caras interiores (x=0,445 / x=0,555 — <code>RAIL_X_L</code>/<code>RAIL_X_R</code> en <code>sorter_demo.py</code>; las traslaciones 0,45/0,55 son el CENTRO de cada pieza, no la cara). El ensanche a 13 cm de la sesión 2026-09-08 se revirtió el 2026-09-09. Su perfil estaba trazado al revés que el 4 y se corrigió el 2026-09-10 — ver abajo. Y la <strong>altura</strong> se corrigió el mismo día: ver "Los 1,5cm de flotación" más abajo.</td></tr>
+<tr><td>4</td><td><code>belt_rail_r_recto</code></td><td>Mismo perfil que el 3 (pared 1,5cm, base 0,740), pero recorrido en el orden contrario — <strong>no es un espejo exacto</strong></td><td>Mismo canal de 11 cm. Es el único de los tres con el perfil en sentido antihorario, y el único que se ve bien.</td></tr>
+<tr><td>5</td><td><code>belt_end_stop</code></td><td><code>Extrusion</code> en cuña (ver 2b): 1cm plano a 2cm hacia la cinta, rampa recta a 9cm hacia el final de la cinta</td><td>Aplicado y verificado en vivo con un cubo de prueba. Su <code>crossSection</code> es horario, pero su <code>spine</code> va por el eje X y no por Y, así que las caras salen bien igualmente. Confirmado en vivo por el usuario el 2026-09-10: «el 5 estaba bien».</td></tr>
+</table>
+
+<h3>Por qué el embudo (1,2) NO lleva la cuña y el recto (3,4) sí</h3>
+<p class="note">Se probó primero la cuña en el recto (3,4) hace un día y se resbalaba el cubo al agarrar — se revirtió a Box simple. Luego se probó la cuña en el embudo (1,2) para contener un cubo que se salía por el lateral. El usuario pidió dejar el embudo tal cual y en su lugar poner la cuña en el recto (3,4) otra vez — esta vez funcionó, porque la causa real del resbalón (la cinta deslizando durante el agarre, ya arreglada con la pausa de cinta) no tenía nada que ver con esta pieza.</p>
+
+<h3>Bug de orientación ya resuelto (para no repetirlo)</h3>
+<p class="note">El <code>Extrusion</code> de Webots invierte el eje X del <code>crossSection</code> cuando el <code>spine</code> va en el eje Y (como aquí) — con el signo "intuitivo" la cuña creció hacia ADENTRO (canal) en vez de hacia fuera, y un cubo se quedó atascado en firme. Arreglado usando el signo CONTRARIO al intuitivo: el carril L con valores de X positivos, el R con negativos.</p>
+
+<h3>Dónde está cada robot (para no confundir el 3 con el 4)</h3>
+<p class="note">Esta es la referencia que faltaba y la que causó la confusión del 2026-09-10: sin saber desde dónde se mira, «el 3» y «el 4» se intercambian.</p>
+<table>
+  <tr><th>Elemento</th><th>Posición en el mundo (x, y)</th><th>Dónde cae</th></tr>
+  <tr><td><strong>Sorter</strong> (<code>PANDA_SORTER</code>)</td><td>(0,00 · 1,00) — girado 26,6°</td><td>al lado del tramo final de la cinta, en el lado de <strong>x pequeña</strong></td></tr>
+  <tr><td><strong>Loader</strong> (<code>PANDA_LOADER</code>)</td><td>(0,50 · −0,30)</td><td>al principio de la cinta, centrado en x</td></tr>
+  <tr><td>Cinta (<code>BELT</code>)</td><td>centro x=0,50; ancho 30 cm (x de 0,35 a 0,65)</td><td>va de y=0,24 a y=1,34</td></tr>
+  <tr><td><strong>Palo 3</strong> <code>belt_rail_l_recto</code></td><td>x = <strong>0,45</strong></td><td><strong>el del lado del Sorter</strong> (x menor)</td></tr>
+  <tr><td><strong>Palo 4</strong> <code>belt_rail_r_recto</code></td><td>x = <strong>0,55</strong></td><td>el del lado contrario, lejos del Sorter</td></tr>
+</table>
+<p><strong>Regla para hablar de ellos sin equivocarse: el 3 es el que toca al robot Sorter.</strong>
+El 4 es el de enfrente. Los dos van del y=1,00 al y=1,28.</p>
+
+<h3>Sentido de giro del perfil — RESUELTO y validado (2026-09-10)</h3>
+<p class="note" style="border-left:3px solid #1a7f37;padding-left:.7rem"><strong>Estado bueno, confirmado a ojo en Webots por el usuario: «ahora parece que está bien».</strong> Los tres perfiles en −0,0046. <strong>NO TOCAR ninguno de los tres</strong> sin volver a mirarlo en pantalla después del cambio.</p>
+<p class="note">Distinto del bug de orientación de arriba. Aquel era <em>hacia dónde crece</em> la pieza (resuelto en 2026-09-04). Este es <em>en qué orden se recorren los vértices</em> del <code>crossSection</code>, que decide hacia dónde miran las caras que genera el <code>Extrusion</code>. Una cara del revés se ve mal Y además no frena al cubo, que es como un cubo acaba <em>dentro</em> de la pieza y desaparece.</p>
+<table>
+  <tr><th>Pieza</th><th>Área con signo</th><th>Sentido</th><th><code>spine</code></th><th>Estado</th></tr>
+  <tr><td><strong>3</strong> <code>belt_rail_l_recto</code> (lado Sorter)</td><td>−0,0046</td><td>horario</td><td>eje Y</td><td><strong style="color:#1a7f37">ES EL BUENO — NO TOCAR.</strong> Es la referencia: el 4 se copió de aquí</td></tr>
+  <tr><td><strong>4</strong> <code>belt_rail_r_recto</code></td><td>−0,0046</td><td>horario</td><td>eje Y</td><td><strong style="color:#1a7f37">VALIDADO EN PANTALLA 2026-09-10 — NO TOCAR.</strong> Igualado al 3 ese día; antes era antihorario y se veía mal</td></tr>
+  <tr><td><strong>5</strong> <code>belt_end_stop</code></td><td>−0,0046</td><td>horario</td><td><strong>eje X</strong></td><td><strong style="color:#1a7f37">correcto — NO TOCAR</strong></td></tr>
+</table>
+<p><strong>Lo importante, y lo que costó un intento fallido:</strong> una pieza y su
+espejo NO se ven igual si se deja el mismo orden de vértices — el espejo
+invierte las normales. Para que el 4 se vea como el 3, sus coordenadas van
+espejadas <em>y además</em> el recorrido invertido, de forma que el área con
+signo quede <strong>del mismo signo</strong> que la del 3. Los dos en −0,0046.</p>
+<p class="note"><strong>Intento fallido del 2026-09-10, no repetirlo:</strong> se dio por hecho que el bueno era el 4 y se invirtió el <strong>3</strong>. Resultado: los DOS palos se veían huecos. Revertido con <code>git checkout</code>. El bueno era el 3 desde el principio.</p>
+
+<h3>Los 1,5cm de flotación: HECHO en 3 y 4 (commit <code>78856a0</code>), pendiente en 5 y en el embudo</h3>
+<p class="note">Detectado el 2026-09-10 al reportar el usuario que la pieza «está como en el aire». Medido en el <code>.wbt</code>: la superficie de la cinta está a <strong>z = 0,74</strong> (<code>ConveyorBelt</code> en z=0 con <code>size</code> 1,1 × 0,3 × <strong>0,74</strong>) y los carriles arrancaban en <strong>z = 0,755</strong>, 1,5 cm de hueco por debajo en todo su largo.</p>
+<p class="note">No era solo estético: <strong>era la causa geométrica del dedo trabado.</strong> El cubo mide 0,740 (abajo) a 0,800 (arriba), centro en 0,770. La repisa superior del carril quedaba en <strong>z=0,775 — por encima del centro del cubo</strong>. Para agarrar un cubo de 6cm el dedo baja por su costado pasando de la mitad, así que con el cubo desplazado hacia un carril el dedo caía sobre esa repisa antes de llegar a la altura de agarre. Bajar solo la altura de la pared NO bastaba (con pared 0 la repisa se quedaba igual en 0,755): había que bajar la base.</p>
+<p class="note"><strong>Aplicado en 3 y 4:</strong> base 0,755→<strong>0,740</strong>, pared 0,02→<strong>0,015</strong>. La repisa baja a 0,755 (2cm más de recorrido libre para el dedo) y la contención MEJORA aunque la pared sea más baja: antes cubría la franja 1,5–3,5cm de la cara del cubo dejando hueco por debajo, ahora la cubre a ras de cinta (0–1,5cm). Sin medir todavía si reduce las dislocaciones reales.</p>
+<p class="note" style="color:#c0392b"><strong>Pendiente:</strong> el 5 (<code>belt_end_stop</code>) y el embudo (1, 2) siguen flotando — se dejaron así a propósito para poder medir el cambio de 3/4 por separado. Mismo criterio si se tocan: los dos lados de un mismo tramo SIEMPRE iguales.</p>
+
+<h3>Bandeja del punto de recogida (sesión 2026-09-10, nueva)</h3>
+<p class="note">No es geometría de carril, pero vive en el mismo punto (0,5·1,25) y ataca el mismo problema desde otro ángulo: <code>SORTER_SHUTTLE_SUPERVISOR</code> (sin cuerpo físico, como <code>WarehouseSupervisor</code>) detecta el cubo parado contra el tope y lo centra en X con un giro de 10° (<code>DOCK_YAW_DEG</code>), <strong>sin tocar su Y real</strong> — la primera versión sí igualaba la Y y eso lo devolvía contra la cinta, descentrándolo otra vez. Marcado en Webots con <code>SORTER_TRAY</code>, el cuadrado amarillo de 8×8cm. Promovida a producción, doblando el ritmo medido (1,01→1,94 clasificados/min) en la primera prueba. Ver <code>sorter_shuttle_supervisor_driver.py</code> y los commits <code>70559ed</code>/<code>c5033d1</code>.</p>
+
+<h3>Relacionado, no es geometría del carril</h3>
+<p class="note"><code>rotate_before_descend=True</code> (girar la muñeca antes de bajar, en vez de a la vez) se probó también hoy con el canal ya ensanchado — falló igual que la vez anterior (0/6 cubos). Sigue en <code>False</code>. La causa de por qué ese giro rompe el agarre NO es la geometría del carril — queda pendiente de investigar en otra sesión.</p>

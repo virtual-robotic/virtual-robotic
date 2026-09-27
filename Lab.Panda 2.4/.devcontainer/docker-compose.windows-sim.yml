@@ -1,0 +1,28 @@
+# Version: 2026-09-24 -- simula en Linux la topologia que tendria Windows
+#
+# Objetivo: comprobar si los controladores de ROS 2 pueden hablar con un
+# Webots que NO esta dentro de su red de contenedores, alcanzandolo a traves
+# del propio equipo. Es exactamente lo que pasaria en Windows con Webots
+# instalado de forma nativa (ahi "host.docker.internal" ya apunta al Windows).
+#
+# Como funciona el truco:
+#  - El docker-compose.yml normal le pone al contenedor de Webots el alias de
+#    red "host.docker.internal", asi que ROS 2 lo encuentra por DNS interno.
+#  - Aqui publicamos el puerto 1234 al anfitrion y metemos ese mismo nombre en
+#    el /etc/hosts del contenedor de ROS 2 apuntando a la puerta de enlace. El
+#    fichero /etc/hosts se consulta ANTES que el DNS, asi que gana este y la
+#    conexion sale del contenedor, pasa por el equipo y vuelve a entrar.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.windows-sim.yml up -d
+#
+# NO sustituye al arranque normal: es solo para esta prueba.
+services:
+  webots:
+    ports:
+      - "1234:1234"
+
+  ros2_app:
+    extra_hosts:
+      - "taller_host:host-gateway"
+      - "host.docker.internal:host-gateway"

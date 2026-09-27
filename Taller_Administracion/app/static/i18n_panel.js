@@ -1,3 +1,4 @@
+// Version: 2026-09-27 18:41 -- textos de las plantillas Word en EN y EU
 // Traducciones del panel (Taller_Administracion/app/static/panel.html).
 // ES es el texto que ya lleva el propio panel.html (siempre el 2o argumento
 // de cada llamada a t("clave", "texto es", vars); aqui solo EN y EU.
@@ -211,6 +212,7 @@ window.VR_I18N_PANEL = {
   "csv_fecha_cobro": "Payment date", "csv_metodo_cobro": "Payment method", "csv_rectifica_a": "Corrects", "no_min": "no",
   "tab_empresa": "Companies that invoice",
   "ayuda_empresa": "The companies that <b>issue invoices</b>: there can be several, each with its own registered name, tax ID, address and its <b>own numbering</b> (the series: e.g. <code>FAC-2026-000001</code> and credit notes <code>RECT-2026-000001</code>). When invoicing you choose which one; the one marked <b>default</b> is preselected. The data is copied to the invoice when it's issued, so changing it here doesn't alter invoices already issued. A company isn't deleted: it's <b>deactivated</b>. And once it has issued invoices, its series can no longer be changed (it would break the sequence).",
+  "plantillas_word": "Word templates to write down the workshop setup (production lines, computers, products, users and start-up):", "plantilla_ejemplo": "with a filled-in example", "plantilla_vacia": "blank, to fill in",
   "nueva_empresa": "New company", "razon_social": "Registered name", "direccion_completa": "Full address", "email": "Email",
   "serie_facturas": "Invoice series", "titulo_serie": "2 to 8 letters or numbers; different for each company",
   "serie_rectif": "Credit note series", "crear": "Create", "th_direccion": "Address", "th_por_defecto": "Default", "th_activa": "Active",
@@ -288,7 +290,12 @@ window.VR_I18N_PANEL = {
   "ultimos_eventos": "Latest events", "th_robot": "Robot",
   "tab_auditoria": "Audit log",
   "ayuda_auditoria": "The record of who touched what and when: every addition, change or removal in the other tabs is logged here with its date and user, in case anyone ever needs to reconstruct what happened.",
-  "th_tabla": "Table", "th_registro": "Record", "th_accion": "Action", "th_detalle": "Detail"
+  "th_tabla": "Table", "th_registro": "Record", "th_accion": "Action", "th_detalle": "Detail",
+  // ---- 2026-09-26: notas de factura y factor de piezas (demo)
+  "nota_factor_piezas": "Note: quantities and amounts multiplied ×{factor} compared with the real order, to see an invoice here with more parts and more volume (demo factor, set in Invoicing — it does not affect the stock or the real accounts).",
+  "nota_factura_produccion": "Note: this is the production invoice, but it still lacks items a real invoice would have (transport, shipping, surcharges or other costs).",
+  "factor_piezas_titulo": "Parts factor when printing (demo only)",
+  "factor_piezas_ayuda": "multiplies quantity and amount <b>only when viewing/printing</b> a delivery note or invoice already issued, so they show more parts and more volume. It changes nothing in the database: the stock, the deliveries and the real accounts keep the true numbers."
  },
  "eu": {
   // ---- cabecera / login / dialogo
@@ -494,6 +501,7 @@ window.VR_I18N_PANEL = {
   "csv_fecha_cobro": "Kobratze data", "csv_metodo_cobro": "Kobratze metodoa", "csv_rectifica_a": "Zuzentzen du", "no_min": "ez",
   "tab_empresa": "Fakturatzen duten enpresak",
   "ayuda_empresa": "<b>Fakturak egiten dituzten</b> enpresak: hainbat egon daitezke, bakoitza bere izen sozial, IFZ, helbide eta <b>zenbaketa propioarekin</b> (seriea: adib. <code>FAC-2026-000001</code> eta zuzenketak <code>RECT-2026-000001</code>). Fakturatzean zeinekin aukeratzen duzu; <b>lehenetsi</b> gisa markatutakoa aurrehautatuta ateratzen da. Datuak fakturara kopiatzen dira egiten denean, beraz hemen aldatzeak ez die dagoeneko egindakoei eragiten. Enpresa bat ez da ezabatzen: <b>desaktibatu</b> egiten da. Eta dagoeneko fakturak egin baditu, bere seriea ezin da gehiago aldatu (jarraikortasuna hautsiko litzateke).",
+  "plantillas_word": "Word txantiloiak tailerraren konfigurazioa idazteko (kateak, ordenagailuak, produktuak, erabiltzaileak eta abian jartzea):", "plantilla_ejemplo": "adibide batekin beteta", "plantilla_vacia": "hutsa, betetzeko",
   "nueva_empresa": "Enpresa berria", "razon_social": "Izen soziala", "direccion_completa": "Helbide osoa", "email": "Emaila",
   "serie_facturas": "Faktura seriea", "titulo_serie": "2tik 8ra letra edo zenbaki; enpresa bakoitzean desberdina",
   "serie_rectif": "Zuzenketa seriea", "crear": "Sortu", "th_direccion": "Helbidea", "th_por_defecto": "Lehenetsia", "th_activa": "Aktibo",
@@ -571,6 +579,11 @@ window.VR_I18N_PANEL = {
   "ultimos_eventos": "Azken gertaerak", "th_robot": "Robota",
   "tab_auditoria": "Auditoria",
   "ayuda_auditoria": "Nork zer eta noiz ukitu duen erregistroa: gainerako fitxetako alta, aldaketa edo baja bakoitza hemen apuntatzen da bere data eta erabiltzailearekin, egunen batean zer gertatu zen berreraiki behar bada.",
-  "th_tabla": "Taula", "th_registro": "Erregistroa", "th_accion": "Ekintza", "th_detalle": "Xehetasuna"
+  "th_tabla": "Taula", "th_registro": "Erregistroa", "th_accion": "Ekintza", "th_detalle": "Xehetasuna",
+  // ---- 2026-09-26: notas de factura y factor de piezas (demo)
+  "nota_factor_piezas": "Oharra: kopuruak eta zenbatekoak ×{factor} biderkatuta daude benetako eskaerarekiko, hemen pieza eta bolumen gehiagoko faktura bat ikusteko (demo-faktorea, Fakturazioan aldatzen da — ez du stocka ez benetako kontabilitatea ukitzen).",
+  "nota_factura_produccion": "Oharra: hau ekoizpeneko faktura da, baina oraindik falta zaizkio benetako faktura batek izango lituzkeen kontzeptuak (garraioa, bidalketa, errekarguak edo beste gastu batzuk).",
+  "factor_piezas_titulo": "Pieza-faktorea inprimatzean (demo soilik)",
+  "factor_piezas_ayuda": "kopurua eta zenbatekoa biderkatzen ditu <b>igorritako albaran edo faktura bat ikustean/inprimatzean soilik</b>, pieza eta bolumen gehiagorekin ager daitezen. Ez du ezer aldatzen datu-basean: stockak, banaketak eta benetako kontabilitateak benetako zenbakiekin jarraitzen dute."
  }
 };

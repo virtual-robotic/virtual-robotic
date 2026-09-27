@@ -1,0 +1,157 @@
+<!-- Version: 2026-09-18 14:58 -- palos_3_4_rampa_esquema.html (migrado al diseno de marca: tokens de color, tipografia y migas de pan; esquema SUPERADO, se conserva por sus figuras) -->
+<title>Rampa en 3 y 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (mismos que landing.html / PI_PICO_montaje.html) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --ink: #16211f;
+    --muted: #55655f;
+    --border: rgba(22,33,31,0.14);
+    --accent: #a8461f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --ink: #eee7da;
+      --muted: #9fb0ac;
+      --border: rgba(238,231,218,0.14);
+      --accent: #c9683c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --ink: #eee7da;
+    --muted: #9fb0ac;
+    --border: rgba(238,231,218,0.14);
+    --accent: #c9683c;
+  }
+
+  body{max-width:640px;margin:2rem auto;padding:0 1rem;font-family:'Archivo', system-ui, sans-serif;color:var(--ink);background:var(--bg)}
+  h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;color:var(--accent);font-size:1.25rem;margin:1.6rem 0 .5rem}
+  p.note{font-size:.85rem;opacity:.75;margin:0 0 1rem}
+  figure{margin:0}
+  figcaption{font-size:.85rem;opacity:.75;margin-top:.6rem}
+  svg{display:block;max-width:100%;height:auto}
+  code{font-family:'IBM Plex Mono', monospace}
+
+  /* ---------- Migas de pan ---------- */
+  .migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+  .migas a { color: var(--muted); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<nav class="migas" aria-label="Ruta">
+  <a href="/">Principal</a>
+  <span class="migas-sep">→</span>
+  <a href="/manual/lanzar">Cómo arranca todo</a>
+  <span class="migas-sep">→</span>
+  <a href="carriles_completo.html">Carriles de la cinta</a>
+  <span class="migas-sep">→</span>
+  <span class="migas-actual" aria-current="page">Rampa en 3 y 4</span>
+</nav>
+
+<p class="note">Recordatorio del problema original (sesión 2026-09-03): el Sorter cerraba la pinza, parecía agarrar bien, pero al levantar el cubo se resbalaba y caía — eso fue lo que forzó a revertir esta misma rampa la primera vez. En la sesión 2026-09-04 se arregló la causa real (la cinta deslizaba sin parar durante el agarre, ver <code>robotica_carril_rampa_agarre_abierto.md</code> en memoria) y se volvió a aplicar esta rampa en 3 y 4 con esa causa ya corregida.</p>
+
+<h2>1. Corte: palo 3 (belt_rail_l_recto), igual en espejo el 4</h2>
+<figure>
+<svg viewBox="0 0 360 230" role="img" aria-label="Corte transversal del palo 3: hacia el canal, donde pasa el cubo y opera la pinza, se queda plano 1 centímetro a 2 centímetros de alto; después sube en rampa recta hasta 9 centímetros hacia el borde de la cinta">
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+  <line x1="30" y1="190" x2="330" y2="190" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4" opacity=".5"/>
+  <text x="30" y="205" font-size="10.5" opacity=".65">superficie de la cinta</text>
+
+  <polygon points="120,190 280,190 280,60 148,150 120,150" fill="#c9691f" opacity=".8"/>
+  <line x1="120" y1="150" x2="148" y2="150" stroke="currentColor" stroke-width="2.5"/>
+
+  <text x="80" y="175" text-anchor="end" font-size="11">2 cm</text>
+  <line x1="88" y1="150" x2="88" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="300" y="128" font-size="11">9 cm</text>
+  <line x1="290" y1="60" x2="290" y2="190" stroke="currentColor" stroke-width="1"/>
+
+  <text x="134" y="138" text-anchor="middle" font-size="10">1 cm plano</text>
+
+  <circle cx="120" cy="205" r="10" fill="#1f6fb2"/>
+  <text x="120" y="209" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">3</text>
+  <text x="60" y="222" font-size="10.5" opacity=".7">← canal (pinza opera aquí)</text>
+
+  <text x="280" y="222" text-anchor="middle" font-size="10.5" opacity=".7">hacia fuera →</text>
+
+  <line x1="160" y1="140" x2="255" y2="72" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arr3)" opacity=".7"/>
+</svg>
+<figcaption>El lado hacia el canal se queda igual de bajo que antes (2 cm) — la parte que crece es la de fuera, donde la pinza no pasa.</figcaption>
+</figure>
+
+<h2>2. Vista aérea de toda la cinta, con el cambio en contexto</h2>
+<figure>
+<svg viewBox="0 0 460 460" role="img" aria-label="Vista aérea de toda la cinta, desde donde el Loader suelta el cubo hasta donde el Sorter lo recoge. Los cuatro palos están marcados: 1 y 2, el embudo de entrada, que son cajas rectas; 3 y 4, el tramo recto junto a la pinza, que son los que llevan la cuña">
+  <defs>
+    <marker id="arrY2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- cinta -->
+  <rect x="150" y="30" width="96" height="380" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"/>
+  <text x="198" y="20" text-anchor="middle" font-size="12" opacity=".65">cinta (30 cm de ancho)</text>
+
+  <!-- punto donde el Loader suelta el cubo -->
+  <circle cx="198" cy="168" r="4" fill="currentColor" opacity=".55"/>
+  <text x="340" y="172" text-anchor="middle" font-size="10.5" opacity=".65">suelta el Loader (y=0,70)</text>
+  <line x1="208" y1="168" x2="280" y2="168" stroke="currentColor" stroke-width="1" opacity=".4"/>
+
+  <!-- palo 1: L_EMBUDO -->
+  <line x1="160" y1="120" x2="182" y2="264" stroke="#c9691f" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="160" cy="120" r="12" fill="#c9691f"/>
+  <text x="160" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+
+  <!-- palo 2: R_EMBUDO -->
+  <line x1="236" y1="120" x2="214" y2="264" stroke="#2f6e3d" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="236" cy="120" r="12" fill="#2f6e3d"/>
+  <text x="236" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+
+  <!-- palo 3: L_RECTO (con cuna) -->
+  <rect x="130" y="264" width="52" height="90" fill="#1f6fb2" opacity=".25"/>
+  <line x1="182" y1="264" x2="182" y2="354" stroke="#1f6fb2" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="182" cy="309" r="12" fill="#1f6fb2"/>
+  <text x="182" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+
+  <!-- palo 4: R_RECTO (con cuna) -->
+  <rect x="214" y="264" width="52" height="90" fill="#9a3fa8" opacity=".25"/>
+  <line x1="214" y1="264" x2="214" y2="354" stroke="#9a3fa8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="214" cy="309" r="12" fill="#9a3fa8"/>
+  <text x="214" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text>
+
+  <text x="340" y="300" text-anchor="middle" font-size="10.5" opacity=".7">franjas anchas = nuevo</text>
+  <text x="340" y="313" text-anchor="middle" font-size="10.5" opacity=".7">ancho hacia fuera (9 cm)</text>
+
+  <!-- tope final -->
+  <rect x="147" y="356" width="102" height="8" fill="currentColor" opacity=".55"/>
+  <text x="198" y="378" text-anchor="middle" font-size="10.5" opacity=".65">tope (y=1,30)</text>
+
+  <!-- punto de recogida del sorter -->
+  <circle cx="198" cy="344" r="4" fill="none" stroke="#b23327" stroke-width="2"/>
+  <text x="198" y="400" text-anchor="middle" font-size="10.5" fill="#b23327" opacity=".85">agarra el Sorter aquí</text>
+  <line x1="198" y1="348" x2="198" y2="392" stroke="#b23327" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>
+
+  <!-- flecha de avance -->
+  <line x1="60" y1="60" x2="60" y2="340" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrY2)" opacity=".5"/>
+  <text x="48" y="200" font-size="10.5" opacity=".6" transform="rotate(-90 48 200)">avance del cubo</text>
+</svg>
+<figcaption>3 y 4 (tramo recto, justo antes de donde agarra el Sorter) son las que llevan el perfil de cuña (2cm canal / 9cm fuera). Las franjas de color marcan cuánto crece cada pieza hacia el borde de la cinta.</figcaption>
+
+<p class="note" style="border-left:3px solid #c0392b;padding-left:.7rem"><strong>Corrección (2026-09-10).</strong> Este esquema decía que «las cuatro» llevan la cuña. No es así: <strong>1 y 2 (el embudo) son cajas rectas</strong> — la cuña se probó allí y se revirtió el mismo 2026-09-04, a petición del usuario, dejando el cambio solo en 3 y 4. <strong>Resuelto el 2026-09-10:</strong> el palo <strong>4</strong> se veía como una L sin rampa y los cubos se le metían dentro; el <strong>3</strong> (el del lado del Sorter) siempre estuvo bien. Se arregló invirtiendo el orden del <code>crossSection</code> del 4 para igualar el sentido del 3 — los tres perfiles quedan ahora en −0,0046. <strong style="color:#1a7f37">Validado en pantalla: NO TOCAR.</strong> Ojo: primero se invirtió el 3 por error y salió peor (huecos en los dos); el bueno era el 3 desde el principio. El tope (palo 5) es horario también, pero se extruye por el eje X y por eso está bien — no tocarlo. Ver <code>carriles_completo.html</code>.</p>
+
+<p class="note" style="border-left:3px solid #c0392b;padding-left:.7rem"><strong>Este esquema está SUPERADO (2026-09-10) — no es un error nuevo, es que dejó de ser la fuente de verdad.</strong> La "caída" a "2 cm" de arriba ya no es el valor real: la pieza entera bajó 1,5cm (base de z=0,755 a z=0,740, apoyada por fin en la cinta) y la pared quedó en 1,5cm, no 2. No era cosmético: la repisa de arriba quedaba por encima del centro del cubo y ahí es donde se trababa un dedo al desplazarse el cubo hacia el carril — exactamente el choque que motivó este cambio. El estado real y el porqué completo están en <code>carriles_completo.html</code>, que es la referencia única desde el 2026-09-04; este fichero se conserva por las figuras, no como fuente de números.</p>
+</figure>

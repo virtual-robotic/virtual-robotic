@@ -1,4 +1,4 @@
-# Version: 2026-09-20 11:00 -- contabilidad: precio propio de paquete, emisores, tarifas, historial de precios, correccion de precios y facturas
+# Version: 2026-09-26 18:42 -- contabilidad: permisos por grupo (empleados con Contabilidad)
 """Control de precios y facturacion (sesion 2026-09-19).
 
 Como se controla un precio, de origen a factura:
@@ -78,7 +78,7 @@ def _cliente_o_404(db: Session, cliente_id: int) -> models.Cliente:
 @router.get("/clientes/{cliente_id}/tarifas", response_model=list[schemas.TarifaClienteOut])
 def listar_tarifas(
     cliente_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN, auth.ROL_ADMIN_CLIENTE)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))),
     db: Session = Depends(get_db),
 ):
     if usuario.rol == auth.ROL_ADMIN_CLIENTE and usuario.cliente_id != cliente_id:
@@ -91,7 +91,7 @@ def fijar_tarifa(
     cliente_id: int,
     subproducto_id: int,
     payload: schemas.TarifaClienteIn,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Precio especial para este cliente. Solo vale para pedidos NUEVOS."""
@@ -124,7 +124,7 @@ def fijar_tarifa(
 def quitar_tarifa(
     cliente_id: int,
     subproducto_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Vuelve a la tarifa general para ese cliente."""
@@ -144,7 +144,7 @@ def historial_precios(
     subproducto_id: int | None = None,
     cliente_id: int | None = None,
     limite: int = 200,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     query = db.query(models.HistorialPrecio)
@@ -169,7 +169,7 @@ def historial_precios(
 @router.get("/clientes/{cliente_id}/tarifas_paquete", response_model=list[schemas.TarifaClientePaqueteOut])
 def listar_tarifas_paquete(
     cliente_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN, auth.ROL_ADMIN_CLIENTE)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))),
     db: Session = Depends(get_db),
 ):
     if usuario.rol == auth.ROL_ADMIN_CLIENTE and usuario.cliente_id != cliente_id:
@@ -182,7 +182,7 @@ def fijar_tarifa_paquete(
     cliente_id: int,
     paquete_id: int,
     payload: schemas.TarifaClienteIn,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Precio especial de UN paquete para este cliente. Solo vale para pedidos NUEVOS."""
@@ -215,7 +215,7 @@ def fijar_tarifa_paquete(
 def quitar_tarifa_paquete(
     cliente_id: int,
     paquete_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     tarifa = db.get(models.TarifaClientePaquete, (cliente_id, paquete_id))
@@ -236,7 +236,7 @@ def quitar_tarifa_paquete(
 def corregir_precio_pedido(
     pedido_id: int,
     payload: schemas.CorregirPrecio,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Corrige el precio de un pedido AUN NO ENTREGADO (lo ya entregado consta
@@ -277,7 +277,7 @@ def corregir_precio_pedido(
 def corregir_precio_pedido_paquete(
     pp_id: int,
     payload: schemas.CorregirPrecio,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Corrige el precio de UN paquete de un pedido AUN NO ENTREGADO (el paquete se entrega entero,
@@ -337,7 +337,7 @@ def con_factura(db: Session, repartos: list[models.Reparto]) -> list[models.Repa
 def corregir_precio_linea_albaran(
     linea_id: int,
     payload: schemas.CorregirPrecio,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Corrige el precio de una linea de albaran que TODAVIA NO esta facturada
@@ -411,7 +411,7 @@ def _datos_emisor(razon_social, cif, direccion) -> tuple[str, str, str]:
 
 @router.get("/emisores", response_model=list[schemas.EmisorOut])
 def listar_emisores(
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION, auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     return _emisor_out(db, db.query(models.Emisor).order_by(models.Emisor.id).all())
@@ -544,7 +544,7 @@ def _factura_o_404(db: Session, factura_id: int, usuario: models.Usuario) -> mod
 @router.post("/facturas", response_model=schemas.FacturaOut)
 def emitir_factura(
     payload: schemas.FacturarIn,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Una factura para UN cliente con sus albaranes aun sin facturar (todos, o
@@ -616,7 +616,7 @@ def emitir_factura(
 def listar_facturas(
     cliente_id: int | None = None,
     limite: int = 200,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN, auth.ROL_ADMIN_CLIENTE)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))),
     db: Session = Depends(get_db),
 ):
     query = db.query(models.Factura)
@@ -631,7 +631,7 @@ def listar_facturas(
 @router.get("/facturas/{factura_id}", response_model=schemas.FacturaOut)
 def obtener_factura(
     factura_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN, auth.ROL_ADMIN_CLIENTE)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))),
     db: Session = Depends(get_db),
 ):
     return _facturas_out(db, [_factura_o_404(db, factura_id, usuario)])[0]
@@ -641,7 +641,7 @@ def obtener_factura(
 def marcar_cobrada(
     factura_id: int,
     payload: schemas.PagoIn,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     factura = _factura_o_404(db, factura_id, usuario)
@@ -661,7 +661,7 @@ def marcar_cobrada(
 def anular_factura(
     factura_id: int,
     payload: schemas.AnularIn,
-    usuario: models.Usuario = Depends(auth.require_roles(ADMIN)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.CONTABILIDAD)),
     db: Session = Depends(get_db),
 ):
     """Anula una factura emitiendo su RECTIFICATIVA (mismas lineas, cantidades

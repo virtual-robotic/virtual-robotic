@@ -1,0 +1,377 @@
+<!-- Version: 2026-09-21 20:55 -- + pulsacion larga (10 s) para restablecer la clave; antes: PI_PICO_cableado_boton.html (migrado al diseno de marca, mismos tokens que PI_PICO_cableado_oled.html) -->
+<title>Cableado del Pulsador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --surface-2: #e2e9ee;
+    --ink: #16211f;
+    --ink-soft: #55655f;
+    --line: rgba(22,33,31,0.14);
+    --line-soft: #d5e0e6;
+    --accent: #a8461f;
+    --accent-ink: #ffffff;
+    --accent-wash: #fbe6d6;
+    --wire-a: #16211f;
+    --wire-b: #2f645f;
+    --font-display: "Big Shoulders Display", sans-serif;
+    --font-body: "Archivo", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --surface-2: #1c3c58;
+      --ink: #eee7da;
+      --ink-soft: #9fb0ac;
+      --line: rgba(238,231,218,0.14);
+      --line-soft: #23405a;
+      --accent: #c9683c;
+      --accent-ink: #17202b;
+      --accent-wash: #3a2718;
+      --wire-a: #eee7da;
+      --wire-b: #5b9a92;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --surface-2: #1c3c58;
+    --ink: #eee7da;
+    --ink-soft: #9fb0ac;
+    --line: rgba(238,231,218,0.14);
+    --line-soft: #23405a;
+    --accent: #c9683c;
+    --accent-ink: #17202b;
+    --accent-wash: #3a2718;
+    --wire-a: #eee7da;
+    --wire-b: #5b9a92;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 60px);
+    letter-spacing: 0.01em;
+    margin: 2px 0 4px;
+    text-wrap: balance;
+    text-transform: uppercase;
+  }
+
+  .dek {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 16px;
+    margin: 0;
+  }
+
+  section { margin-top: 44px; }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 0.01em;
+    margin: 0 0 14px;
+    text-transform: uppercase;
+  }
+
+  code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+
+  figure {
+    margin: 20px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 14px;
+  }
+
+  .diagram-scroll { overflow-x: auto; }
+
+  svg.schema {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 680px;
+  }
+
+  figcaption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    max-width: 74ch;
+  }
+
+  .legend {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .legend span.swatch {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .parts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .part {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+  }
+
+  .part strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Migas de pan (mismo patron que PI_PICO_cableado_oled.html) ---------- */
+  .migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+  .migas a { color: var(--ink-soft); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--ink-soft); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<main>
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <a href="PI_PICO_montaje.html">Montaje de las Pico</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Cableado del pulsador</span>
+  </nav>
+
+  <header>
+    <span class="eyebrow">Rasberry_Pi_Pico · main.py · MicroPython</span>
+    <h1>Cableado del Pulsador</h1>
+    <p class="dek">Las dos formas de montar el botón de parada con una resistencia física de 10&nbsp;kΩ: pull-up (mantiene el código tal cual está) y pull-down (invierte la lógica del flanco). Elige una — no montes las dos a la vez.</p>
+  </header>
+
+  <section>
+    <h2>Esquema eléctrico</h2>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg class="schema" viewBox="0 0 1000 420" role="img" aria-label="Dos esquemas eléctricos comparados: a la izquierda, pull-up, con la resistencia de 10 kilo-ohmios entre 3V3 y el nodo GPIO16, y el pulsador entre ese nodo y GND; a la derecha, pull-down, con el pulsador entre 3V3 y el nodo GPIO16, y la resistencia entre ese nodo y GND. Ambos nodos GPIO16 se conectan a la Raspberry Pi Pico W.">
+
+          <!-- ===================== LEFT: PULL-UP ===================== -->
+          <g font-family="IBM Plex Mono">
+            <text x="180" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">PULL-UP · código actual, sin cambios</text>
+
+            <text x="180" y="52" text-anchor="middle" font-size="13" font-weight="600">3V3</text>
+            <circle cx="180" cy="62" r="3.5" fill="currentColor" />
+            <line x1="180" y1="62" x2="180" y2="92" stroke="var(--wire-a)" stroke-width="2" />
+
+            <!-- resistor -->
+            <rect x="163" y="92" width="34" height="58" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="205" y="126" font-size="12">10 kΩ</text>
+
+            <line x1="180" y1="150" x2="180" y2="178" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="178" r="4" fill="var(--wire-b)" />
+
+            <!-- to Pico -->
+            <line x1="180" y1="178" x2="300" y2="178" stroke="var(--wire-b)" stroke-width="2" />
+            <text x="240" y="170" text-anchor="middle" font-size="11.5" fill="var(--wire-b)">GPIO16</text>
+            <rect x="300" y="153" width="92" height="50" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="346" y="183" text-anchor="middle" font-size="12" font-weight="600">Pico W</text>
+
+            <!-- switch -->
+            <line x1="180" y1="178" x2="180" y2="206" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="210" r="3.5" fill="currentColor" />
+            <line x1="180" y1="210" x2="203" y2="228" stroke="currentColor" stroke-width="2" />
+            <circle cx="180" cy="250" r="3.5" fill="currentColor" />
+            <text x="215" y="232" font-size="11" opacity="0.65">pulsador</text>
+            <line x1="180" y1="250" x2="180" y2="290" stroke="var(--wire-a)" stroke-width="2" />
+
+            <circle cx="180" cy="300" r="3.5" fill="currentColor" />
+            <line x1="180" y1="290" x2="180" y2="300" stroke="var(--wire-a)" stroke-width="2" />
+            <text x="180" y="322" text-anchor="middle" font-size="13" font-weight="600">GND</text>
+
+            <text x="180" y="365" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">reposo = 1 · pulsado = 0</text>
+            <text x="180" y="382" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">(flanco de bajada)</text>
+          </g>
+
+          <!-- divider -->
+          <line x1="500" y1="20" x2="500" y2="400" stroke="currentColor" stroke-width="1" opacity="0.15" />
+
+          <!-- ===================== RIGHT: PULL-DOWN ===================== -->
+          <g font-family="IBM Plex Mono" transform="translate(440,0)">
+            <text x="180" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">PULL-DOWN · invierte el flanco</text>
+
+            <text x="180" y="52" text-anchor="middle" font-size="13" font-weight="600">3V3</text>
+            <circle cx="180" cy="62" r="3.5" fill="currentColor" />
+            <line x1="180" y1="62" x2="180" y2="90" stroke="var(--wire-a)" stroke-width="2" />
+
+            <!-- switch -->
+            <circle cx="180" cy="94" r="3.5" fill="currentColor" />
+            <line x1="180" y1="112" x2="203" y2="130" stroke="currentColor" stroke-width="2" />
+            <circle cx="180" cy="134" r="3.5" fill="currentColor" />
+            <text x="215" y="116" font-size="11" opacity="0.65">pulsador</text>
+            <line x1="180" y1="134" x2="180" y2="178" stroke="var(--wire-a)" stroke-width="2" />
+
+            <circle cx="180" cy="178" r="4" fill="var(--wire-b)" />
+
+            <line x1="180" y1="178" x2="300" y2="178" stroke="var(--wire-b)" stroke-width="2" />
+            <text x="240" y="170" text-anchor="middle" font-size="11.5" fill="var(--wire-b)">GPIO16</text>
+            <rect x="300" y="153" width="92" height="50" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="346" y="183" text-anchor="middle" font-size="12" font-weight="600">Pico W</text>
+
+            <line x1="180" y1="178" x2="180" y2="208" stroke="var(--wire-a)" stroke-width="2" />
+
+            <!-- resistor -->
+            <rect x="163" y="208" width="34" height="58" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="205" y="242" font-size="12">10 kΩ</text>
+
+            <line x1="180" y1="266" x2="180" y2="300" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="300" r="3.5" fill="currentColor" />
+            <text x="180" y="322" text-anchor="middle" font-size="13" font-weight="600">GND</text>
+
+            <text x="180" y="365" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">reposo = 0 · pulsado = 1</text>
+            <text x="180" y="382" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">(flanco de subida)</text>
+          </g>
+
+        </svg>
+      </div>
+      <div class="legend">
+        <div><span class="swatch" style="background:var(--wire-a)"></span>alimentación / GND</div>
+        <div><span class="swatch" style="background:var(--wire-b)"></span>señal hacia GPIO16</div>
+      </div>
+      <figcaption>Figura 1. Los dos montajes posibles con resistencia física de 10 kΩ. En pull-up (izquierda) el pulsador queda cableado exactamente igual que la pull-up interna que ya usa <code>main.py</code> — puedes montar esta resistencia en paralelo sin tocar el código. En pull-down (derecha) la lógica se invierte, así que hay que actualizar <code>comprobar_boton()</code> para detectar flanco de subida en vez de bajada.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>El pulsador real (4 patas)</h2>
+    <figure>
+      <div class="diagram-scroll">
+        <svg class="schema" viewBox="0 0 620 260" role="img" aria-label="Vista desde arriba de un pulsador de 4 patas: las dos patas del lado izquierdo están unidas por dentro, igual que las dos del lado derecho. Hay que cablear una pata de cada lado, nunca las dos del mismo lado.">
+          <g font-family="IBM Plex Mono">
+            <text x="150" y="24" text-anchor="middle" font-size="12.5" font-weight="600">vista desde arriba</text>
+
+            <rect x="100" y="40" width="100" height="100" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="100" cy="55" r="5" fill="currentColor" />
+            <circle cx="100" cy="125" r="5" fill="currentColor" />
+            <circle cx="200" cy="55" r="5" fill="currentColor" />
+            <circle cx="200" cy="125" r="5" fill="currentColor" />
+
+            <line x1="80" y1="55" x2="80" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="100" y1="55" x2="80" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="100" y1="125" x2="80" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <text x="55" y="94" text-anchor="middle" font-size="10.5" opacity="0.6" transform="rotate(-90 55 94)">unidas por dentro</text>
+
+            <line x1="220" y1="55" x2="220" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="200" y1="55" x2="220" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="200" y1="125" x2="220" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <text x="245" y="94" text-anchor="middle" font-size="10.5" opacity="0.6" transform="rotate(90 245 94)">unidas por dentro</text>
+
+            <circle cx="100" cy="55" r="8" fill="none" stroke="var(--accent)" stroke-width="2" />
+            <circle cx="200" cy="125" r="8" fill="none" stroke="var(--accent)" stroke-width="2" />
+            <text x="150" y="200" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="600">usa una pata de cada lado</text>
+            <text x="150" y="220" text-anchor="middle" font-size="11" fill="var(--ink-soft)">(cualquier combinación izq. + der. sirve)</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Figura 2. Si cableas las dos patas del mismo lado (p. ej. las dos de la izquierda), el circuito queda cerrado siempre — el botón "lee" como pulsado permanentemente, se toque o no.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Si se te olvida la clave: mantén el botón 10 segundos</h2>
+    <p>Este mismo botón (el de la <strong>Pico USB del Loader</strong>) sirve también como el botón de reset de un router. Un toque normal para la celda al instante, como siempre. Si lo <strong>mantienes pulsado 10 segundos</strong>, la Pico avisa al panel de control de que quieres restablecer la clave de configuración.</p>
+    <ol>
+      <li>Abre en el panel la pestaña <strong>Configuración</strong> o la de <strong>Raspberry Pi Pico</strong>. En cualquier otra pestaña el aviso se ignora: hay que estar delante del panel.</li>
+      <li>Mantén el botón 10 segundos. Si lo sueltas antes, no pasa nada (los rebotes del contacto no reinician la cuenta).</li>
+      <li>El panel pregunta <em>¿Restablecer la clave de configuración a la de fábrica (1111)?</em> Confirma.</li>
+      <li>La pantalla OLED muestra unos segundos <strong>Contrasena reseteada</strong> (sin eñe: la fuente de la pantalla es solo ASCII) y después vuelve a lo que estaba mostrando.</li>
+    </ol>
+    <p>Sin Pico física, los dos botones rojos <em>PARADA DE EMERGENCIA</em> de la pestaña Raspberry Pi Pico (Loader y Sorter) hacen lo mismo: mantenlos 10 segundos y el panel lo cuenta hacia atrás. El sensor HC-SR04 nunca cuenta como pulsación larga. El botón de la Pico W del Sorter (Wi-Fi) todavía no tiene esta función.</p>
+  </section>
+
+  <section>
+    <h2>Material</h2>
+    <div class="parts">
+      <div class="part"><strong>Pulsador</strong>Táctil de 4 patas, tipo breadboard (los cuadraditos de plástico con un botón redondo arriba).</div>
+      <div class="part"><strong>Resistencia</strong>10 kΩ · código de colores marrón-negro-naranja.</div>
+      <div class="part"><strong>Cables</strong>3 puente macho-macho (o macho-hembra si vas directo a los pines de la Pico sin protoboard).</div>
+      <div class="part"><strong>Protoboard</strong>Opcional pero recomendada — facilita mucho no tener que soldar para probar.</div>
+    </div>
+  </section>
+
+  <footer>
+    Lab.Panda 2.4 / Rasberry_Pi_Pico · GPIO16 = pin físico 21 de la Pico W · 3V3 = pin físico 36 · cualquier pin GND sirve (hay varios repartidos por el borde de la placa).
+  </footer>
+
+</main>

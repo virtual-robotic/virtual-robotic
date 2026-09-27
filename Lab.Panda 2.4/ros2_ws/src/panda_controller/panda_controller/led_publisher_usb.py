@@ -1,5 +1,5 @@
-# Version: 2026-09-21 20:40 -- led_publisher_usb (+ aviso de pulsacion larga del boton y mensajes MSG: a la OLED)
 #!/usr/bin/env python3
+# Version: 2026-09-21 20:40 -- led_publisher_usb (+ aviso de pulsacion larga del boton y mensajes MSG: a la OLED)
 """Puente ROS2 -> Raspberry Pi Pico (SIN wifi, solo USB): escucha comandos
 de color en un topic (por defecto `/comando_led_loader`, std_msgs/String:
 "R"/"G"/"B"/"rojo"/"verde"/"azul"/"0"/"apagar") y se los reenvia por el

@@ -1,6 +1,41 @@
-_Última modificación: 2026-09-21 20:55_
+_Última modificación: 2026-09-27 18:13_
 
-# Arrancar el proyecto
+# Arrancar el proyecto (Linux)
+
+Guía para **Linux**. En Windows, ver [INSTALAR_WINDOWS.md](INSTALAR_WINDOWS.md).
+
+## Antes de nada: instalar lo necesario
+
+Probado en **Linux Mint / Ubuntu 24.04**. Hace falta:
+
+- **Solo la web de pedidos:** Docker (con Docker Compose v2) y Git.
+- **La celda con los robots:** lo anterior, más un escritorio gráfico (no
+  vale entrar por SSH), unos 15 GB de disco, 8 GB de RAM o más, e internet
+  la primera vez. Con tarjeta gráfica va fluido; sin ella hay que quitar una
+  línea (`/dev/dri`) del `docker-compose.yml`, como se explica más abajo, y
+  va más lento.
+
+Todo lo demás (Python, ROS 2, Webots…) va dentro de Docker, no hay que
+instalarlo. Las Raspberry Pi Pico son opcionales.
+
+```bash
+sudo apt update
+sudo apt install -y git docker.io docker-compose-v2
+sudo apt install -y x11-xserver-utils      # solo para la celda con robots
+sudo usermod -aG docker $USER              # y cierra sesión y vuelve a entrar
+docker --version && docker compose version # comprobar que funciona
+
+git clone https://github.com/virtual-robotic/virtual-robotic.git
+```
+
+Para ver **solo la web de pedidos**, basta con:
+
+```bash
+cd virtual-robotic/Taller_Administracion
+docker compose up -d --build               # y abre http://localhost:8000
+```
+
+## Arrancar
 
 Todos los `cd` de aquí abajo son **relativos a la carpeta del proyecto**
 (donde tengas clonado o copiado `virtual-robotic`, o `Robotica` si es tu
@@ -98,7 +133,7 @@ volver a entrar ahí.
 
 Cualquier usuario `normal` que se cree también entra con la contraseña
 maestra `1111` (pensada para dejar que alguien "juegue" sin darle una
-cuenta); para `admin_sistema`/`admin_cliente` la maestra solo cuela con
+cuenta); para `admin_sistema`/`admin_cliente`/`empleado` la maestra solo cuela con
 `TALLER_DEV_MODE=true` (ya activo en el `docker-compose.yml` de este
 proyecto).
 
@@ -399,6 +434,11 @@ enciende, lanza la celda y espera a que conecten los 6 controladores):
 ./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
 ```
 
+Las líneas no tienen por qué estar en el mismo ordenador ni en el mismo
+sistema: el 2026-09-24 funcionaron a la vez una línea en Windows y dos en una
+máquina virtual de Linux, todas contra la web del Windows (ver
+[INSTALAR_WINDOWS.md](INSTALAR_WINDOWS.md), *Cadenas en otros ordenadores*).
+
 Guía completa paso a paso (qué hace cada cosa, cuántas líneas caben
 como máximo, cómo lanzar una línea en otro ordenador físico) en
 [Documentacion/anadir_cadena_produccion.html](Documentacion/anadir_cadena_produccion.html).
@@ -406,6 +446,8 @@ como máximo, cómo lanzar una línea en otro ordenador físico) en
 ---
 
 ## Si algo se atasca (cubos amontonados en la cinta, los dos robots parados)
+
+_Más problemas conocidos y sus arreglos: [PROBLEMAS_CONOCIDOS.md](PROBLEMAS_CONOCIDOS.md)._
 
 Puede pasar si un brazo se rinde con un cubo difícil tras varios
 intentos: hasta el 2026-08-31 podía quedarse colgado tapando su propia
@@ -499,6 +541,25 @@ Protocolo de LED por cable/wifi: un carácter por Pico —
 `R`/`G`/`B`/`0` (apagado), más `PARADA`/`REARME` para el parpadeo de
 emergencia. Los dos Pico entienden el mismo protocolo, cada una en su
 canal (Wi-Fi puerto 5001 / USB serie).
+
+---
+
+## Otra forma (experimental): construirlo desde cero con Claude Code
+
+En vez de descargar el proyecto con `git clone`, se puede pedir a
+**Claude Code** que lo vuelva a construir entero, partiendo de una carpeta
+vacía. Para eso está el fichero
+[Promt Genera Proyecto Virtual Robotic.md](Documentacion/Promt%20Genera%20Proyecto%20Virtual%20Robotic.md):
+explica cómo usarlo y trae la orden que hay que pegarle a Claude.
+
+- **Probado el 27-09-2026 en Linux** (una máquina virtual Linux Mint con
+  10 GB de RAM): Claude lo construyó entero en unas 6 horas de trabajo, en
+  varias sesiones, y funcionó: web, celda, panel y dos cadenas a la vez.
+  Windows y las Pico de verdad quedaron sin probar.
+- **No sustituye a la instalación normal**: para usar el proyecto, lo rápido y
+  seguro es lo de este manual.
+- Es una **foto del proyecto a 27-09-2026**: lo que cambie después no estará.
+- Está solo en castellano.
 
 ---
 

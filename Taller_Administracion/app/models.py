@@ -1,4 +1,4 @@
-# Version: 2026-09-21 18:22 -- modelos: codigo de cliente; precio propio de paquete, grupo de entrega
+# Version: 2026-09-26 18:40 -- modelos: permisos por grupo de los empleados
 import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
@@ -47,6 +47,9 @@ class Usuario(Base):
     cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=True)
     sucursal = Column(String, nullable=True)
     activo = Column(Boolean, nullable=False, default=True)
+    # Solo cuentan en rol "empleado" (ver auth.tiene_permiso): que grupos del panel ve.
+    permiso_produccion = Column(Boolean, nullable=False, default=False)
+    permiso_contabilidad = Column(Boolean, nullable=False, default=False)
     creado_en = Column(DateTime, default=datetime.datetime.utcnow)
     creado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     modificado_en = Column(DateTime, nullable=True)

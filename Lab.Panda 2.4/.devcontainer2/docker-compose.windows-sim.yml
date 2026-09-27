@@ -1,0 +1,22 @@
+# Version: 2026-09-24 -- segunda cadena con la topologia que tendria Windows
+#
+# Igual que ../.devcontainer/docker-compose.windows-sim.yml, pero para la
+# cadena 2 y con Webots en OTRO puerto (1235). Simula dos cadenas con Webots
+# nativo en la misma maquina Windows: los dos no pueden escuchar a la vez en
+# el 1234, asi que la segunda usa --port=1235 y su ROS 2 se conecta ahi via
+# la variable WEBOTS_PORT (la leen los ficheros de arranque de ros2_ws).
+#
+# Uso (con la cadena 1 ya levantada con su propio windows-sim):
+#   docker compose -f docker-compose.yml -f docker-compose.windows-sim.yml up -d
+services:
+  webots:
+    ports:
+      - "1235:1235"
+    command: webots --stdout --stderr --batch --mode=realtime --port=1235 /workspace/worlds/panda_industrial_cell.wbt
+
+  ros2_app:
+    environment:
+      - WEBOTS_PORT=1235
+    extra_hosts:
+      - "taller_host:host-gateway"
+      - "host.docker.internal:host-gateway"

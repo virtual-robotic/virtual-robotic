@@ -1,0 +1,6 @@
+# Para MEGAsync (2026-09-25): no sincronizar lo que genera "colcon build"
+# dentro de Docker. Es de root, lleva enlaces a rutas del contenedor
+# (/workspace/...) y MEGA lo marcaba como errores. Se regenera solo al compilar.
+-d:build
+-d:install
+-d:log

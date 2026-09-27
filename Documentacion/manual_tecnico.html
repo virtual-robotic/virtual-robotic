@@ -1,0 +1,883 @@
+<!-- Version: 2026-09-20 11:25 -- manual_tecnico.html (barrido periodico de stock parado) -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual Técnico — Lab.Panda 2.4 + Taller_Administracion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16211f;
+  --muted:#55655f;
+  --line:rgba(22,33,31,0.14);
+  --bg-soft:#f4f5ef;
+  --accent:#a8461f;
+  --accent-soft:#f2dfc7;
+  --red:#c8433f;
+  --red-soft:#f6dedd;
+  --green:#2f8f5b;
+  --green-soft:#dcefe3;
+  --blue:#3572b8;
+  --blue-soft:#dde8f4;
+  --purple:#6b4fa0;
+  --purple-soft:#e8e1f3;
+  --sans:'Archivo', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;}
+@page{ size:A4; margin:16mm 15mm 18mm; }
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  line-height:1.5;
+  font-size:13px;
+  background:#fff;
+}
+h1,h2,h3,h4{font-weight:700;line-height:1.25;break-after:avoid;}
+h1{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;font-size:26px;margin:0 0 4px;}
+h2{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;font-size:18px;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--ink);}
+h3{font-size:14.5px;margin:18px 0 6px;color:var(--ink);}
+h4{font-size:12.5px;margin:12px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+p{margin:0 0 8px;}
+.section{margin:0 0 26px;break-inside:avoid-page;}
+.section-loose{margin:0 0 26px;}
+.kicker{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+  margin-bottom:6px;
+  display:block;
+}
+code,.mono{font-family:var(--mono);font-size:11.5px;}
+code{background:var(--bg-soft);border:1px solid var(--line);border-radius:3px;padding:1px 5px;}
+pre{
+  background:#1b1f26;
+  color:#e9ecf1;
+  border-radius:6px;
+  padding:10px 12px;
+  font-family:var(--mono);
+  font-size:11px;
+  line-height:1.5;
+  overflow-x:auto;
+  margin:8px 0;
+  break-inside:avoid;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+pre .c{color:#8892a0;}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:11.5px;break-inside:avoid;}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top;}
+th{background:var(--bg-soft);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tr{break-inside:avoid;}
+.card{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px 14px;
+  background:var(--bg-soft);
+  margin:8px 0;
+  break-inside:avoid;
+}
+.note{
+  border-left:4px solid var(--accent);
+  background:var(--accent-soft);
+  padding:8px 12px;
+  border-radius:0 6px 6px 0;
+  margin:10px 0;
+  break-inside:avoid;
+  font-size:12px;
+}
+.note b{color:var(--accent);}
+.warn{
+  border-left:4px solid var(--red);
+  background:var(--red-soft);
+  padding:8px 12px;
+  border-radius:0 6px 6px 0;
+  margin:10px 0;
+  break-inside:avoid;
+  font-size:12px;
+}
+.warn b{color:var(--red);}
+ul,ol{margin:6px 0 10px;padding-left:20px;}
+li{margin-bottom:3px;}
+.cover{
+  min-height:245mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  page-break-after:always;
+}
+.cover .kicker{font-size:12px;}
+.cover h1{font-size:38px;margin-bottom:10px;}
+.cover .sub{font-size:16px;color:var(--muted);margin-bottom:30px;max-width:520px;}
+.cover .meta{font-family:var(--mono);font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:40px;}
+.cover .diagram{margin-top:20px;}
+.toc{break-inside:avoid;}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:sect;}
+.toc li{counter-increment:sect;padding:6px 0;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;font-size:13px;}
+.toc li::before{content:counter(sect) ".";font-family:var(--mono);color:var(--accent);font-weight:700;margin-right:8px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.box{border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;text-align:center;font-size:11.5px;background:#fff;}
+.box .t{font-weight:700;font-size:12px;}
+.box .d{color:var(--muted);font-size:10px;margin-top:2px;}
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:10px;font-weight:600;}
+.tag-red{background:var(--red-soft);color:var(--red);}
+.tag-green{background:var(--green-soft);color:var(--green);}
+.tag-blue{background:var(--blue-soft);color:var(--blue);}
+.tag-purple{background:var(--purple-soft);color:var(--purple);}
+.tag-accent{background:var(--accent-soft);color:var(--accent);}
+.filetree{font-family:var(--mono);font-size:11px;background:var(--bg-soft);border:1px solid var(--line);border-radius:6px;padding:10px 14px;line-height:1.65;white-space:pre;overflow-x:auto;}
+.svg-wrap{break-inside:avoid;margin:12px 0;text-align:center;}
+.svg-wrap svg{max-width:100%;height:auto;}
+figcaption{font-size:10.5px;color:var(--muted);margin-top:6px;text-align:left;}
+.two-col{columns:2;column-gap:20px;}
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;
+  font-family:var(--mono);font-size:11px;font-weight:700;flex:none;
+}
+.stepline{display:flex;gap:10px;align-items:flex-start;margin:10px 0;}
+.stepline .body{flex:1;}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;}
+footer.pagefoot{font-size:9.5px;color:var(--muted);text-align:center;margin-top:6px;}
+.ref-table td:first-child{font-family:var(--mono);font-size:10.5px;white-space:nowrap;}
+
+.migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+.migas a { color: var(--muted); text-decoration: none; }
+.migas a:hover { color: var(--ink); }
+.migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+.migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="migas" aria-label="Ruta">
+  <a href="/">Principal</a>
+  <span class="migas-sep">→</span>
+  <a href="/manual/lanzar">Cómo arranca todo</a>
+  <span class="migas-sep">→</span>
+  <span class="migas-actual" aria-current="page">Manual Técnico</span>
+</nav>
+
+<!-- ============ PORTADA ============ -->
+<section class="cover">
+  <span class="kicker">Documentación técnica de despliegue</span>
+  <h1>Lab.Panda 2.4 + Taller_Administracion</h1>
+  <div class="sub">Manual técnico para levantar desde cero una celda industrial simulada de dos brazos robóticos (Franka Emika Panda, Webots + ROS 2) con clasificación por color, LEDs físicos en dos Raspberry Pi Pico, y un servidor web de pedidos/almacén que se sincroniza con la producción real.</div>
+
+  <div class="svg-wrap diagram">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Dos sistemas independientes conectados por HTTP: Lab.Panda 2.4 con Webots y ROS2, y Taller_Administracion con FastAPI y SQLite">
+      <rect x="10" y="20" width="330" height="180" rx="10" fill="#f5f6f8" stroke="#1b1f26" stroke-width="1.5"/>
+      <text x="175" y="42" text-anchor="middle" font-weight="700" font-size="14" fill="#1b1f26">Lab.Panda 2.4</text>
+      <text x="175" y="58" text-anchor="middle" font-size="10.5" fill="#5b6472">Simulación · Webots + ROS 2</text>
+      <rect x="28" y="72" width="130" height="46" rx="6" fill="#dde8f4" stroke="#3572b8"/>
+      <text x="93" y="92" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1b1f26">webots_panda_sim24</text>
+      <text x="93" y="106" text-anchor="middle" font-size="9" fill="#5b6472">Webots R2025a</text>
+      <rect x="182" y="72" width="130" height="46" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+      <text x="247" y="92" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1b1f26">ros2_panda_dev24</text>
+      <text x="247" y="106" text-anchor="middle" font-size="9" fill="#5b6472">ROS 2 Humble</text>
+      <line x1="158" y1="95" x2="182" y2="95" stroke="#1b1f26" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <rect x="28" y="134" width="130" height="52" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+      <text x="93" y="153" text-anchor="middle" font-size="10" font-weight="700">Pico W · Sorter</text>
+      <text x="93" y="166" text-anchor="middle" font-size="8.5" fill="#5b6472">Wi-Fi + botón parada</text>
+      <text x="93" y="178" text-anchor="middle" font-size="8.5" fill="#5b6472">LED agarre RGB</text>
+      <rect x="182" y="134" width="130" height="52" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+      <text x="247" y="153" text-anchor="middle" font-size="10" font-weight="700">Pico USB · Loader</text>
+      <text x="247" y="166" text-anchor="middle" font-size="8.5" fill="#5b6472">Serie USB + botón parada</text>
+      <text x="247" y="178" text-anchor="middle" font-size="8.5" fill="#5b6472">LED agarre + LED producto PWM</text>
+      <line x1="93" y1="118" x2="93" y2="134" stroke="#1b1f26" stroke-width="1.2"/>
+      <line x1="247" y1="118" x2="247" y2="134" stroke="#1b1f26" stroke-width="1.2"/>
+
+      <rect x="382" y="20" width="330" height="180" rx="10" fill="#f5f6f8" stroke="#1b1f26" stroke-width="1.5"/>
+      <text x="547" y="42" text-anchor="middle" font-weight="700" font-size="14" fill="#1b1f26">Taller_Administracion</text>
+      <text x="547" y="58" text-anchor="middle" font-size="10.5" fill="#5b6472">Servidor web · Pedidos y almacén</text>
+      <rect x="425" y="80" width="245" height="50" rx="6" fill="#e8e1f3" stroke="#6b4fa0"/>
+      <text x="547" y="100" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1b1f26">taller_admin_api</text>
+      <text x="547" y="114" text-anchor="middle" font-size="9" fill="#5b6472">FastAPI + Uvicorn + SQLite</text>
+      <text x="547" y="126" text-anchor="middle" font-size="9" fill="#5b6472">Puerto 8000 · panel web + REST</text>
+
+      <line x1="340" y1="95" x2="378" y2="95" stroke="#a8590f" stroke-width="2" marker-end="url(#arrow2)"/>
+      <text x="359" y="87" text-anchor="middle" font-size="8.5" fill="#a8590f" font-weight="700">HTTP</text>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1b1f26"/></marker>
+        <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a8590f"/></marker>
+      </defs>
+    </svg>
+    <figcaption>Fig. 0 — Dos proyectos independientes que no comparten código ni contenedores; se hablan solo por HTTP. Si <code>Taller_Administracion</code> está apagado, la simulación sigue funcionando igual.</figcaption>
+  </div>
+
+  <div class="meta">Directorio raíz: /home/aladin/MEGA/Robotica &nbsp;·&nbsp; Generado 2026-09-01 &nbsp;·&nbsp; Audiencia: técnico que va a instalar/reconstruir el sistema desde cero</div>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="section toc">
+  <h2>Índice</h2>
+  <ol>
+    <li><span>Resumen del sistema</span></li>
+    <li><span>Inventario de hardware</span></li>
+    <li><span>Requisitos de software</span></li>
+    <li><span>Estructura de directorios del repositorio</span></li>
+    <li><span>Despliegue — Lab.Panda 2.4 (simulación)</span></li>
+    <li><span>Raspberry Pi Pico — firmware y cableado</span></li>
+    <li><span>Despliegue — Taller_Administracion (servidor web)</span></li>
+    <li><span>Integración entre sistemas y mapa de red</span></li>
+    <li><span>Checklist de puesta en marcha desde cero</span></li>
+    <li><span>Referencia rápida de archivos clave</span></li>
+  </ol>
+</section>
+
+<!-- ============ 1. RESUMEN ============ -->
+<section class="section-loose">
+<span class="kicker">1</span>
+<h2>Resumen del sistema</h2>
+<p>El proyecto simula una <b>celda industrial de clasificación</b> con dos brazos robóticos Franka Emika Panda (con pinza real) en el simulador Webots, controlados por ROS 2. Un robot <b>Loader</b> reparte cubos de tres colores (rojo/verde/azul) sobre una cinta transportadora; un robot <b>Sorter</b> los recoge al otro extremo y los clasifica. Cada robot lleva asociada una Raspberry Pi Pico con un LED RGB físico que refleja el color que se está manipulando, y un botón físico de parada de emergencia.</p>
+<p>Cada cubo clasificado representa un producto real del catálogo de un segundo sistema, <b>Taller_Administracion</b>: un servidor web (FastAPI + SQLite) de pedidos y almacén, independiente en código y en ciclo de vida, que se entera de lo que fabrica la celda por una llamada HTTP.</p>
+<div class="grid3">
+  <div class="box"><div class="t">3</div><div class="d">contenedores Docker</div></div>
+  <div class="box"><div class="t">2</div><div class="d">robots Panda (Loader / Sorter)</div></div>
+  <div class="box"><div class="t">2</div><div class="d">Raspberry Pi Pico físicas</div></div>
+</div>
+<div class="note"><b>Idea clave:</b> los dos proyectos (<code>Lab.Panda 2.4</code> y <code>Taller_Administracion</code>) pueden desplegarse y arrancarse de forma completamente independiente. Solo si se quiere producción "de verdad" (pedidos completándose solos) hacen falta los dos a la vez, comunicados por red local.</div>
+</section>
+
+<!-- ============ 2. HARDWARE ============ -->
+<section class="section">
+<span class="kicker">2</span>
+<h2>Inventario de hardware</h2>
+<table>
+<tr><th>Elemento</th><th>Cantidad</th><th>Notas</th></tr>
+<tr><td>PC con GPU (Linux)</td><td>1</td><td>Ejecuta Docker, Webots (aceleración gráfica vía <code>/dev/dri</code>) y el navegador del panel de <code>Taller_Administracion</code>.</td></tr>
+<tr><td>Raspberry Pi Pico <b>W</b></td><td>1</td><td>Asociada al robot <b>Sorter</b>. Se conecta por Wi-Fi a la misma red que el PC. LED RGB de agarre en GP13/14/15. Botón de parada en GP16 (pull-up interna, a GND).</td></tr>
+<tr><td>Raspberry Pi Pico (sin Wi-Fi)</td><td>1</td><td>Asociada al robot <b>Loader</b>. Se conecta por <b>cable USB</b> al PC. LED RGB de agarre en GP13/14/15, LED RGB de producto (PWM) en GP17/18/19, botón de parada en GP16.</td></tr>
+<tr><td>LED RGB cátodo común ×2</td><td>2</td><td>Uno por Pico ("LED de agarre": on/off por color).</td></tr>
+<tr><td>LED RGB cátodo común adicional</td><td>1</td><td>Solo en la Pico Loader ("LED de producto"), controlado por PWM para poder mostrar cualquier color, no solo R/G/B puros.</td></tr>
+<tr><td>Pulsador normalmente abierto ×2</td><td>2</td><td>Uno por Pico, entre GPIO16 y GND. No necesita resistencia externa (pull-up interna del microcontrolador).</td></tr>
+<tr><td>Resistencias para los LED</td><td>varias</td><td>Una por canal (cátodo común): ver §6.3. Con PWM cada canal necesita su propia resistencia — no vale una compartida.</td></tr>
+<tr><td>Cable USB (datos, no solo carga)</td><td>1</td><td>Conecta la Pico Loader al PC de forma estable.</td></tr>
+</table>
+</section>
+
+<!-- ============ 3. REQUISITOS SOFTWARE ============ -->
+<section class="section">
+<span class="kicker">3</span>
+<h2>Requisitos de software</h2>
+<table>
+<tr><th>Componente</th><th>Versión usada</th><th>Dónde se fija</th></tr>
+<tr><td>Sistema operativo host</td><td>Linux (probado en Ubuntu/derivados)</td><td>—</td></tr>
+<tr><td>Docker + Docker Compose</td><td>cualquier versión reciente con soporte <code>compose</code> v2</td><td>—</td></tr>
+<tr><td>ROS 2</td><td>Humble (<code>osrf/ros:humble-desktop-full</code>)</td><td><code>Lab.Panda 2.4/ros2_app/Dockerfile</code>, <code>webots/Dockerfile</code></td></tr>
+<tr><td>Webots</td><td><b>2025a, fijada a esa versión exacta</b></td><td><code>Lab.Panda 2.4/webots/Dockerfile</code> (<code>apt-get install -y webots=2025a</code>)</td></tr>
+<tr><td>ros-humble-webots-ros2</td><td>última del repo (rodante, solo compatible con Webots 2025a)</td><td>ambos Dockerfiles</td></tr>
+<tr><td>ikpy (Python)</td><td>última de pip</td><td>instalado por <code>pip3</code> en <code>ros2_app/Dockerfile</code>; cinemática inversa real del Panda</td></tr>
+<tr><td>pyserial (Python)</td><td>última de pip</td><td><code>ros2_app/Dockerfile</code>; habla con la Pico Loader por USB</td></tr>
+<tr><td>Python (Taller_Administracion)</td><td>3.12 (<code>python:3.12-slim</code>)</td><td><code>Taller_Administracion/Dockerfile</code></td></tr>
+<tr><td>FastAPI / Uvicorn / SQLAlchemy / Pydantic</td><td>0.115.0 / 0.30.6 / 2.0.35 / 2.9.2</td><td><code>Taller_Administracion/requirements.txt</code></td></tr>
+<tr><td>MicroPython</td><td>firmware de la Raspberry Pi Pico</td><td>flasheado en cada Pico; código en <code>Rasberry_Pi_Pico/</code> y <code>Rasberry_Pi_Pico_USB_Loader/</code></td></tr>
+<tr><td>Thonny (recomendado)</td><td>cualquiera reciente</td><td>IDE para programar/depurar las Pico</td></tr>
+</table>
+<div class="warn"><b>No usar Webots "a secas".</b> El repositorio apt de Cyberbotics es rodante: <code>apt-get install webots</code> sin versión instala lo último de ese día. Se probó fijar una versión anterior (R2023b, mejor aspecto gráfico) pero <code>ros-humble-webots-ros2</code> solo es compatible con 2025a — con R2023b el <code>WarehouseSupervisor</code> caía con <i>segmentation fault</i> y las cámaras cenitales dejaban de entregar imagen. La versión pinneada <code>=2025a</code> es la única combinación verificada como funcional de punta a punta (el único coste es cosmético: algunas texturas se descargan bajo demanda y esa descarga puede fallar en redes restringidas).</div>
+</section>
+
+<!-- ============ 4. ESTRUCTURA DE DIRECTORIOS ============ -->
+<section class="section">
+<span class="kicker">4</span>
+<h2>Estructura de directorios del repositorio</h2>
+<div class="filetree">Robotica/
+├── LANZAR_PROYECTO.md              <span class="c">← guía operativa rápida (ver Manual de Usuario)</span>
+├── Lab.Panda 2.4/
+│   ├── .devcontainer/
+│   │   └── docker-compose.yml      <span class="c">← orquesta webots_panda_sim24 + ros2_panda_dev24</span>
+│   ├── webots/Dockerfile           <span class="c">← imagen con Webots 2025a + ROS2</span>
+│   ├── ros2_app/Dockerfile         <span class="c">← imagen ROS2 Humble + ikpy + pyserial</span>
+│   ├── worlds/panda_industrial_cell.wbt   <span class="c">← mundo activo (celda de 2 robots)</span>
+│   ├── controllers/                <span class="c">← utilidades de calibración (ikpy, URDF exportado)</span>
+│   └── ros2_ws/src/panda_controller/
+│       ├── launch/robot_launch_industrial_cell.py   <span class="c">← lanza los 6 controladores</span>
+│       ├── panda_controller/       <span class="c">← ~25 nodos Python (brazos, visión, LEDs, panel)</span>
+│       └── resource/                <span class="c">← URDFs (panda_ikpy.urdf, overhead_camera*.urdf...)</span>
+├── Rasberry_Pi_Pico/                <span class="c">← firmware Pico W (Sorter, Wi-Fi)</span>
+│   ├── main.py
+│   └── wifi_config.py               <span class="c">← SSID / PASSWORD / PC_IP / PC_PUERTO</span>
+├── Rasberry_Pi_Pico_USB_Loader/     <span class="c">← firmware Pico USB (Loader)</span>
+│   └── main.py
+└── Taller_Administracion/
+    ├── docker-compose.yml
+    ├── Dockerfile
+    ├── requirements.txt
+    ├── data/taller.db               <span class="c">← SQLite persistente (volumen)</span>
+    └── app/
+        ├── main.py                  <span class="c">← rutas FastAPI + seed inicial de productos</span>
+        ├── models.py                <span class="c">← esquema SQLAlchemy (ver §7.2)</span>
+        ├── schemas.py                <span class="c">← modelos Pydantic (I/O de la API)</span>
+        ├── auth.py                  <span class="c">← sesión por token + contraseña maestra</span>
+        └── static/panel.html        <span class="c">← panel web (SPA sin build, un solo archivo)</span></div>
+</section>
+
+<!-- ============ 5. LAB.PANDA 2.4 ============ -->
+<section class="section-loose">
+<span class="kicker">5</span>
+<h2>Despliegue — Lab.Panda 2.4 (simulación)</h2>
+
+<h3>5.1 Arquitectura de contenedores</h3>
+<p>Dos contenedores Docker en una red <i>bridge</i> propia (<code>panda_ros_net</code>), con <code>ROS_DOMAIN_ID=31</code> para no cruzarse con otros proyectos ROS 2 en la misma máquina:</p>
+<table>
+<tr><th>Contenedor</th><th>Imagen base</th><th>Rol</th><th>Puertos / dispositivos</th></tr>
+<tr><td><code>webots_panda_sim24</code></td><td><code>osrf/ros:humble-desktop-full</code> + Webots 2025a</td><td>Simulación 3D. Arranca directamente el mundo <code>panda_industrial_cell.wbt</code> en modo <code>--batch --mode=realtime</code>.</td><td><code>/dev/dri</code> (GPU), <code>/tmp/.X11-unix</code> (pantalla), <code>privileged: true</code></td></tr>
+<tr><td><code>ros2_panda_dev24</code></td><td><code>osrf/ros:humble-desktop-full</code> + ikpy + pyserial</td><td>ROS 2 y todos los nodos Python: brazos, cámaras, LEDs, panel de control.</td><td><code>5002:5002</code> (TCP botón parada Sorter), dispositivo USB opcional de la Pico Loader, <code>extra_hosts: taller_host→host-gateway</code></td></tr>
+</table>
+<div class="note"><b>Autorización de pantalla obligatoria antes de arrancar:</b> <code>xhost +local:docker</code> en el host, o ni Webots ni <code>teleop_gui</code> podrán dibujar ninguna ventana.</div>
+
+<h3>5.2 Docker Compose (<code>.devcontainer/docker-compose.yml</code>)</h3>
+<pre>services:
+  webots:
+    build: {context: ../webots, dockerfile: Dockerfile}
+    container_name: webots_panda_sim24
+    environment: [DISPLAY, QT_X11_NO_MITSHM=1, ROS_DOMAIN_ID=31, RMW_IMPLEMENTATION=rmw_fastrtps_cpp]
+    volumes: [/tmp/.X11-unix, ~/.Xauthority, ../worlds, ../controllers]
+    devices: [/dev/dri]
+    networks: {panda_ros_net: {aliases: [host.docker.internal]}}
+    privileged: true
+    command: webots --stdout --stderr --batch --mode=realtime /workspace/worlds/panda_industrial_cell.wbt
+
+  ros2_app:
+    build: {context: ../ros2_app, dockerfile: Dockerfile}
+    container_name: ros2_panda_dev24
+    environment: [ROS_DOMAIN_ID=31, RMW_IMPLEMENTATION=rmw_fastrtps_cpp, ...]
+    volumes: [../ros2_ws:/workspace, /tmp/.X11-unix, ~/.Xauthority]
+    ports: ["5002:5002"]              <span class="c"># botón de parada del Sorter, vía TCP</span>
+    extra_hosts: ["taller_host:host-gateway"]  <span class="c"># para llamar a Taller_Administracion</span>
+    devices:
+      - "/dev/serial/by-id/usb-MicroPython_...-if00:/dev/ttyACM_LOADER"  <span class="c"># Pico Loader por USB</span>
+    depends_on: [webots]
+    command: bash
+
+networks:
+  panda_ros_net: {driver: bridge}</pre>
+<div class="warn"><b>Ruta USB de la Pico Loader:</b> el bloque <code>devices:</code> de <code>ros2_app</code> usa una ruta estable de <code>/dev/serial/by-id/</code> (no <code>/dev/ttyACM0</code>, que puede cambiar de orden). Si se reemplaza la placa Loader por otra distinta, hay que descubrir la nueva ruta con <code>ls -l /dev/serial/by-id/</code> tras conectarla y actualizar esta línea — si la ruta no existe, <code>docker compose up</code> falla al arrancar <b>todo</b> el servicio <code>ros2_app</code>, no solo el puente USB.</div>
+
+<h3>5.3 El mundo Webots: celda industrial de dos robots</h3>
+<p><code>worlds/panda_industrial_cell.wbt</code> contiene: dos brazos Panda (<code>Loader</code> y <code>Sorter</code>) con <code>controller "&lt;extern&gt;"</code>, una cinta transportadora entre ambos, tres cubos (rojo/verde/azul, <code>Box</code> de 6&nbsp;cm de lado) y dos cámaras cenitales fijas (una sobre la caja del Loader, otra sobre el punto de recogida del Sorter). Un <code>WarehouseSupervisor</code> adicional (robot invisible, <code>supervisor TRUE</code>) vigila la posición real de los tres cubos: rescata los que se caen y recicla los ya clasificados de vuelta a la caja del Loader.</p>
+<div class="warn"><b>Este bloque de abajo (2026-09-03/04) está DESACTUALIZADO en su conclusión — actualización 2026-09-10.</b> La cuña se revirtió aquí, pero se <b>volvió a aplicar el mismo 2026-09-04</b> una vez arreglada la causa real (la cinta deslizando durante el agarre, ver el bloque "Resbalón del Sorter" justo debajo) y sigue en producción hoy, con varios ajustes de geometría posteriores (canal ensanchado y revertido, sentido de los vértices corregido, y el 2026-09-10 la altura: la pieza flotaba 1,5&nbsp;cm sobre la cinta, con la repisa superior por encima del centro del cubo — causa geométrica real del dedo trabado en las dislocaciones. Corregido bajando la base de z=0,755 a z=0,740). El mismo día se promovió a producción una <b>bandeja</b> (<code>SorterShuttleSupervisor</code>, sin cuerpo físico) que centra el cubo en el punto de recogida antes de que la pinza opere. <b>La referencia con el estado real, no este historial, es <code>Documentacion/carriles_completo.html</code></b> — este bloque se deja tal cual por su valor de registro histórico (por qué se intentó, por qué falló la primera vez).</div>
+<div class="note"><b>Carriles rectos con rampa lateral — PROBADO Y REVERTIDO (sesión 2026-09-03):</b> se probó ensanchar <code>BELT_RAIL_L_RECTO</code> y <code>BELT_RAIL_R_RECTO</code> (tramo recto donde agarra la pinza, y=100–128&nbsp;cm) con una <code>Extrusion</code> en forma de cuña (9&nbsp;cm de grosor y alto hacia fuera, con rampa hasta 3&nbsp;cm y luego 2&nbsp;cm hacia el canal). El cubo se resbalaba de la pinza del Sorter al levantar de forma constante, pese a una lista larga de ajustes de código aislados solo al Sorter (margen de giro, cierre de pinza más fuerte, girar antes de bajar, bajar el perfil interior) — ninguno lo arregló, ni siquiera bajando el carril a una altura que el brazo ya libraba de sobra al levantar. Argumento decisivo: "antes funcionaba" — revertido a la <code>Box</code> simple original (1,5&nbsp;cm de grosor, 3&nbsp;cm de alto). Pista sin confirmar para si se retoma: el sensor de dedos mostró un cierre asimétrico real (~5&nbsp;mm de diferencia entre los dos dedos). Diseño de la rampa documentado en <code>Documentacion/carril_recto_rampa_lateral_esquema.html</code>.</div>
+<div class="note"><b>Resbalón del Sorter — RESUELTO (sesión 2026-09-04):</b> tras revertir el carril, el Sorter seguía perdiendo el cubo al levantar de forma intermitente incluso con la geometría original. Análisis: la cinta (<code>DEF BELT</code>, <code>speed 0.15</code> fijo) nunca se paraba durante el agarre — a diferencia de la mesa fija del Loader, cada cierre de pinza del Sorter pasaba con la superficie deslizando bajo el cubo. Arreglo en dos partes, ambas aisladas al Sorter (nunca tocan al Loader): (1) <code>WarehouseSupervisor</code> ahora tiene acceso de <code>Supervisor</code> al campo <code>speed</code> de <code>DEF BELT</code> y lo pone a 0 mientras dura el agarre, controlado por <code>SorterDemo</code> publicando en <code>/warehouse/belt_pause</code> (ver <code>warehouse_supervisor_driver.py</code> y <code>_pause_conveyor</code> en <code>cube_shuttle_demo.py</code>/<code>sorter_demo.py</code>) — confirmado en vivo que la cinta se para de verdad, no solo en el campo. (2) Cierre de pinza ligeramente más firme solo para el Sorter (<code>self.grasp_close = 0.014</code> en <code>SorterDemo.__init__</code>, en vez del <code>GRIPPER_CLOSED=0.017</code> por defecto que sigue usando el Loader). Efecto secundario — RESUELTO también: el Loader es un proceso independiente que no sabía que la cinta estaba en pausa y seguía depositando cubos nuevos mientras tanto, chocando con el que esperaba parado (confirmado en vivo). Arreglado en <code>loader_demo.py</code> con <code>_esperar_hueco_en_cinta()</code>: antes de soltar cada cubo, comprueba con la misma posición real (<code>self.cube_pos_real</code>, ground truth de <code>WarehouseSupervisor</code>) que no haya ningún cubo a menos de 10&nbsp;cm del punto de deposito — sin acoplar el Loader al topic de pausa del Sorter, cada robot sigue sin depender del otro. También se relajó el umbral de verificación por ground truth (<code>GROUND_TRUTH_LIFT_FRACTION</code>, 0.35→0.28 en <code>cube_shuttle_demo.py</code>): con el agarre ya bueno, un caso límite (subida real de 5.2&nbsp;cm contra 5.25&nbsp;cm esperados) abría la pinza en el aire por pura estrechez de margen, no por un fallo real — visto en vivo que el reintento automático inmediato clasificaba el mismo cubo sin problema.</div>
+<div class="warn"><b>Cubo lanzado por los aires / pinza rota — RESUELTO PARCIALMENTE (sesión 2026-09-04, segunda ronda el mismo día):</b> en producción real (no en pruebas aisladas) aparecieron fallos más violentos: "aprieta el cubo con fuerza y sale disparado", "se ha quedado la mano dislocada". Causa CONFIRMADA capturando en vivo <code>/sorter/joint_positions</code> + <code>/sorter/gripper_state</code>: <code>_publish()</code> en <code>cube_shuttle_demo.py</code> solo espera <code>step_sleep</code> entre pasos de rampa, sin comprobar que el brazo REAL ya llegó a la pose (<code>self.real_theta</code> guarda lo comandado, no una lectura de sensor) — con <code>step_sleep</code> bajado a 0.1s en una sesión anterior (para ganar velocidad), la muñeca seguía girando de verdad más de 1 segundo después de que el código diera el giro final por terminado, y la pinza cerraba sobre un brazo aún en movimiento (un dedo llegó a marcar una posición imposible, negativa; el cubo subió en línea recta de 0.77 a 2.3 metros, un lanzamiento balístico real). Arreglo: <code>step_sleep</code> devuelto a 0.2s, nueva pausa <code>GRASP_SETTLE_S=0.4</code> justo antes de cerrar la pinza, y fuerza máxima de los dedos limitada a 20N vía <code>setAvailableForce()</code> en <code>my_robot_driver.py</code> (el PROTO <code>PandaHand.proto</code> permite hasta 100N por dedo, pensado para piezas reales, muchísimo para un cubo de ~50g; 5N resultó demasiado poco para el giro de agarre a 90°, que ya se sabe que es el más débil). <b>SIN RESOLVER:</b> con estos tres cambios aplicados, en la siguiente prueba apareció un fallo distinto y más grave — "un giro brusco para abajo", "el brazo se ha estrellado contra la cinta" — que sugiere una segunda causa aún no identificada (posible discontinuidad del solver de IK saltando a una solución de articulación muy distinta de golpe). Se decidió parar la producción en caliente en vez de seguir apilando cambios sin verificar. Ver <code>robotica_carril_rampa_agarre_abierto.md</code> en memoria para el plan de la próxima sesión.</div>
+<div class="note"><b>Qué pasó después (resumen, sesiones 2026-09-08 a 2026-09-10) — este manual no cubre el detalle día a día de este tramo.</b> Se añadió detección real de pinza dislocada por sensor de dedos (<code>GRIPPER_DISLOCATION_MAX</code>) con parada de emergencia automática, que se auto-rearma sola tras 4s salvo que encadene más de 3 dislocaciones seguidas sin un agarre bueno de por medio (<code>MAX_DISLOCACIONES_SEGUIDAS</code>) — pensado para que un roce puntual no deje la celda ciega parada encima de su propia cámara. <b>Bug encontrado el 2026-09-10:</b> el auto-rearme bajaba la bandera de parada pero no abría la pinza, así que el siguiente movimiento programado (típicamente el levantamiento) seguía arrastrando un dedo todavía físicamente trabado — capturado en vivo empeorando la lectura en cada ciclo (0,084→−0,166→−0,092). Corregido abriendo la pinza como parte del propio auto-rearme. De paso se corrigió que el LED de alarma de las dos Pico se quedaba parpadeando para siempre tras un auto-rearme (nunca se publicaba el <code>'rearme'</code> explícito que sí manda el panel cuando lo pulsa una persona). Para el estado y las cifras reales de hoy, ver <code>carriles_completo.html</code> y la memoria del proyecto.</div>
+
+<h3>5.4 Paquete ROS 2 <code>panda_controller</code></h3>
+<p>El launch <code>robot_launch_industrial_cell.py</code> conecta de golpe <b>6 controladores <code>WebotsController</code></b> (todos comparten el puerto extern 1234, distinguidos por nombre de robot en Webots): brazo Loader, brazo Sorter, cámara cenital del Loader, cámara cenital del Sorter, el <code>WarehouseSupervisor</code>, y desde el 2026-09-10 el <code>SorterShuttleSupervisor</code> (bandeja que centra el cubo en el punto de recogida del Sorter, sin cuerpo físico igual que el anterior).</p>
+<h4>Nodos principales (entry points de <code>setup.py</code>)</h4>
+<table>
+<tr><th>Nodo</th><th>Namespace típico</th><th>Función</th></tr>
+<tr><td><code>my_robot_driver</code></td><td>por robot (interno al launch)</td><td>Driver <code>webots_ros2_driver</code> propio: recibe <code>/joint_positions</code> (7 valores) y <code>/gripper_position</code>; publica <code>/gripper_state</code> (sensores reales de los dedos).</td></tr>
+<tr><td><code>loader_demo</code></td><td><code>/loader</code></td><td>Producción real: reparte cubos de un color o de los tres a la vez sobre la cinta.</td></tr>
+<tr><td><code>sorter_demo</code></td><td><code>/sorter</code></td><td>Producción real: recoge lo que llega a la cinta y lo clasifica por color, avisa a <code>Taller_Administracion</code>.</td></tr>
+<tr><td><code>cube_shuttle_demo</code></td><td>—</td><td>Demo de pick-and-place cíclico de un solo brazo (heredado de la fase de un robot).</td></tr>
+<tr><td><code>teleop_gui</code></td><td>—</td><td>Panel de control Tkinter completo: jog manual, selector Loader/Sorter, STOP/REARME, lanzar producción. Ver Manual de Usuario Avanzado.</td></tr>
+<tr><td><code>teleop_manual</code></td><td>—</td><td>Jog manual por teclado en terminal (raw termios) — herramienta de desarrollo, no forma parte del flujo normal.</td></tr>
+<tr><td><code>led_publisher</code></td><td>—</td><td>Puente <code>/comando_led</code> → Pico W del Sorter (TCP, puerto 5001).</td></tr>
+<tr><td><code>led_publisher_usb</code></td><td>—</td><td>Puente <code>/comando_led_loader</code> + <code>/comando_led_producto</code> → Pico USB del Loader (serie), y lee el aviso de botón de parada de esa Pico.</td></tr>
+<tr><td><code>button_listener</code></td><td>—</td><td>Servidor TCP puerto 5002: recibe "STOP" de la Pico W del Sorter y publica <code>/emergency_stop</code>.</td></tr>
+<tr><td><code>estop_panel</code></td><td>—</td><td>Ventana Tkinter reducida, solo STOP/REARME — redundante si se usa <code>teleop_gui</code>.</td></tr>
+<tr><td><code>vision_lift_cube</code>, <code>best_color_repeat_lift</code>, <code>pick_and_place</code>, <code>visit_balls</code>, <code>move_above_ball</code>, <code>lift_ball</code>, <code>stack_tower_demo</code>, <code>grasp_yaw_test</code>, <code>sorter_hover_test</code></td><td>—</td><td>Herramientas de desarrollo / demos del proyecto de un solo robot anterior a la celda de dos brazos. No forman parte del arranque normal (ver Apéndice de <code>LANZAR_PROYECTO.md</code>).</td></tr>
+</table>
+
+<h3>5.5 Cinemática: ikpy + URDF real exportado de Webots</h3>
+<p>El Panda tiene <b>7 articulaciones</b> (redundante para 6 grados de libertad de posición+orientación del TCP). En vez de mantener una tabla de Denavit–Hartenberg calculada a mano (que llegó a tener un error de fondo de ~30&nbsp;cm frente al <i>ground truth</i> real de Webots), la cinemática compartida vive en <code>panda_ikpy_kinematics.py</code> y usa:</p>
+<ol>
+<li><code>ikpy.chain.Chain.from_urdf_file('panda_ikpy.urdf')</code> — URDF real exportado con <code>Supervisor.getUrdf()</code> desde el propio Webots (no tecleado a mano), sin la rama de la <code>wrist_camera</code> ni los dedos (ramas hermanas que <code>ikpy</code> no sabe elegir solas).</li>
+<li><code>chain.inverse_kinematics(...)</code> resuelve en "delta respecto al snapshot de exportación" — hay que sumarle <code>SNAPSHOT = [0, 0, 0, -1.7708, -1.6, 1.6, 0.79]</code> para obtener el ángulo real a enviar al robot.</li>
+<li>Corrección empírica fija <code>CORRECTION_Z = -0.16</code> m (offset flange→mano→TCP que Webots no exporta exacto).</li>
+<li><code>JOINT_LIMITS</code> reales (impresos por <code>my_robot_driver.py</code> al arrancar, distintos de la documentación genérica de Franka en <code>joint4</code>/<code>joint6</code>) se aplican siempre — <code>ikpy</code> no los respeta por sí solo.</li>
+</ol>
+<div class="note"><b>Verificación por <i>ground truth</i>:</b> el <code>WarehouseSupervisor</code> (posición real vía API de Supervisor de Webots, no cinemática calculada) es la referencia que manda para decidir si un agarre fue real — por delante del sensor de fuerza de los dedos. Ver historial completo en <code>Lab.Panda 2.4/resumen_proyecto_panda.md</code>.</div>
+
+<h3>5.6 Comandos de compilación y arranque</h3>
+<pre>cd "Lab.Panda 2.4/.devcontainer"
+docker compose up -d --build
+
+docker exec -it ros2_panda_dev24 bash
+cd /workspace
+colcon build --packages-select panda_controller --symlink-install
+source install/setup.bash   <span class="c"># no hace falta en terminales nuevas, ya autosourcea</span>
+
+ros2 launch panda_controller robot_launch_industrial_cell.py</pre>
+</section>
+
+<!-- ============ 6. RASPBERRY PI PICO ============ -->
+<section class="section-loose">
+<span class="kicker">6</span>
+<h2>Raspberry Pi Pico — firmware y cableado</h2>
+<p>Cada robot lleva su propia Raspberry Pi Pico con MicroPython, encargada del LED físico y del botón de parada. Ambas hablan el mismo protocolo de un carácter (<code>R</code>/<code>G</code>/<code>B</code>/<code>0</code>, más <code>PARADA</code>/<code>REARME</code>), cada una por su canal.</p>
+
+<div class="grid2">
+<div class="card">
+<h4 style="margin-top:0">Pico W · Sorter</h4>
+<p><code>Rasberry_Pi_Pico/main.py</code> — se conecta al Wi-Fi configurado en <code>wifi_config.py</code> y abre un <b>servidor TCP no bloqueante en el puerto 5001</b> a la escucha de comandos RGB. Si detecta la pulsación del botón, además abre una conexión TCP saliente a <code>PC_IP:5002</code> (mismo <code>wifi_config.py</code>) para avisar a ROS 2 (<code>button_listener</code>).</p>
+<p>WebREPL activo para poder reprogramar por aire desde Thonny.</p>
+</div>
+<div class="card">
+<h4 style="margin-top:0">Pico USB · Loader</h4>
+<p><code>Rasberry_Pi_Pico_USB_Loader/main.py</code> — sin chip Wi-Fi. Lee comandos directamente de <code>sys.stdin</code> por el mismo cable USB de Thonny (<code>select.poll</code> no bloqueante), y para avisar al PC de una parada imprime una línea centinela <code>BOTON_PARADA</code> que <code>led_publisher_usb.py</code> detecta en el lado ROS 2.</p>
+<p>Admite además <code>PROD:r,g,b</code> (0-255 por canal) para el segundo LED, el "LED de producto".</p>
+</div>
+</div>
+
+<h3>6.1 Mapa de pines</h3>
+<table>
+<tr><th>Función</th><th>Pico W (Sorter)</th><th>Pico USB (Loader)</th><th>Notas</th></tr>
+<tr><td>LED agarre — Rojo</td><td>GP13</td><td>GP13</td><td>on/off, cátodo común</td></tr>
+<tr><td>LED agarre — Verde</td><td>GP14</td><td>GP14</td><td>on/off, cátodo común</td></tr>
+<tr><td>LED agarre — Azul</td><td>GP15</td><td>GP15</td><td>on/off, cátodo común</td></tr>
+<tr><td>Botón parada</td><td>GP16 → GND</td><td>GP16 → GND</td><td>pull-up interna, sin resistencia externa; antirrebote 40&nbsp;ms por software</td></tr>
+<tr><td>LED producto — Rojo (PWM)</td><td>—</td><td>GP17</td><td>solo Loader; 1&nbsp;kHz, resistencia propia por canal</td></tr>
+<tr><td>LED producto — Verde (PWM)</td><td>—</td><td>GP18</td><td>solo Loader</td></tr>
+<tr><td>LED producto — Azul (PWM)</td><td>—</td><td>GP19</td><td>solo Loader</td></tr>
+</table>
+<div class="warn">Los pines del LED de producto se movieron de GP16/17/18 a <b>GP17/18/19</b> en la sesión 2026-09-01 porque GP16 pasó a usarse para el botón físico. Si se cablea desde cero, usar siempre el mapa de arriba, no versiones antiguas de la documentación.</div>
+
+<h3>6.2 Esquema — botón de parada (pull-up interna)</h3>
+<div class="svg-wrap">
+<svg viewBox="0 0 620 200" role="img" aria-label="Esquema del botón de parada: un terminal a GPIO16, el otro a GND, sin resistencia externa porque se usa la pull-up interna de la Pico">
+  <rect x="20" y="30" width="140" height="140" rx="8" fill="#f5f6f8" stroke="#1b1f26" stroke-width="1.5"/>
+  <text x="90" y="55" text-anchor="middle" font-weight="700" font-size="12">Raspberry</text>
+  <text x="90" y="70" text-anchor="middle" font-weight="700" font-size="12">Pi Pico</text>
+  <circle cx="160" cy="90" r="4" fill="#1b1f26"/>
+  <text x="150" y="86" text-anchor="end" font-size="11" font-family="ui-monospace,monospace">GPIO16</text>
+  <circle cx="160" cy="140" r="4" fill="#1b1f26"/>
+  <text x="150" y="136" text-anchor="end" font-size="11" font-family="ui-monospace,monospace">GND</text>
+  <line x1="160" y1="90" x2="260" y2="90" stroke="#3572b8" stroke-width="2"/>
+  <line x1="160" y1="140" x2="260" y2="140" stroke="#5b6472" stroke-width="2"/>
+  <rect x="260" y="80" width="70" height="70" rx="6" fill="#fff" stroke="#1b1f26" stroke-width="1.5"/>
+  <text x="295" y="120" text-anchor="middle" font-size="11" font-weight="700">Pulsador</text>
+  <line x1="330" y1="90" x2="420" y2="90" stroke="#3572b8" stroke-width="2"/>
+  <line x1="330" y1="140" x2="420" y2="140" stroke="#5b6472" stroke-width="2"/>
+  <line x1="420" y1="90" x2="420" y2="140" stroke="#5b6472" stroke-width="2"/>
+  <text x="440" y="118" font-size="10" fill="#5b6472">unión interna</text>
+  <text x="245" y="70" text-anchor="middle" font-size="9" fill="#3572b8">señal</text>
+  <text x="245" y="165" text-anchor="middle" font-size="9" fill="#5b6472">tierra</text>
+</svg>
+<figcaption>Fig. 1 — Reposo: GPIO16 lee 1 (pull-up interna). Al pulsar, se cierra a GND y GPIO16 lee 0 — flanco de bajada = pulsación real. Sin resistencia física necesaria.</figcaption>
+</div>
+
+<h3>6.3 Esquema — LED de producto por PWM (Loader)</h3>
+<p>A diferencia del LED de agarre (un solo canal encendido cada vez, resistencia compartida en el cátodo común válida), el LED de producto puede tener <b>varios canales activos a la vez</b> para mezclar color — con una resistencia compartida esto haría que cada canal recibiera menos voltaje del que le corresponde y el color mezclado saliera mal. Solución: <b>una resistencia por canal</b>, el cátodo común va directo a GND sin resistencia.</p>
+<table>
+<tr><th>Canal</th><th>Pin Pico</th><th>Resistencia recomendada</th></tr>
+<tr><td>Rojo</td><td>GP17</td><td>150&nbsp;Ω</td></tr>
+<tr><td>Verde</td><td>GP18</td><td>68&nbsp;Ω (47&nbsp;Ω si sale muy tenue)</td></tr>
+<tr><td>Azul</td><td>GP19</td><td>68&nbsp;Ω (47&nbsp;Ω si sale muy tenue)</td></tr>
+</table>
+<p style="font-size:11px;color:var(--muted)">Fórmula: R = (V<sub>Pico</sub> − V<sub>f</sub>) / I, con V<sub>Pico</sub>=3.3&nbsp;V (el resistor solo ve la tensión de pico, no el <i>duty cycle</i>). Diagrama completo de referencia (con LED de agarre original en 220&nbsp;Ω): <code>Documentacion/led_producto_pwm_esquema.html</code>.</p>
+</section>
+
+<!-- ============ 7. TALLER_ADMINISTRACION ============ -->
+<section class="section-loose">
+<span class="kicker">7</span>
+<h2>Despliegue — Taller_Administracion (servidor web)</h2>
+
+<h3>7.1 Contenedor y arranque</h3>
+<pre>cd Taller_Administracion
+docker compose up -d --build</pre>
+<table>
+<tr><th>Contenedor</th><th>Imagen</th><th>Puerto</th><th>Volúmenes</th></tr>
+<tr><td><code>taller_admin_api</code></td><td><code>python:3.12-slim</code> + FastAPI/Uvicorn/SQLAlchemy</td><td><code>8000:8000</code></td><td><code>./app</code> (código), <code>./data</code> (SQLite persistente, <code>TALLER_DB_PATH</code>)</td></tr>
+</table>
+<p>Arranca con <code>uvicorn app.main:app --reload</code>. El panel web (<code>app/static/panel.html</code>, SPA de un solo archivo sin build, con menú en dos niveles: Producción / Contabilidad / Administración) y la documentación interactiva de la API REST (Swagger, <code>/docs</code>) se sirven desde el mismo puerto 8000.</p>
+
+<h3>7.2 Esquema de base de datos</h3>
+<div class="svg-wrap">
+<svg viewBox="0 0 760 840" role="img" aria-label="Diagrama entidad relación de la base de datos de Taller_Administracion: clientes, usuarios, productos, cliente_productos, pedidos, stock, movimientos_stock, repartos, reparto_lineas, configuracion_almacen, eventos_produccion y audit_log">
+  <!-- clientes -->
+  <rect x="20" y="20" width="170" height="112" rx="6" fill="#e8e1f3" stroke="#6b4fa0"/>
+  <text x="105" y="38" text-anchor="middle" font-weight="700" font-size="11">clientes</text>
+  <text x="30" y="54" font-size="8.5" font-family="ui-monospace,monospace">id, razon_social</text>
+  <text x="30" y="66" font-size="8.5" font-family="ui-monospace,monospace">cif, activo</text>
+  <text x="30" y="78" font-size="8.5" font-family="ui-monospace,monospace">direccion, codigo_postal</text>
+  <text x="30" y="90" font-size="8.5" font-family="ui-monospace,monospace">poblacion, provincia</text>
+  <text x="30" y="102" font-size="8.5" font-family="ui-monospace,monospace">email_facturacion</text>
+  <text x="30" y="118" font-size="8.5" font-family="ui-monospace,monospace">creado_por_id →usuarios</text>
+
+  <!-- usuarios -->
+  <rect x="220" y="20" width="160" height="100" rx="6" fill="#dde8f4" stroke="#3572b8"/>
+  <text x="300" y="38" text-anchor="middle" font-weight="700" font-size="11">usuarios</text>
+  <text x="230" y="54" font-size="8.5" font-family="ui-monospace,monospace">id, username, password_hash</text>
+  <text x="230" y="66" font-size="8.5" font-family="ui-monospace,monospace">rol: admin_sistema/</text>
+  <text x="230" y="76" font-size="8.5" font-family="ui-monospace,monospace">  admin_cliente/normal</text>
+  <text x="230" y="88" font-size="8.5" font-family="ui-monospace,monospace">cliente_id →clientes</text>
+  <text x="230" y="100" font-size="8.5" font-family="ui-monospace,monospace">sucursal (texto libre)</text>
+
+  <!-- productos -->
+  <rect x="440" y="20" width="150" height="70" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+  <text x="515" y="38" text-anchor="middle" font-weight="700" font-size="11">productos</text>
+  <text x="450" y="54" font-size="8.5" font-family="ui-monospace,monospace">id, nombre</text>
+  <text x="450" y="66" font-size="8.5" font-family="ui-monospace,monospace">codigo (3 car., UNIQUE)</text>
+
+  <!-- cliente_productos -->
+  <rect x="220" y="150" width="160" height="56" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="300" y="168" text-anchor="middle" font-weight="700" font-size="11">cliente_productos</text>
+  <text x="230" y="184" font-size="8.5" font-family="ui-monospace,monospace">cliente_id + producto_id</text>
+  <text x="230" y="196" font-size="8.5" font-family="ui-monospace,monospace">(clave compuesta)</text>
+
+  <!-- pedidos -->
+  <rect x="20" y="240" width="190" height="112" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="115" y="258" text-anchor="middle" font-weight="700" font-size="11">pedidos</text>
+  <text x="30" y="274" font-size="8.5" font-family="ui-monospace,monospace">id, subproducto_id, producto_id</text>
+  <text x="30" y="286" font-size="8.5" font-family="ui-monospace,monospace">cliente_id, usuario_id</text>
+  <text x="30" y="298" font-size="8.5" font-family="ui-monospace,monospace">cantidad_pedida / _completada</text>
+  <text x="30" y="310" font-size="8.5" font-family="ui-monospace,monospace">/ _repartida (albarán)</text>
+  <text x="30" y="322" font-size="8.5" font-family="ui-monospace,monospace">estado, urgente, creado_en</text>
+  <text x="30" y="334" font-size="8.5" font-family="ui-monospace,monospace">precio_unitario_centimos, iva_%</text>
+
+  <!-- stock -->
+  <rect x="440" y="150" width="150" height="60" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+  <text x="515" y="168" text-anchor="middle" font-weight="700" font-size="11">stock</text>
+  <text x="450" y="184" font-size="8.5" font-family="ui-monospace,monospace">producto_id (PK)</text>
+  <text x="450" y="196" font-size="8.5" font-family="ui-monospace,monospace">cantidad_actual</text>
+
+  <!-- movimientos_stock -->
+  <rect x="440" y="240" width="180" height="88" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+  <text x="530" y="258" text-anchor="middle" font-weight="700" font-size="11">movimientos_stock</text>
+  <text x="450" y="274" font-size="8.5" font-family="ui-monospace,monospace">id, producto_id, tipo</text>
+  <text x="450" y="286" font-size="8.5" font-family="ui-monospace,monospace">cantidad, motivo</text>
+  <text x="450" y="298" font-size="8.5" font-family="ui-monospace,monospace">pedido_id, usuario_id</text>
+  <text x="450" y="310" font-size="8.5" font-family="ui-monospace,monospace">fecha (ledger append-only)</text>
+
+  <!-- eventos_produccion -->
+  <rect x="230" y="360" width="180" height="60" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="320" y="378" text-anchor="middle" font-weight="700" font-size="11">eventos_produccion</text>
+  <text x="240" y="394" font-size="8.5" font-family="ui-monospace,monospace">robot, color, tipo, fecha</text>
+  <text x="240" y="406" font-size="8.5" fill="#5b6472">(diagnóstico, no toca stock)</text>
+
+  <!-- audit_log -->
+  <rect x="20" y="150" width="160" height="60" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="100" y="168" text-anchor="middle" font-weight="700" font-size="11">audit_log</text>
+  <text x="30" y="184" font-size="8.5" font-family="ui-monospace,monospace">tabla, registro_id, accion</text>
+  <text x="30" y="196" font-size="8.5" font-family="ui-monospace,monospace">usuario_id, detalle, fecha</text>
+
+  <!-- repartos (albaran) -->
+  <rect x="20" y="400" width="190" height="74" rx="6" fill="#f3e6b8" stroke="#a88a10"/>
+  <text x="115" y="418" text-anchor="middle" font-weight="700" font-size="11">repartos (albarán)</text>
+  <text x="30" y="434" font-size="8.5" font-family="ui-monospace,monospace">id, numero UNIQUE ALB-AAAA-nnnnnn</text>
+  <text x="30" y="446" font-size="8.5" font-family="ui-monospace,monospace">cliente_id, usuario_id, fecha</text>
+  <text x="30" y="458" font-size="8.5" font-family="ui-monospace,monospace">automatico (solo se añade)</text>
+
+  <!-- reparto_lineas -->
+  <rect x="440" y="400" width="200" height="98" rx="6" fill="#f3e6b8" stroke="#a88a10"/>
+  <text x="540" y="418" text-anchor="middle" font-weight="700" font-size="11">reparto_lineas</text>
+  <text x="450" y="434" font-size="8.5" font-family="ui-monospace,monospace">id, reparto_id, pedido_id</text>
+  <text x="450" y="446" font-size="8.5" font-family="ui-monospace,monospace">subproducto_id, descripcion</text>
+  <text x="450" y="458" font-size="8.5" font-family="ui-monospace,monospace">cantidad</text>
+  <text x="450" y="470" font-size="8.5" font-family="ui-monospace,monospace">precio_unitario_centimos</text>
+  <text x="450" y="482" font-size="8.5" font-family="ui-monospace,monospace">iva_porcentaje (copiados)</text>
+
+  <!-- configuracion_almacen -->
+  <rect x="610" y="150" width="145" height="60" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="682" y="168" text-anchor="middle" font-weight="700" font-size="10">configuracion_almacen</text>
+  <text x="618" y="184" font-size="8.5" font-family="ui-monospace,monospace">reparto_automatico</text>
+  <text x="618" y="196" font-size="8.5" font-family="ui-monospace,monospace">expedicion_automatica</text>
+
+  <!-- facturas -->
+  <rect x="20" y="520" width="200" height="98" rx="6" fill="#e6d3ee" stroke="#8a4fa0"/>
+  <text x="120" y="538" text-anchor="middle" font-weight="700" font-size="11">facturas</text>
+  <text x="30" y="554" font-size="8.5" font-family="ui-monospace,monospace">numero UNIQUE FAC-/RECT-AAAA-n</text>
+  <text x="30" y="566" font-size="8.5" font-family="ui-monospace,monospace">tipo, estado, cliente_id, fecha</text>
+  <text x="30" y="578" font-size="8.5" font-family="ui-monospace,monospace">rectifica_id, motivo</text>
+  <text x="30" y="590" font-size="8.5" font-family="ui-monospace,monospace">emisor_* y cliente_* (copiados)</text>
+  <text x="30" y="602" font-size="8.5" font-family="ui-monospace,monospace">fecha_pago, metodo_pago</text>
+
+  <!-- factura_lineas -->
+  <rect x="260" y="520" width="190" height="86" rx="6" fill="#e6d3ee" stroke="#8a4fa0"/>
+  <text x="355" y="538" text-anchor="middle" font-weight="700" font-size="11">factura_lineas</text>
+  <text x="270" y="554" font-size="8.5" font-family="ui-monospace,monospace">factura_id, reparto_linea_id</text>
+  <text x="270" y="566" font-size="8.5" font-family="ui-monospace,monospace">albaran_numero, descripcion</text>
+  <text x="270" y="578" font-size="8.5" font-family="ui-monospace,monospace">cantidad (negativa en RECT)</text>
+  <text x="270" y="590" font-size="8.5" font-family="ui-monospace,monospace">precio_unitario_centimos, iva_%</text>
+
+  <!-- tarifas_cliente -->
+  <rect x="490" y="520" width="200" height="62" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="590" y="538" text-anchor="middle" font-weight="700" font-size="11">tarifas_cliente</text>
+  <text x="500" y="554" font-size="8.5" font-family="ui-monospace,monospace">cliente_id + subproducto_id</text>
+  <text x="500" y="566" font-size="8.5" font-family="ui-monospace,monospace">precio_centimos (especial)</text>
+
+  <!-- emisores -->
+  <rect x="490" y="610" width="230" height="74" rx="6" fill="#e6d3ee" stroke="#8a4fa0"/>
+  <text x="605" y="628" text-anchor="middle" font-weight="700" font-size="11">emisores (empresas que facturan)</text>
+  <text x="500" y="644" font-size="8.5" font-family="ui-monospace,monospace">razon_social, cif, direccion, email</text>
+  <text x="500" y="656" font-size="8.5" font-family="ui-monospace,monospace">serie_facturas, serie_rectificativas</text>
+  <text x="500" y="668" font-size="8.5" font-family="ui-monospace,monospace">por_defecto, activo (nunca se borra)</text>
+
+  <!-- pedidos_paquete -->
+  <rect x="20" y="745" width="300" height="80" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="170" y="763" text-anchor="middle" font-weight="700" font-size="11">pedidos_paquete (UN paquete pedido)</text>
+  <text x="30" y="779" font-size="8.5" font-family="ui-monospace,monospace">paquete_id, cliente_id, cantidad, cantidad_repartida</text>
+  <text x="30" y="791" font-size="8.5" font-family="ui-monospace,monospace">precio_unitario_centimos (NULL = sin precio propio)</text>
+  <text x="30" y="803" font-size="8.5" font-family="ui-monospace,monospace">iva_porcentaje, precio_origen (congelados al pedir)</text>
+  <text x="30" y="815" font-size="8.5" fill="#5b6472">pedidos.paquete_pedido_id → aqui</text>
+
+  <!-- tarifas_cliente_paquete -->
+  <rect x="350" y="745" width="240" height="62" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="470" y="763" text-anchor="middle" font-weight="700" font-size="11">tarifas_cliente_paquete</text>
+  <text x="360" y="779" font-size="8.5" font-family="ui-monospace,monospace">cliente_id + paquete_id</text>
+  <text x="360" y="791" font-size="8.5" font-family="ui-monospace,monospace">precio_centimos (especial)</text>
+
+  <!-- historial_precios -->
+  <rect x="20" y="640" width="300" height="86" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="170" y="658" text-anchor="middle" font-weight="700" font-size="11">historial_precios (solo se añade)</text>
+  <text x="30" y="674" font-size="8.5" font-family="ui-monospace,monospace">tipo: tarifa_general/tarifa_cliente/pedido/albaran</text>
+  <text x="30" y="686" font-size="8.5" font-family="ui-monospace,monospace">subproducto_id, cliente_id, pedido_id, reparto_linea_id</text>
+  <text x="30" y="698" font-size="8.5" font-family="ui-monospace,monospace">precio_anterior → precio_nuevo, iva_anterior → nuevo</text>
+  <text x="30" y="710" font-size="8.5" font-family="ui-monospace,monospace">motivo, usuario_id, fecha</text>
+
+  <!-- relations -->
+  <line x1="220" y1="565" x2="260" y2="565" stroke="#1b1f26"/>
+  <line x1="445" y1="498" x2="445" y2="520" stroke="#1b1f26"/>
+  <line x1="115" y1="352" x2="115" y2="400" stroke="#1b1f26"/>
+  <line x1="210" y1="437" x2="440" y2="437" stroke="#1b1f26"/>
+  <line x1="190" y1="60" x2="220" y2="60" stroke="#1b1f26"/>
+  <line x1="380" y1="60" x2="440" y2="55" stroke="#1b1f26"/>
+  <line x1="300" y1="120" x2="300" y2="150" stroke="#1b1f26"/>
+  <line x1="515" y1="90" x2="515" y2="150" stroke="#1b1f26"/>
+  <line x1="210" y1="290" x2="220" y2="200" stroke="#1b1f26"/>
+  <line x1="210" y1="270" x2="440" y2="180" stroke="#1b1f26"/>
+  <line x1="210" y1="310" x2="440" y2="290" stroke="#1b1f26"/>
+</svg>
+<figcaption>Fig. 2 — Esquema simplificado (SQLAlchemy, <code>app/models.py</code>). Solo se muestran las relaciones principales; todas las tablas con <code>*_por_id</code>/<code>usuario_id</code> referencian también a <code>usuarios</code> para trazabilidad. <code>reparto_lineas.pedido_id</code> apunta a <code>pedidos</code>, <code>repartos.cliente_id</code> y <code>facturas.cliente_id</code> a <code>clientes</code>, y <code>factura_lineas.reparto_linea_id</code> a <code>reparto_lineas</code> (línea 445) y <code>facturas.emisor_id</code> a <code>emisores</code>. <code>tarifas_cliente</code> une un cliente con un subproducto. No se dibujan <code>colores</code>, <code>subproductos</code>, <code>paquetes</code> ni <code>paquete_componentes</code>.</figcaption>
+</div>
+<div class="note"><b>El LED ya no es la identidad del producto</b> (desde 2026-09-15): el producto se identifica por su <code>codigo</code> de 3 caracteres, y el LED (tabla <code>colores</code>, <code>productos.id_led</code>) es una asignación <b>opcional y decorativa</b> — un producto sin LED se fabrica y se pide exactamente igual. La celda física sigue distinguiendo solo R/G/B (cámara cenital + LED), por eso <code>cubo_clasificado</code> resuelve el producto por <code>pedido_id</code> o <code>producto_id</code> y solo cae al color si no llega ninguno. Cada producto tiene <b>subproductos</b> (variantes: lo que de verdad se pide) y hay <b>paquetes</b> (recetas de varios subproductos). Dibujar <code>colores</code>, <code>subproductos</code> y <code>paquetes</code> queda fuera de este esquema simplificado.</div>
+
+<h3>7.2 bis Ciclo de un pedido: listo y repartido</h3>
+<p>Un pedido pasa por <b>dos etapas</b> y cada una tiene su propio interruptor (tabla <code>configuracion_almacen</code>, fila única). La primera consigue las piezas; la segunda las entrega al cliente y deja un albarán.</p>
+<div class="svg-wrap">
+<svg viewBox="0 0 760 150" role="img" aria-label="Flujo de un pedido: el taller fabrica, las piezas van a stock libre, el reparto automático las asigna al pedido que queda listo, y el reparto de lo listo lo entrega y emite el albarán">
+  <rect x="10" y="40" width="110" height="50" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="65" y="62" text-anchor="middle" font-weight="700" font-size="11">Pedido</text>
+  <text x="65" y="77" text-anchor="middle" font-size="9">pendiente</text>
+  <line x1="120" y1="65" x2="158" y2="65" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="160" y="40" width="120" height="50" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="220" y="62" text-anchor="middle" font-weight="700" font-size="11">Taller (celda)</text>
+  <text x="220" y="77" text-anchor="middle" font-size="8.5" font-family="ui-monospace,monospace">cubo_clasificado</text>
+  <line x1="280" y1="65" x2="318" y2="65" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="320" y="40" width="100" height="50" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+  <text x="370" y="62" text-anchor="middle" font-weight="700" font-size="11">Stock libre</text>
+  <text x="370" y="77" text-anchor="middle" font-size="9">entrada: produccion</text>
+  <line x1="420" y1="65" x2="458" y2="65" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="460" y="40" width="130" height="50" rx="6" fill="#dde8f4" stroke="#3572b8"/>
+  <text x="525" y="62" text-anchor="middle" font-weight="700" font-size="11">LISTO</text>
+  <text x="525" y="77" text-anchor="middle" font-size="8.5" font-family="ui-monospace,monospace">cantidad_completada</text>
+  <line x1="590" y1="65" x2="628" y2="65" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="630" y="40" width="120" height="50" rx="6" fill="#f3e6b8" stroke="#a88a10"/>
+  <text x="690" y="62" text-anchor="middle" font-weight="700" font-size="11">REPARTIDO</text>
+  <text x="690" y="77" text-anchor="middle" font-size="8.5" font-family="ui-monospace,monospace">albarán ALB-…</text>
+  <text x="370" y="112" text-anchor="middle" font-size="9.5" fill="#5b6472">① reparto_automatico: asigna stock al pedido</text>
+  <text x="640" y="112" text-anchor="middle" font-size="9.5" fill="#5b6472">② expedicion_automatica: entrega lo listo</text>
+  <text x="370" y="132" text-anchor="middle" font-size="9" fill="#5b6472">(salida de stock, motivo asignacion_pedido)</text>
+  <text x="640" y="132" text-anchor="middle" font-size="9" fill="#5b6472">(repartos + reparto_lineas, sin tocar stock)</text>
+  <defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b1f26"/></marker></defs>
+</svg>
+<figcaption>Fig. 2b — Las dos etapas. Con los dos interruptores en automático el pedido llega a <i>repartido</i> sin intervención; apagados, espera en <i>listo</i> hasta que un <code>admin_sistema</code> lo reparta desde la pestaña Reparto.</figcaption>
+</div>
+<table>
+<tr><th>Estado</th><th>Significa</th><th>Pestaña del panel</th></tr>
+<tr><td><code>pendiente</code></td><td>Nada listo todavía</td><td>Pedidos · Pedidos Taller</td></tr>
+<tr><td><code>en_proceso</code></td><td>Algo listo, falta el resto</td><td>Pedidos · Pedidos Taller y/o Reparto</td></tr>
+<tr><td><code>listo</code></td><td>Todas las piezas reservadas, sin entregar</td><td>Pedidos · Reparto</td></tr>
+<tr><td><code>completado</code></td><td><b>Repartido</b> (consta en un albarán). Ya no significa "fabricado".</td><td>Histórico</td></tr>
+<tr><td><code>cancelado</code></td><td>Solo se cancela un pedido <code>pendiente</code></td><td>Histórico</td></tr>
+</table>
+<ul>
+<li><code>cantidad_completada</code> son las piezas <b>listas</b> (ya salieron del stock libre); <code>cantidad_repartida</code>, las <b>entregadas</b>. Siempre <code>repartida ≤ completada ≤ pedida</code>.</li>
+<li>El panel calcula en cada consulta dos campos que no son columnas: <code>falta_fabricar</code> (lo que ve <i>Pedidos Taller</i>) y <code>para_repartir</code> (lo que ve <i>Reparto</i>). Un pedido con el stock cubriendo solo una parte aparece en las dos pestañas.</li>
+<li>La expedición automática entrega solo pedidos <b>completos</b>; si entregara cada pieza suelta saldría un albarán por cubo. A mano sí se puede repartir un pedido a medias, y se genera <b>un albarán por cliente</b> con una línea por pedido.</li>
+<li><code>POST /reparto/expedir</code> asigna primero el stock libre que cubre el pedido y después lo entrega, aunque <code>reparto_automatico</code> esté apagado: pulsar Repartir es una orden explícita.</li>
+<li><b>Un paquete o una cesta salen en UN albarán.</b> Los pedidos hechos juntos (los componentes de un paquete, o las líneas de una cesta: <code>POST /pedidos/multiple</code>) comparten <code>grupo_entrega</code> (columna <code>pedidos.grupo_paquete</code>). Con la expedición automática esperan como <i>listo</i> hasta que todo el grupo está listo y salen juntos; con el reparto manual, repartir uno reparte el grupo. El panel solo pide con cesta (una cesta de una línea es un pedido suelto); los pedidos hechos por <code>POST /pedidos</code> o <code>/pedidos/paquete</code> (API) salen cada uno por su cuenta.</li>
+<li><b>Barrido de stock parado.</b> Cada 10 s (<code>TALLER_BARRIDO_SEGUNDOS</code>, 0 = desactivado) <code>barrer_stock()</code> asigna el stock libre a los pedidos abiertos que cubre <b>por completo</b>, si el reparto automático está activo; con la expedición automática, lo que queda listo sale como siempre. Evita que un pedido se quede parado (9/10) con la pieza que falta ya en el almacén. Un pedido que el stock no cubre entero se salta sin bloquear a los siguientes; queda en la auditoría.</li>
+<li><b>Un paquete tiene precio propio y se entrega entero.</b> <code>paquetes.precio_centimos</code> (NULL = se cobra la suma de sus productos) e <code>iva_porcentaje</code>. Cada paquete pedido es una fila de <code>pedidos_paquete</code> con el precio <b>congelado</b> al pedir (tarifa del cliente en <code>tarifas_cliente_paquete</code> o la general); sus productos son pedidos normales con <code>paquete_pedido_id</code> y, con precio propio, a 0 €. En el albarán y la factura sale una línea <code>tipo=paquete</code> (con su precio) y debajo las <code>tipo=componente</code> sin precio; sin precio propio, las líneas normales agrupadas bajo el nombre. Los productos de un paquete solo salen cuando están <b>todos</b> listos, siempre juntos (también a mano).</li>
+<li>La celda no cambia: sigue leyendo <code>cantidad_completada</code>, <code>estado</code> y <code>stock_disponible</code>, y un pedido <code>listo</code> ya no se le ofrece porque no le falta nada.</li>
+</ul>
+
+<h3>7.2 ter Control de precios y facturación</h3>
+<p>Un precio se copia de etapa en etapa y en cada una queda congelado; cada cambio deja rastro. Código en <code>app/contabilidad.py</code> (rutas) e <code>app/importes.py</code> (cálculo).</p>
+<div class="svg-wrap">
+<svg viewBox="0 0 760 130" role="img" aria-label="Recorrido de un precio: tarifa general o de cliente, se copia al pedido, al albarán y a la factura; una rectificativa anula la factura y libera los albaranes">
+  <rect x="10" y="30" width="130" height="56" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="75" y="52" text-anchor="middle" font-weight="700" font-size="11">Tarifa</text>
+  <text x="75" y="68" text-anchor="middle" font-size="8.5">general o de cliente</text>
+  <line x1="140" y1="58" x2="178" y2="58" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="180" y="30" width="130" height="56" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="245" y="52" text-anchor="middle" font-weight="700" font-size="11">Pedido</text>
+  <text x="245" y="68" text-anchor="middle" font-size="8.5">precio + origen copiados</text>
+  <line x1="310" y1="58" x2="348" y2="58" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="350" y="30" width="130" height="56" rx="6" fill="#f3e6b8" stroke="#a88a10"/>
+  <text x="415" y="52" text-anchor="middle" font-weight="700" font-size="11">Albarán</text>
+  <text x="415" y="68" text-anchor="middle" font-size="8.5">al entregar</text>
+  <line x1="480" y1="58" x2="518" y2="58" stroke="#1b1f26" marker-end="url(#fl)"/>
+  <rect x="520" y="30" width="130" height="56" rx="6" fill="#e6d3ee" stroke="#8a4fa0"/>
+  <text x="585" y="52" text-anchor="middle" font-weight="700" font-size="11">Factura</text>
+  <text x="585" y="68" text-anchor="middle" font-size="8.5">+ datos fiscales copiados</text>
+  <path d="M585 86 L585 112 L415 112 L415 88" fill="none" stroke="#c0392b" stroke-dasharray="4 3" marker-end="url(#fl)"/>
+  <text x="500" y="106" text-anchor="middle" font-size="8.5" fill="#c0392b">RECT: anula y libera el albarán</text>
+  <text x="245" y="112" text-anchor="middle" font-size="8.5" fill="#5b6472">cada cambio → historial_precios</text>
+</svg>
+<figcaption>Fig. 2c — Recorrido de un precio. Cambiar una tarifa solo afecta a pedidos nuevos.</figcaption>
+</div>
+<table>
+<tr><th>Decisión</th><th>Por qué</th></tr>
+<tr><td>Tarifa general en el subproducto y <b>tarifa especial por cliente</b> (<code>tarifas_cliente</code>)</td><td>Sin fila, el cliente paga la general; el pedido guarda de dónde salió su precio (<code>precio_origen</code>: general, cliente o manual)</td></tr>
+<tr><td><b>Historial de precios</b> de solo añadir: quién, cuándo, de-a y motivo</td><td>Editar una tarifa borraba el valor anterior y no había forma de explicar un importe</td></tr>
+<tr><td>Corrección de precio <b>antes de facturar</b> (pedido no entregado, o línea de albarán no facturada), con motivo obligatorio</td><td>Un precio mal puesto se arregla sin tocar cantidades ni fechas. Una línea ya facturada no se toca: se anula la factura</td></tr>
+<tr><td>La <b>factura</b> agrupa albaranes sin facturar de un cliente, número <code>FAC-AAAA-nnnnnn</code></td><td>El albarán es lo que se entregó; la factura lo cobra. Copia líneas, precios, IVA y los datos fiscales de <b>emisor y cliente</b>: no cambia si luego se editan</td></tr>
+<tr><td>Se exige CIF y dirección del cliente y datos del emisor; se rechazan líneas a 0 €</td><td>Sin ellos la factura no es válida; una línea a 0 € casi siempre es un precio sin poner (se puede confirmar si es gratuita)</td></tr>
+<tr><td><b>Rectificativa</b> <code>RECT-AAAA-nnnnnn</code>: anula la factura con las mismas líneas en negativo y libera los albaranes</td><td>Una factura emitida nunca se edita ni se borra; los números no se reutilizan</td></tr>
+<tr><td>Precios en <b>céntimos enteros</b>; IVA por <b>tipo</b> (suma de bases del mismo porcentaje, una cuota redondeada por grupo, medio céntimo hacia arriba y simétrico en negativos)</td><td>Sin <code>float</code>; así se calcula en una factura española y una rectificativa da exactamente el negativo. Albarán y factura usan la misma regla y cuadran al céntimo</td></tr>
+<tr><td>Base, IVA y total <b>se derivan</b> de las líneas</td><td>No se guardan, así que no pueden desincronizarse</td></tr>
+</table>
+<div class="note"><b>No hay, a propósito:</b> recargo de equivalencia y exenciones de IVA por cliente, facturación automática por periodo, pagos parciales o remesas, envío de la factura por email, series configurables y exportación contable (SII, Facturae). Se pueden añadir sobre este modelo. Las columnas nuevas de tablas existentes las añade <code>app/migraciones.py</code> al arrancar; no hace falta borrar la base de datos.</div>
+
+<h3>7.3 Roles y autenticación</h3>
+<table>
+<tr><th>Rol</th><th>Alcance</th></tr>
+<tr><td><code>admin_sistema</code></td><td>Todo, cualquier cliente. Usuario <code>admin</code> sembrado al arrancar (contraseña <code>admin</code>, o <code>TALLER_ADMIN_PASSWORD</code>). Los clientes y usuarios iniciales salen de <code>Documentacion/UsuariosBBDDArranque.txt</code> (contraseña inicial <code>1111</code>).</td></tr>
+<tr><td><code>admin_cliente</code></td><td>Alta/baja/modificación de usuarios de su mismo cliente; decide qué productos del catálogo comercializa su empresa. Se crea junto con el cliente en <code>POST /clientes</code>.</td></tr>
+<tr><td><b>Usuarios por código</b></td><td>Cada cliente tiene un <code>codigo</code> de 3 caracteres (<code>MUR</code>, <code>ERE</code>…) y sus usuarios se llaman <code>&lt;código&gt;-admin</code> y <code>&lt;código&gt;-&lt;sucursal&gt;</code>: dos clientes pueden tener su sucursal «Bilbao» (<code>mur-bilbao</code>, <code>ere-bilbao</code>) sin chocar, porque el usuario es único en todo el sistema. El fichero de arranque los genera solo (<code>sucursal -&gt; Bilbao</code>); <code>python -m app.cargar_arranque --renombrar</code> pasa una base antigua a este esquema.</td></tr>
+<tr><td><code>normal</code></td><td>Pide piezas para su empresa (solo de los productos asignados), indica su sucursal (texto libre). Solo ve sus propios pedidos.</td></tr>
+</table>
+<p>Sesión: <code>POST /login {username, password}</code> devuelve un token que se manda en la cabecera <code>X-Session-Token</code>. Tokens en memoria (<code>auth.py</code>), se pierden si el proceso se reinicia.</p>
+<div class="warn"><b>Contraseña maestra activa (<code>1111</code>)</b> para cualquier usuario sin contraseña propia asignada — decisión temporal explícita para la fase actual del proyecto. <b>Retirar el bypass en <code>auth.py</code> antes de exponer el servicio fuera de una red local de confianza.</b></div>
+
+<h3>7.4 Endpoints principales</h3>
+<table>
+<tr><th>Método y ruta</th><th>Quién</th><th>Qué hace</th></tr>
+<tr><td><code>POST /login</code> / <code>/logout</code> / <code>GET /me</code></td><td>cualquiera</td><td>Sesión</td></tr>
+<tr><td><code>GET/POST /usuarios</code>, <code>PATCH /usuarios/{id}</code></td><td>admin_sistema o admin_cliente propio</td><td>Gestión de usuarios. Sin <code>username</code>, se forma con el código del cliente y la sucursal (<code>mur-bilbao</code>) o <code>&lt;código&gt;-admin</code></td></tr>
+<tr><td><code>GET/POST /clientes</code>, <code>PATCH /clientes/{id}</code></td><td>admin_sistema</td><td>Alta de empresa + su primer admin_cliente (<code>&lt;código&gt;-admin</code> si no se indica). <code>codigo</code>: 3 letras/cifras, único (<code>app/codigos.py</code>); sin él se saca de la razón social. Solo admin_sistema lo cambia</td></tr>
+<tr><td><code>GET/POST/DELETE /clientes/{id}/productos</code></td><td>admin_sistema o admin_cliente propio</td><td>Catálogo comercializado por cliente</td></tr>
+<tr><td><code>GET /productos</code></td><td>cualquiera autenticado</td><td>Catálogo completo (nombre, código y LED opcional)</td></tr>
+<tr><td><code>GET/PUT/DELETE /clientes/{id}/tarifas_paquete[/{paquete_id}]</code> · <code>PATCH /paquetes/{id}</code> (precio) · <code>PATCH /pedidos-paquete/{id}/precio</code></td><td>lectura: admin_sistema o admin_cliente propio · cambios: admin_sistema</td><td>Precio propio de un paquete, tarifa especial por cliente y corrección del precio de un paquete aún no entregado; todo al historial con el motivo</td></tr>
+<tr><td><code>POST /pedidos/multiple</code> · <code>/pedidos/paquete</code></td><td>normal o admin_cliente</td><td>La <b>cesta</b> (productos sueltos y/o paquetes de una vez; es lo único que usa el panel) y el pedido de un paquete: un pedido por línea o componente, del mismo grupo de entrega (un solo albarán). Todo o nada: se valida antes de crear</td></tr>
+<tr><td><code>POST /pedidos</code></td><td>normal o admin_cliente</td><td>Crea pedido (congela precio e IVA); con <code>reparto_automatico</code> asigna al instante el stock que lo cubre y, con <code>expedicion_automatica</code>, lo entrega si queda completo</td></tr>
+<tr><td><code>GET /pedidos</code> / <code>/pedidos/{id}</code></td><td>según alcance de rol</td><td>Consulta</td></tr>
+<tr><td><b><code>POST /taller/cubo_clasificado</code></b></td><td><b>sin sesión</b> — llamado por <code>sorter_demo.py</code></td><td>Evento físico: suma 1 al stock y, con <code>reparto_automatico</code>, la asigna al pedido abierto más urgente y antiguo de ese producto (queda <i>listo</i>; con <code>expedicion_automatica</code> sale solo con su albarán)</td></tr>
+<tr><td><code>POST /taller/evento_produccion</code></td><td>sin sesión — celda física</td><td>Diagnóstico de fallos de agarre (led_encendido / agarre_falso / limite_alcance / fallo_definitivo)</td></tr>
+<tr><td><code>GET /stock</code> / <code>/movimientos_stock</code></td><td>admin_sistema</td><td>Almacén y ledger append-only</td></tr>
+<tr><td><code>POST /almacen/repartir</code></td><td>admin_sistema</td><td>Asigna el stock libre a los pedidos abiertos (deja las piezas <i>listas</i>); no entrega</td></tr>
+<tr><td><code>GET/PATCH /almacen/configuracion</code></td><td>lectura: autenticado · cambio: admin_sistema</td><td>Interruptores <code>reparto_automatico</code> y <code>expedicion_automatica</code>; cada uno se cambia sin pisar el otro. Al activar la expedición, lo que ya esperaba <i>listo</i> sale en ese momento</td></tr>
+<tr><td><b><code>POST /reparto/expedir</code></b></td><td>admin_sistema</td><td>Entrega los pedidos indicados (o todos): asigna el stock que los cubre y emite un albarán por cliente</td></tr>
+<tr><td><code>GET/PUT/DELETE /clientes/{id}/tarifas[/{subproducto_id}]</code></td><td>lectura: admin_sistema o admin_cliente propio · cambio: admin_sistema</td><td>Tarifa especial de un cliente por subproducto; cada cambio va al historial</td></tr>
+<tr><td><code>GET /historial_precios</code></td><td>admin_sistema</td><td>Quién cambió qué precio, cuándo, de-a y por qué (filtros <code>subproducto_id</code>, <code>cliente_id</code>)</td></tr>
+<tr><td><code>PATCH /pedidos/{id}/precio</code>, <code>/repartos/lineas/{id}/precio</code></td><td>admin_sistema</td><td>Corrige un precio antes de entregar / antes de facturar; motivo obligatorio</td></tr>
+<tr><td><code>GET/POST/PATCH /emisores</code></td><td>admin_sistema</td><td>Empresas que emiten facturas, cada una con su serie de numeración; no se borran, se desactivan; la serie no cambia una vez emitidas facturas</td></tr>
+<tr><td><b><code>POST /facturas</code></b></td><td>admin_sistema</td><td>Factura los albaranes sin facturar de un cliente (o los indicados) con la empresa emisora elegida (o la de por defecto); exige datos fiscales y rechaza líneas a 0 €</td></tr>
+<tr><td><code>GET /facturas</code> / <code>/facturas/{id}</code></td><td>admin_sistema · admin_cliente (solo las suyas)</td><td>Facturas y rectificativas con base, IVA por tipo y total</td></tr>
+<tr><td><code>POST /facturas/{id}/pagar</code>, <code>/anular</code></td><td>admin_sistema</td><td>Marca cobrada · anula emitiendo la rectificativa (libera los albaranes)</td></tr>
+<tr><td><code>GET /repartos</code> / <code>/repartos/{id}</code></td><td>admin_sistema · admin_cliente (solo los suyos)</td><td>Albaranes con base, IVA y total en céntimos. El rol <code>normal</code> no los ve</td></tr>
+<tr><td><code>GET /audit</code></td><td>admin_sistema</td><td>Auditoría de altas/bajas/modificaciones</td></tr>
+</table>
+</section>
+
+<!-- ============ 8. INTEGRACIÓN Y RED ============ -->
+<section class="section-loose">
+<span class="kicker">8</span>
+<h2>Integración entre sistemas y mapa de red</h2>
+<p>La integración es un único evento HTTP: cuando <code>sorter_demo.py</code> clasifica un cubo de verdad, llama a <code>http://taller_host:8000/taller/cubo_clasificado</code> (el nombre <code>taller_host</code> lo resuelve el <code>extra_hosts: host-gateway</code> del <code>docker-compose.yml</code> de <code>Lab.Panda 2.4</code> hacia el host, donde escucha <code>taller_admin_api</code>). Es deliberadamente el único endpoint sin sesión de usuario, porque es un hecho físico de la celda, no una acción humana desde el navegador. Si la llamada falla (timeout, proyecto parado), el botón manual "+1 pieza" del panel de teleop sigue disponible como vía de respaldo.</p>
+
+<div class="svg-wrap">
+<svg viewBox="0 0 740 300" role="img" aria-label="Mapa de red completo con todos los puertos: PC host, dos Raspberry Pi Pico, tres contenedores Docker">
+  <rect x="10" y="10" width="720" height="280" rx="10" fill="#f5f6f8" stroke="#d7dbe0"/>
+  <text x="30" y="32" font-size="11" font-weight="700" fill="#5b6472">RED LOCAL</text>
+
+  <rect x="30" y="50" width="150" height="60" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="105" y="70" text-anchor="middle" font-size="10.5" font-weight="700">Pico W · Sorter</text>
+  <text x="105" y="84" text-anchor="middle" font-size="9" fill="#5b6472">192.168.1.101</text>
+  <text x="105" y="96" text-anchor="middle" font-size="9" fill="#5b6472">escucha :5001</text>
+
+  <rect x="30" y="160" width="150" height="70" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
+  <text x="105" y="180" text-anchor="middle" font-size="10.5" font-weight="700">Pico USB · Loader</text>
+  <text x="105" y="194" text-anchor="middle" font-size="9" fill="#5b6472">sin IP — cable USB</text>
+  <text x="105" y="206" text-anchor="middle" font-size="9" fill="#5b6472">/dev/serial/by-id/...</text>
+  <text x="105" y="218" text-anchor="middle" font-size="9" fill="#5b6472">→ /dev/ttyACM_LOADER</text>
+
+  <rect x="250" y="40" width="200" height="90" rx="6" fill="#dcefe3" stroke="#2f8f5b"/>
+  <text x="350" y="60" text-anchor="middle" font-size="11" font-weight="700">ros2_panda_dev24</text>
+  <text x="260" y="78" font-size="9" fill="#5b6472">led_publisher → Pico W :5001</text>
+  <text x="260" y="92" font-size="9" fill="#5b6472">button_listener ← Pico W</text>
+  <text x="260" y="106" font-size="9" fill="#5b6472">   escucha host :5002</text>
+  <text x="260" y="120" font-size="9" fill="#5b6472">led_publisher_usb ↔ Pico USB (serie)</text>
+
+  <rect x="250" y="150" width="200" height="60" rx="6" fill="#dde8f4" stroke="#3572b8"/>
+  <text x="350" y="170" text-anchor="middle" font-size="11" font-weight="700">webots_panda_sim24</text>
+  <text x="260" y="186" font-size="9" fill="#5b6472">extern controller :1234</text>
+  <text x="260" y="198" font-size="9" fill="#5b6472">(interno a panda_ros_net)</text>
+
+  <rect x="500" y="90" width="200" height="70" rx="6" fill="#e8e1f3" stroke="#6b4fa0"/>
+  <text x="600" y="110" text-anchor="middle" font-size="11" font-weight="700">taller_admin_api</text>
+  <text x="510" y="128" font-size="9" fill="#5b6472">host :8000 → panel web</text>
+  <text x="510" y="142" font-size="9" fill="#5b6472">+ REST + /docs (Swagger)</text>
+
+  <line x1="180" y1="80" x2="250" y2="80" stroke="#3572b8" stroke-width="1.5"/>
+  <line x1="180" y1="195" x2="250" y2="195" stroke="#5b6472" stroke-width="1.5"/>
+  <line x1="450" y1="180" x2="450" y2="90" stroke="#1b1f26" stroke-width="1"/>
+  <line x1="450" y1="85" x2="500" y2="115" stroke="#a8590f" stroke-width="2"/>
+  <text x="470" y="95" font-size="8.5" fill="#a8590f" font-weight="700">HTTP</text>
+</svg>
+<figcaption>Fig. 3 — Mapa de red y puertos completo. La Pico W usa la Wi-Fi local; la Pico Loader va por cable USB directo al host, remapeado dentro del contenedor <code>ros2_panda_dev24</code>.</figcaption>
+</div>
+
+<table>
+<tr><th>Puerto / canal</th><th>Protocolo</th><th>Extremos</th></tr>
+<tr><td>5001</td><td>TCP</td><td><code>led_publisher</code> (ros2_panda_dev24) → Pico W (Wi-Fi)</td></tr>
+<tr><td>5002</td><td>TCP</td><td>Pico W → <code>button_listener</code> (host expone <code>5002:5002</code> en ros2_panda_dev24)</td></tr>
+<tr><td>USB serie</td><td>Serial (pyserial)</td><td><code>led_publisher_usb</code> ↔ Pico Loader (comandos RGB, <code>PROD:r,g,b</code>, y línea centinela <code>BOTON_PARADA</code>)</td></tr>
+<tr><td>1234</td><td>TCP interno (Webots extern controller)</td><td>ros2_panda_dev24 ↔ webots_panda_sim24, dentro de <code>panda_ros_net</code></td></tr>
+<tr><td>8000</td><td>HTTP</td><td>host → <code>taller_admin_api</code> (panel + REST); <code>sorter_demo.py</code> → <code>taller_host:8000</code></td></tr>
+</table>
+</section>
+
+<!-- ============ 9. CHECKLIST ============ -->
+<section class="section-loose">
+<span class="kicker">9</span>
+<h2>Checklist de puesta en marcha desde cero</h2>
+<div class="stepline"><span class="step-num">1</span><div class="body"><b>Hardware:</b> flashear MicroPython en las dos Pico, cablear LEDs y botones según §6.1–6.3, subir <code>main.py</code> (y <code>wifi_config.py</code> con SSID/PASSWORD/PC_IP en la Pico W).</div></div>
+<div class="stepline"><span class="step-num">2</span><div class="body"><b>Host:</b> instalar Docker + Compose, verificar GPU accesible (<code>/dev/dri</code>) y ejecutar <code>xhost +local:docker</code>.</div></div>
+<div class="stepline"><span class="step-num">3</span><div class="body"><b>Pico Loader por USB:</b> conectarla, <code>ls -l /dev/serial/by-id/</code>, pegar la ruta estable en el bloque <code>devices:</code> de <code>.devcontainer/docker-compose.yml</code>.</div></div>
+<div class="stepline"><span class="step-num">4</span><div class="body"><b>Lab.Panda 2.4:</b> <code>cd .devcontainer && docker compose up -d --build</code>, luego <code>colcon build --packages-select panda_controller --symlink-install</code> dentro de <code>ros2_panda_dev24</code>.</div></div>
+<div class="stepline"><span class="step-num">5</span><div class="body"><b>Lanzar la celda:</b> <code>ros2 launch panda_controller robot_launch_industrial_cell.py</code> — esperar 6× "Controller successfully connected".</div></div>
+<div class="stepline"><span class="step-num">6</span><div class="body"><b>Puentes de LED:</b> <code>ros2 run panda_controller led_publisher</code> y <code>led_publisher_usb</code>, cada uno en su terminal.</div></div>
+<div class="stepline"><span class="step-num">7</span><div class="body"><b>Panel de control:</b> <code>ros2 run panda_controller teleop_gui</code> — probar jog manual y el botón STOP/REARME de ambos robots.</div></div>
+<div class="stepline"><span class="step-num">8</span><div class="body"><b>Taller_Administracion:</b> <code>cd Taller_Administracion && docker compose up -d --build</code>, entrar en <code>http://localhost:8000</code>, verificar login con <code>aladin</code> / <code>1111</code>.</div></div>
+<div class="stepline"><span class="step-num">9</span><div class="body"><b>Prueba de integración de punta a punta:</b> lanzar producción (loader_demo + sorter_demo o botones del panel), confirmar que el pedido/stock de Taller_Administracion se actualiza solo tras cada clasificación real.</div></div>
+<div class="stepline"><span class="step-num">10</span><div class="body"><b>Prueba de parada de emergencia:</b> pulsar cada botón físico y confirmar que ambos brazos se detienen y que <code>teleop_gui</code> refleja el estado de parada.</div></div>
+</section>
+
+<!-- ============ 10. REFERENCIA RÁPIDA ============ -->
+<section class="section">
+<span class="kicker">10</span>
+<h2>Referencia rápida de archivos clave</h2>
+<table class="ref-table">
+<tr><th>Archivo</th><th>Propósito</th></tr>
+<tr><td>LANZAR_PROYECTO.md</td><td>Guía operativa de arranque diario (ver Manual de Usuario Avanzado)</td></tr>
+<tr><td>Lab.Panda 2.4/.devcontainer/docker-compose.yml</td><td>Orquestación de los dos contenedores de la simulación</td></tr>
+<tr><td>Lab.Panda 2.4/worlds/panda_industrial_cell.wbt</td><td>Mundo Webots activo (celda de dos robots)</td></tr>
+<tr><td>ros2_ws/src/panda_controller/launch/robot_launch_industrial_cell.py</td><td>Lanza los 6 controladores de la celda</td></tr>
+<tr><td>panda_controller/panda_ikpy_kinematics.py</td><td>Cinemática inversa compartida (ikpy + URDF real)</td></tr>
+<tr><td>panda_controller/my_robot_driver.py</td><td>Driver Webots↔ROS2 del brazo (joints + pinza + sensores)</td></tr>
+<tr><td>panda_controller/loader_demo.py / sorter_demo.py</td><td>Producción real de cada robot</td></tr>
+<tr><td>panda_controller/teleop_gui.py</td><td>Panel de control manual completo</td></tr>
+<tr><td>panda_controller/warehouse_supervisor_driver.py</td><td>Supervisor: ground truth + rescate/reciclaje de cubos</td></tr>
+<tr><td>Rasberry_Pi_Pico/main.py + wifi_config.py</td><td>Firmware Pico W (Sorter)</td></tr>
+<tr><td>Rasberry_Pi_Pico_USB_Loader/main.py</td><td>Firmware Pico USB (Loader)</td></tr>
+<tr><td>Taller_Administracion/app/main.py</td><td>Rutas FastAPI + seed inicial de productos</td></tr>
+<tr><td>Taller_Administracion/app/models.py</td><td>Esquema de base de datos (SQLAlchemy)</td></tr>
+<tr><td>Taller_Administracion/app/static/panel.html</td><td>Panel web (SPA de un archivo)</td></tr>
+<tr><td>Lab.Panda 2.4/resumen_proyecto_panda.md</td><td>Historial técnico completo de decisiones, bugs y calibraciones</td></tr>
+</table>
+<footer class="pagefoot">Manual Técnico — Lab.Panda 2.4 + Taller_Administracion · generado 2026-09-01</footer>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!-- Version: 2026-09-26 10:50 -- Windows: cerrar_windows.bat cierra Webots; arrancar_windows.bat N [maquina] -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo añadir una línea de producción más</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- Tokens (mismos que landing.html / PI_PICO_montaje.html) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --bg-elevated: #ffffff;
+    --bg-elevated-2: #f4f5ef;
+    --fg: #16211f;
+    --fg-muted: #55655f;
+    --accent-brick: #a8461f;
+    --accent-brick-strong: #8c3717;
+    --accent-copper: #b97a34;
+    --accent-water: #2f645f;
+    --line: rgba(22,33,31,0.14);
+    --shadow: rgba(22,33,31,0.10);
+    --hazard: #c9450c;
+    --red: #c8433f;
+    --green: #2f8f5b;
+    --blue: #3572b8;
+    --ground: #6b7480;
+    --ink: var(--fg);
+    --ink-soft: var(--fg-muted);
+    --muted: var(--fg-muted);
+    --surface: var(--bg-elevated);
+    --surface-2: var(--bg-elevated-2);
+    --accent: var(--accent-brick);
+    --power: var(--accent-water);
+    --wire-a: var(--fg);
+    --wire-b: var(--accent-water);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --bg-elevated: #182322;
+      --bg-elevated-2: #1c2827;
+      --fg: #eee7da;
+      --fg-muted: #9fb0ac;
+      --accent-brick: #c9683c;
+      --accent-brick-strong: #e08658;
+      --accent-copper: #d69a55;
+      --accent-water: #5b9a92;
+      --line: rgba(238,231,218,0.14);
+      --shadow: rgba(0,0,0,0.35);
+      --hazard: #ff7a4d;
+      --red: #ef6a66;
+      --green: #5cc98c;
+      --blue: #6fa8dd;
+      --ground: #9aa4b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --bg-elevated: #182322;
+    --bg-elevated-2: #1c2827;
+    --fg: #eee7da;
+    --fg-muted: #9fb0ac;
+    --accent-brick: #c9683c;
+    --accent-brick-strong: #e08658;
+    --accent-copper: #d69a55;
+    --accent-water: #5b9a92;
+    --line: rgba(238,231,218,0.14);
+    --shadow: rgba(0,0,0,0.35);
+    --hazard: #ff7a4d;
+    --red: #ef6a66;
+    --green: #5cc98c;
+    --blue: #6fa8dd;
+    --ground: #9aa4b2;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-water); }
+  a:focus-visible { outline: 2px solid var(--accent-copper); outline-offset: 2px; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem) 5rem; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    margin: 0 0 0.9rem;
+  }
+
+  h1 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    text-wrap: balance;
+    line-height: 0.95;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 1rem;
+  }
+
+  .dek { max-width: 68ch; color: var(--fg-muted); font-size: 1.08rem; margin: 0 0 2rem; }
+
+  h2 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    line-height: 1;
+    margin: 3rem 0 1rem;
+  }
+  section:first-of-type h2 { margin-top: 0; }
+
+  p { margin: 0 0 1.1rem; }
+  ul, ol.pasos { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+  li + li { margin-top: 0.4rem; }
+  code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.1em 0.4em;
+  }
+  strong { font-weight: 700; }
+
+  pre {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    margin: 0 0 1.3rem;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: 1em; }
+
+  .callout {
+    display: flex; gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--hazard);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 0 0 1.3rem;
+  }
+  .callout.info { border-left-color: var(--accent-water); }
+  .callout .mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--hazard);
+    color: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 15px;
+  }
+  .callout.info .mark { background: var(--accent-water); }
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  figure { margin: 1.5rem 0; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; }
+  .diagram-scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 560px; font-family: 'IBM Plex Mono', monospace; }
+  figcaption { font-size: 0.85rem; color: var(--fg-muted); margin-top: 0.8rem; line-height: 1.55; }
+  figcaption code { font-size: 0.85em; }
+
+  .table-wrap { overflow-x: auto; margin-bottom: 1.3rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); font-weight: 600; }
+  td.mono { font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+
+  .paso-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent-brick); color: var(--bg-elevated);
+    font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 15px;
+    margin-right: 10px; flex: none;
+  }
+  h2.con-numero { display: flex; align-items: center; gap: 4px; }
+
+  footer { margin-top: 3rem; padding-top: 1.3rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--fg-muted); }
+  footer a { color: var(--fg-muted); }
+
+  /* ---------- Migas de pan (mismo patron que manual.html: "Principal ->
+     Como arranca todo -> ...", a peticion del usuario: "respeta en todas
+     las paginas") ---------- */
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--fg-muted); text-decoration: none; }
+  .migas a:hover { color: var(--fg); }
+  .migas-sep { color: var(--fg-muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent-brick); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Añadir línea de producción</span>
+  </nav>
+
+  <p class="eyebrow">Documentación técnica · Lab.Panda 2.4 · Producción</p>
+  <h1>Cómo añadir una línea de producción más</h1>
+  <p class="dek">Guía pensada para poder seguirla sin ser programador, paso a paso, para montar una línea de producción más (la 2ª, la 3ª...). Si algún término técnico no se entiende, se explica la primera vez que aparece.</p>
+
+  <section>
+    <h2>Qué es "una línea de producción" aquí</h2>
+    <p>Una <strong>línea de producción</strong> (o <strong>cadena</strong>) es un taller completo: los dos robots, la cinta y la simulación de Webots donde se mueven. Una sola línea ya fabrica y clasifica piezas. Tener más líneas es como tener más talleres trabajando a la vez: cada uno fabrica por su cuenta, sin estorbar a los demás.</p>
+    <p>Cada línea tiene <strong>su propio panel de control</strong>, desde el que se manejan solo sus robots. Arriba de cada panel se ve en grande el nombre de la línea y su Nº de máquina, para no confundirlos cuando hay varios abiertos.</p>
+    <p>Las líneas pueden estar en el mismo ordenador o en otros distintos, incluso mezclando Windows y Linux: el 24 de septiembre de 2026 funcionaron a la vez una línea en un PC con Windows y dos en otro equipo con Linux.</p>
+    <div class="callout info">
+      <div class="mark">i</div>
+      <p><strong>Todas las líneas comparten el mismo panel de pedidos web</strong> (Taller_Administracion). No hace falta duplicar nada de eso ni configurar nada especial ahí — cada línea simplemente avisa cuando termina una pieza, y el sistema de pedidos ya sabe repartir el trabajo entre las líneas que haya encendidas en cada momento (ver paso 5).</p>
+    </div>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg viewBox="0 0 760 260" role="img" aria-label="Esquema: la Linea 1, la Linea 2 y la Linea N, cada una con su propio Webots y sus propios robots, avisan por separado al mismo panel de pedidos compartido de Taller_Administracion, que reparte el trabajo entre las lineas encendidas.">
+          <rect x="20" y="20" width="180" height="90" rx="10" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"></rect>
+          <text x="110" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="currentColor">Línea 1</text>
+          <text x="110" y="74" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">Webots + robots</text>
+
+          <rect x="20" y="130" width="180" height="90" rx="10" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"></rect>
+          <text x="110" y="165" text-anchor="middle" font-size="14" font-weight="700" fill="currentColor">Línea 2</text>
+          <text x="110" y="184" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">Webots + robots</text>
+
+          <text x="110" y="245" text-anchor="middle" font-size="20" fill="var(--fg-muted)">···</text>
+
+          <line x1="200" y1="65" x2="470" y2="130" stroke="var(--power)" stroke-width="2"></line>
+          <line x1="200" y1="175" x2="470" y2="130" stroke="var(--power)" stroke-width="2"></line>
+
+          <rect x="480" y="70" width="260" height="120" rx="10" fill="var(--bg-elevated-2)" stroke="var(--accent-brick)" stroke-width="2"></rect>
+          <text x="610" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="var(--accent-brick)">Taller_Administracion</text>
+          <text x="610" y="142" text-anchor="middle" font-size="11" fill="var(--fg-muted)">panel de pedidos web</text>
+          <text x="610" y="162" text-anchor="middle" font-size="11" fill="var(--fg-muted)">(uno solo, compartido)</text>
+        </svg>
+      </div>
+      <figcaption>Cada línea es independiente por dentro (su propio Webots, sus propios robots, aislada de las demás por <code>ROS_DOMAIN_ID</code>), pero todas hablan con el mismo panel de pedidos — el reparto de trabajo pasa por ahí, no entre líneas.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Lo más fácil: ficheros que lo hacen todo</h2>
+    <p>No hace falta escribir comandos largos ni tocar nada por dentro. En la carpeta principal del proyecto hay unos ficheros ya preparados que lo lanzan todo. Los que acaban en <code>.sh</code> son para <strong>Linux</strong> (se lanzan en una terminal, escribiendo <code>./</code> delante del nombre) y los que acaban en <code>.bat</code> son para <strong>Windows</strong> (se lanzan con doble clic).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Quiero…</th><th>En Linux</th><th>En Windows</th></tr></thead>
+        <tbody>
+          <tr><td>Arrancar todo: la web de pedidos y la primera línea, con su panel</td><td class="mono">./arrancar_todo.sh</td><td class="mono">arrancar_windows.bat</td></tr>
+          <tr><td>Añadir otra línea (la 3, la 4…), o volver a encender una que ya creé</td><td class="mono">./crear_linea.sh 3</td><td><span class="mono">crear_linea_windows.bat</span> (pregunta el número de línea y el Nº de máquina)</td></tr>
+          <tr><td>Apagarlo todo</td><td class="mono">./cerrar_todo.sh</td><td><span class="mono">cerrar_windows.bat</span> (cierra también las ventanas de Webots)</td></tr>
+          <tr><td>Apagar solo una línea</td><td>—</td><td><span class="mono">cerrar_windows.bat 3</span> (apaga la línea 3 y su ventana de Webots; las demás siguen)</td></tr>
+          <tr><td>Añadir una línea sin que me pregunte nada</td><td>—</td><td><span class="mono">arrancar_windows.bat 3 30</span>: la línea 3, con el Nº de máquina 30. El Nº se puede dejar y ponerlo luego en el panel</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Cada uno va diciendo en pantalla lo que hace, espera él solo a que los robots estén listos y al final abre el panel de control de esa línea. En Windows, cada línea abre su propio Webots y su panel en otra pestaña del navegador (la 1 en <code>localhost:6080</code>, la 2 en <code>6081</code>…). Probado el 25 de septiembre de 2026 con 4 líneas a la vez en un portátil con Windows 11.</p>
+    <p><strong>Una línea en otro ordenador</strong> trabajando para la web de pedidos de este: en el otro equipo (Linux) se añade la línea diciéndole dónde está la web, por ejemplo <code>./crear_linea.sh 3 33 http://IP_DEL_OTRO:8000</code> (el 33 es el Nº de máquina de esa línea, que no debe repetirse).</p>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Todo lo que viene a partir de aquí es para quien quiera saber qué hacen esos ficheros por dentro, o hacerlo a mano.</p>
+  </section>
+
+  <section>
+    <h2>La forma rápida: un solo comando</h2>
+    <p>Todo lo que explican los pasos 1 a 4 de aquí abajo —copiar la plantilla, cambiarle los tres nombres, encenderla, lanzar la celda y esperar a que conecten los robots— lo hace de un tirón el script <code>crear_linea.sh</code>, en la raíz del proyecto:</p>
+    <pre><code>./crear_linea.sh 3</code></pre>
+    <p>Si se ejecuta sin ningún número, enseña esta misma ayuda en vez de arrancar nada:</p>
+    <pre><code>Uso: crear_linea.sh &lt;N&gt; [numero_maquina] [url_taller_administracion] [grupo_cadena]
+
+Ejemplos:
+  crear_linea.sh 3
+  crear_linea.sh 3 3
+  crear_linea.sh 3 3 http://192.168.1.XXX:8000
+  crear_linea.sh 3 3 http://192.168.1.XXX:8000 0</code></pre>
+    <p>Cada parámetro, en el orden en que hay que escribirlos:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parámetro</th><th>Obligatorio</th><th>Qué es</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">N</td><td>Sí</td><td>El número de la línea nueva (3, 4... nunca 1 ni 2, esas ya existen). Fija también su <code>ROS_DOMAIN_ID</code> (30+N).</td></tr>
+          <tr><td class="mono">numero_maquina</td><td>No</td><td>0 a 99. El Nº Máquina de esa línea en el panel — si no se pasa, no se toca (se rellena luego a mano en la pestaña Configuración).</td></tr>
+          <tr><td class="mono">url_taller_administracion</td><td>No</td><td>Solo hace falta si esa línea vive en <a href="#se-puede-lanzar-una-linea-en-otro-ordenador-fisico">otro ordenador</a> distinto del que tiene Taller_Administracion. P.ej. <code>http://192.168.1.XXX:8000</code>.</td></tr>
+          <tr><td class="mono">grupo_cadena</td><td>No</td><td>0 a 99. El Grupo Cadena de esa línea — igual que el Nº Máquina, si no se pasa se deja para rellenar luego a mano.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Al terminar, abre él solo el panel de control. Y si la línea ya existía —la creaste otro día y solo quieres volver a encenderla— el script se da cuenta solo: no toca la plantilla ni los nombres, simplemente la enciende y la lanza tal cual estaba.</p>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Los pasos 1 a 4 de aquí abajo explican, uno por uno, qué hace el script por dentro — léelos si prefieres hacerlo a mano, o si quieres entender cada pieza antes de usarlo.</p>
+  </section>
+
+  <section>
+    <h2 class="con-numero"><span class="paso-num">1</span>Copiar la plantilla ya hecha</h2>
+    <p>Dentro de la carpeta <code>Lab.Panda 2.4</code> hay una carpeta llamada <code>.devcontainer2</code> que es justo esto: la "receta" de cómo montar una segunda línea, ya escrita y ya probada. Para crear la línea número N, se copia entera con otro nombre:</p>
+    <pre><code>cp -r "Lab.Panda 2.4/.devcontainer2" "Lab.Panda 2.4/.devcontainerN"</code></pre>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">(sustituir la N por el número real, por ejemplo <code>.devcontainer3</code>)</p>
+  </section>
+
+  <section>
+    <h2 class="con-numero"><span class="paso-num">2</span>Abrir esa copia y cambiar solo tres cosas</h2>
+    <p>Dentro de la carpeta nueva hay un fichero llamado <code>docker-compose.yml</code> — es la "receta" en sí, dice qué cajas hay que encender y cómo. Hay que abrirlo con un editor de texto normal y cambiar únicamente estas tres cosas (aparecen dos veces cada una, una por cada caja):</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Qué cambiar</th><th>Ejemplo (línea 3)</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre de las cajas<br><span style="color:var(--fg-muted); font-size:0.85em;">(<code>container_name</code> / <code>hostname</code>)</span></td><td class="mono">webots_panda_sim24_linea3<br>ros2_panda_dev24_linea3</td><td>Dos cajas nunca pueden tener el mismo nombre en el mismo ordenador.</td></tr>
+          <tr><td>Nombre de la red</td><td class="mono">panda_ros_net_linea3</td><td>Para que los robots de una línea no "escuchen por error" a los de otra.</td></tr>
+          <tr><td>Número de "dominio"<br><span style="color:var(--fg-muted); font-size:0.85em;">(<code>ROS_DOMAIN_ID</code>)</span></td><td class="mono">33</td><td>El que de verdad aísla cada línea — como un canal de radio distinto. La línea 1 usa uno, la línea 2 el <code>32</code>; cada línea nueva necesita uno que ninguna otra esté usando ya.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Todo lo demás del fichero se deja tal cual está copiado — apunta a propósito a las mismas carpetas de código que la línea 1 (para no tener que mantener copias sueltas del mismo taller: si se mejora algo en el código, todas las líneas lo tienen a la vez).</p>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p>Un aviso sobre los "puertos" (la forma en que una caja habla con el mundo exterior, como el botón físico de parada de una Raspberry Pi Pico): si esta línea nueva tiene su propio botón físico conectado, hay que darle un puerto que ninguna otra línea esté usando. Si es solo simulación (sin hardware físico propio, como la línea 2 de pruebas), se deja sin esa parte — usar el mismo puerto que otra línea hace que el arranque falle directamente, con un aviso claro de qué puerto choca.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="con-numero"><span class="paso-num">3</span>Encender la línea nueva</h2>
+    <p>Desde un terminal, dentro de la carpeta que se acaba de crear:</p>
+    <pre><code>cd "Lab.Panda 2.4/.devcontainerN"
+docker compose up -d --build</code></pre>
+    <p>Esto tarda un rato la primera vez (está preparando las cajas). Cuando termina, la línea ya está funcionando por dentro, aunque todavía no se ve ninguna ventana en pantalla — eso es el siguiente paso.</p>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p>El código de ROS2 (<code>ros2_ws</code>) es el <strong>mismo para todas las líneas</strong> de esta máquina, así que solo hay que compilarlo una vez, no una por línea. Si esta es la primera línea que se enciende en este ordenador (nunca se pasó antes por <code>arrancar_todo.sh</code>), hay que compilarlo a mano antes del siguiente paso — si no, falla con <code>setup.bash: No such file or directory</code>:</p>
+      <pre><code>docker exec ros2_panda_dev24_lineaN bash -c "source /opt/ros/humble/setup.bash && cd /workspace && colcon build --packages-select panda_controller --symlink-install"</code></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="con-numero"><span class="paso-num">4</span>Poner en marcha los robots de esa línea</h2>
+    <p>Encender las cajas no mueve todavía nada: hay que arrancar dentro el programa que conecta los robots con Webots (se queda funcionando en segundo plano):</p>
+    <pre><code>docker exec -d ros2_panda_dev24_lineaN bash -c "source /opt/ros/humble/setup.bash && source /workspace/install/setup.bash && cd /workspace && ros2 launch panda_controller robot_launch_industrial_cell.py > /tmp/robot_launch.log 2>&1"</code></pre>
+    <p>Para saber si ya ha conectado, esto tiene que acabar diciendo <code>6</code> (los seis "controladores": dos brazos, dos cámaras y dos supervisores):</p>
+    <pre><code>docker exec ros2_panda_dev24_lineaN grep -c "Controller successfully connected" /tmp/robot_launch.log</code></pre>
+  </section>
+
+  <section id="grupo-cadena">
+    <h2 class="con-numero"><span class="paso-num">5</span>Abrir el panel de control de esa línea y configurarla</h2>
+    <pre><code>docker exec -it ros2_panda_dev24_lineaN bash
+source /opt/ros/humble/setup.bash && source /workspace/install/setup.bash
+ros2 run panda_controller teleop_gui</code></pre>
+    <p>Esto abre la ventana del panel de control, igual que la de la línea 1 pero para esta línea nueva. Todo lo que hay que rellenar está en la pestaña <strong>Configuración</strong>: pulsa <em>Desbloquear (clave)</em> y escribe la clave maestra <code>1111</code> (así nadie lo cambia sin querer; la pestaña se vuelve a bloquear sola al cambiar de pestaña; esa clave se puede cambiar en la propia pestaña, en el recuadro <em>Cambiar clave de configuración</em> que hay debajo de <em>Idioma</em>, escribiéndola dos veces):</p>
+    <ul>
+      <li><strong>"Nombre de la cadena"</strong>: un texto libre, por ejemplo "Línea 3" — sirve para distinguir de un vistazo qué ventana es cuál cuando hay varias abiertas a la vez. Se ve en grande arriba del panel, en el título de la ventana y <strong>en un letrero dentro de su Webots</strong>.</li>
+      <li><strong>"Grupo Cadena"</strong> (0 a 99): qué familia de productos fabrica esta línea. Cada producto de la web tiene también su "Grupo cadena", y sus pedidos nuevos solo los ven las líneas de ese grupo. Ejemplo: al producto <em>Clavos</em> le ponemos grupo <strong>80</strong>, y a una línea le ponemos también grupo <strong>80</strong>: esa línea fabrica <strong>solo clavos</strong> e ignora el resto de productos, y los clavos no los fabrica ninguna línea de otro grupo. Con 0, la línea coge los productos que no tienen grupo.</li>
+      <li><strong>"Nº Máquina"</strong> (0 a 99): un número que ninguna otra línea esté usando ya. Cuando una línea coge un pedido, el pedido pasa a llevar este número y las demás dejan de verlo, así que nunca se duplica el mismo trabajo por accidente. No uses 0: significa "pedido libre" y con él la línea no podrá coger pedidos.</li>
+      <li><strong>Raspberry Pi Pico</strong>: márcalas solo en la línea que las tenga conectadas (normalmente la 1). Cada Pico solo puede obedecer a una línea a la vez; el panel se encarga de que no se crucen.</li>
+      <li id="url-taller"><strong>"URL de Taller_Administracion"</strong>: déjalo vacío si esta línea vive en el mismo ordenador que la web de pedidos (el caso normal). Solo hace falta rellenarlo si esta línea se lanza en <strong>otro ordenador</strong> de la red — ver el apartado siguiente.</li>
+    </ul>
+    <div class="callout info">
+      <div class="mark">i</div>
+      <p><strong>Buena práctica: reserva los números.</strong> El grupo y el número de máquina <strong>comparten el mismo campo del pedido</strong> (0 a 99), así que <strong>no deben coincidir</strong>: si una línea tiene el Nº Máquina 80 y los clavos son del grupo 80, esa línea se creería dueña de los pedidos de clavos aunque no sea de su grupo. Lo más fácil es repartir la numeración desde el principio y no mezclarla, por ejemplo <strong>máquinas del 1 al 49 y grupos del 50 al 99</strong> (clavos = grupo 80). Nada lo obliga por sistema: es una costumbre que conviene tener antes de tener muchas líneas.</p>
+    </div>
+
+    <figure class="fig-numeros">
+      <svg viewBox="0 0 760 350" role="img" aria-labelledby="fn-t fn-d">
+        <title id="fn-t">Reparto de los números 0 a 99 entre máquinas y grupos</title>
+        <desc id="fn-d">Una barra con los números del 0 al 99: el 0 es pedido libre, del 1 al 49 van las máquinas y del 50 al 99 los grupos. Debajo, un ejemplo: los clavos son del grupo 80, los fabrica la línea de grupo 80, no los ve una línea de grupo 0, y una línea con Nº Máquina 80 se confundiría.</desc>
+        <defs>
+          <marker id="fn-flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--fg-muted)"/></marker>
+        </defs>
+        <text x="20" y="22" font-size="15" font-weight="700" fill="var(--fg)">Los números 0 a 99, repartidos desde el principio</text>
+
+        <text x="20" y="62" font-size="11" fill="var(--fg-muted)">0 = libre</text>
+        <rect x="20" y="70" width="7.2" height="40" fill="var(--ground)"/>
+        <rect x="27.2" y="70" width="352.8" height="40" fill="var(--accent-water)"/>
+        <rect x="380.0" y="70" width="360.0" height="40" fill="var(--accent-brick)"/>
+        <text x="203.6" y="96" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Máquinas 1 – 49</text>
+        <text x="560.0" y="96" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Grupos 50 – 99</text>
+        <text x="27.2" y="126" font-size="11" fill="var(--fg-muted)" text-anchor="start">1</text>
+        <text x="377.0" y="126" font-size="11" fill="var(--fg-muted)" text-anchor="end">49</text>
+        <text x="383.0" y="126" font-size="11" fill="var(--fg-muted)" text-anchor="start">50</text>
+        <text x="740.0" y="126" font-size="11" fill="var(--fg-muted)" text-anchor="end">99</text>
+        <path d="M599.6,70 l-6,-9 l12,0 z" fill="var(--fg)"/>
+        <text x="599.6" y="52" font-size="12" font-weight="700" fill="var(--fg)" text-anchor="middle">80 = grupo de los clavos</text>
+
+        <line x1="20" y1="142" x2="740" y2="142" stroke="var(--line)"/>
+        <text x="20" y="164" font-size="13" font-weight="700" fill="var(--fg)">Ejemplo: los clavos son del grupo 80</text>
+
+        <rect x="20" y="182" width="190" height="60" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="115" y="208" font-size="13" font-weight="700" fill="var(--fg)" text-anchor="middle">Producto: Clavos</text>
+        <text x="115" y="228" font-size="12" fill="var(--fg-muted)" text-anchor="middle">Grupo cadena 80</text>
+        <line x1="212" y1="212" x2="246" y2="212" stroke="var(--fg-muted)" stroke-width="1.6" marker-end="url(#fn-flecha)"/>
+
+        <rect x="250" y="182" width="190" height="60" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="345" y="208" font-size="13" font-weight="700" fill="var(--fg)" text-anchor="middle">Pedido nuevo de clavos</text>
+        <text x="345" y="228" font-size="12" fill="var(--fg-muted)" text-anchor="middle">nace con el Nº 80</text>
+
+        <line x1="442" y1="205" x2="476" y2="182" stroke="var(--fg-muted)" stroke-width="1.6" marker-end="url(#fn-flecha)"/>
+        <line x1="442" y1="212" x2="476" y2="246" stroke="var(--fg-muted)" stroke-width="1.6" marker-end="url(#fn-flecha)"/>
+        <line x1="442" y1="219" x2="476" y2="310" stroke="var(--fg-muted)" stroke-width="1.6" marker-end="url(#fn-flecha)"/>
+
+        <rect x="480" y="156" width="260" height="56" rx="6" fill="var(--surface)" stroke="var(--green)" stroke-width="2"/>
+        <text x="494" y="180" font-size="13" font-weight="700" fill="var(--fg)">Línea 1 · Grupo 80 · Máquina 1</text>
+        <text x="494" y="200" font-size="12" fill="var(--green)" font-weight="700">✔ fabrica solo los clavos</text>
+
+        <rect x="480" y="220" width="260" height="56" rx="6" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+        <text x="494" y="244" font-size="13" font-weight="700" fill="var(--fg)">Línea 2 · Grupo 0 · Máquina 2</text>
+        <text x="494" y="264" font-size="12" fill="var(--fg-muted)">✘ no ve los clavos</text>
+
+        <rect x="480" y="284" width="260" height="56" rx="6" fill="var(--surface)" stroke="var(--hazard)" stroke-width="2" stroke-dasharray="5 3"/>
+        <text x="494" y="308" font-size="13" font-weight="700" fill="var(--fg)">Línea 3 · Máquina 80 (mal)</text>
+        <text x="494" y="328" font-size="12" fill="var(--hazard)" font-weight="700">⚠ se creería dueña de los clavos</text>
+      </svg>
+      <figcaption>Si las máquinas y los grupos usan zonas distintas de los 0–99, nunca se pisan. La línea 3 del ejemplo tiene el mismo número que el grupo de los clavos: justo lo que hay que evitar.</figcaption>
+    </figure>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Cada apartado tiene su botón <em>Guardar</em> (o <em>Aplicar</em>, en las Pico).</p>
+  </section>
+
+  <section id="se-puede-lanzar-una-linea-en-otro-ordenador-fisico">
+    <h2>¿Se puede lanzar una línea en otro ordenador físico?</h2>
+    <p>Sí. Cada línea (su Webots y sus robots) es totalmente independiente y no necesita nada de otro ordenador. Lo único que sí es compartido es la web de pedidos (<strong>Taller_Administracion</strong>) — normalmente vive en el mismo PC que la línea 1, y las demás líneas la encuentran solas por un nombre interno que solo funciona dentro de esa misma máquina. Para que una línea en otro ordenador la encuentre, hay que decirle la dirección de red real:</p>
+    <ul>
+      <li>En el ordenador donde vive la web, mira su IP en la red local (por ejemplo con <code>hostname -I</code> o <code>ip addr</code>) — algo como <code>192.168.1.50</code>.</li>
+      <li>En el panel de la línea nueva, pestaña Configuración, campo <a href="#url-taller">"URL de Taller_Administracion"</a>: escribe <code>http://192.168.1.50:8000</code> (esa IP, puerto <code>8000</code>) y pulsa Guardar. El panel se reconecta solo, sin reiniciar nada.</li>
+      <li>Comprueba que el firewall del ordenador de la web deja pasar ese puerto 8000 desde la red local (el contenedor ya lo publica en todas las interfaces).</li>
+    </ul>
+    <figure>
+      <img src="identidad_cadena.png" alt="Recuadro «Identidad de la cadena» del panel de control, pestaña Configuración: Nombre de la cadena «Cadena 4 VM», Grupo Cadena 0, Nº Máquina 11 y URL de Taller_Administracion http://192.168.1.XXX:8000, cada uno con su botón Guardar" style="max-width:100%;height:auto;display:block;margin:0 auto">
+      <figcaption>El recuadro «Identidad de la cadena» (panel de control → pestaña Configuración). Ejemplo real: una línea que vive en otro ordenador (una máquina virtual llamada «Cadena 4 VM», Nº Máquina 11) apuntando con la <strong>URL de Taller_Administracion</strong> a la web de pedidos, que está en otro PC de la red (<code>http://192.168.1.XXX:8000</code>). Cada campo tiene su botón <em>Guardar</em>.</figcaption>
+    </figure>
+    <div class="callout info">
+      <div class="mark">i</div>
+      <p>La Raspberry Pi Pico de esa línea (si tiene) tiene que estar conectada físicamente al ordenador donde corre esa línea, no al de la web de pedidos. El resto — Grupo Cadena, Nº Máquina, arrancar/apagar — funciona exactamente igual que si estuviera en el mismo ordenador.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="con-numero"><span class="paso-num">6</span>Apagar una línea cuando no se necesite</h2>
+    <pre><code>cd "Lab.Panda 2.4/.devcontainerN"
+docker compose down</code></pre>
+    <p>Esto apaga y borra las cajas de esa línea, pero no borra nada de código ni de la base de datos de pedidos — se puede volver a encender en cualquier momento repitiendo el paso 3. Si esa línea se quedó con algún pedido "suyo" a medias, ese pedido se queda reservado para ella hasta que alguien lo libere a mano (hay un botón "Liberar" en la web de pedidos, para quien tenga permiso de administrador del sistema).</p>
+  </section>
+
+  <section>
+    <h2>Cuántas líneas caben</h2>
+    <p>El panel de control deja elegir Nº Máquina y Grupo Cadena del 0 al 99, así que por numeración sobra sitio. El límite real es el ordenador: cada línea es un Webots completo más sus robots, y con dos ya se nota el trabajo de la máquina. Si algún día hiciera falta ampliar los números, están en <code>MAX_MAQUINA</code> / <code>MAX_GRUPO_CADENA</code> (<code>teleop_gui.py</code>) y <code>GRUPO_CADENA_MAX</code> (<code>Taller_Administracion/app/main.py</code>); el resto de este proceso (los pasos 1 a 6) sería exactamente igual.</p>
+  </section>
+
+  <footer>
+    Ver también <a href="PI_PICO_montaje.html">cómo están montadas las Raspberry Pi Pico</a> y el porqué de este diseño (una réplica de contenedores aislada, no una segunda celda en el mismo Webots) en <code>Documentacion/analisis_ampliacion_taller.md</code>.
+  </footer>
+
+</div>
+</body>
+</html>

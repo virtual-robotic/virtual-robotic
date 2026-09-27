@@ -1,3 +1,4 @@
+// Version: 2026-09-27 18:41 -- textos de las plantillas Word en EN y EU
 // Traducciones de la landing (ES es el texto de la propia pagina; aqui EN y EU). Generado el 2026-09-21.
 // Cada elemento marcado con data-i18n="clave" (o data-i18n-alt / -title / -aria-label) se cambia al elegir idioma.
 // El euskera esta escrito a mano y agradece revision de un hablante nativo.
@@ -9,7 +10,7 @@ window.VR_I18N = {
   "t22a830": "2 — Sign in to the panel",
   "t225062": "If you are seeing this page it is because the orders panel is already running — press \"Sign in\" above with <strong>admin</strong> / <strong>admin</strong> and you go straight into the system. If you want to set it up yourself from scratch on your own computer:",
   "t60d2bc": "<strong>The cell with the robots</strong> (Webots + ROS&nbsp;2): in addition a graphical desktop with X11 and the <code>xhost</code> command, about <strong>15&nbsp;GB of free disk</strong>, <strong>8&nbsp;GB of RAM</strong> or more and internet the first time (it downloads Webots and its textures). With a graphics card it runs smoothly; without one you have to comment out a line in <code>docker-compose.yml</code> and it is slower.",
-  "t906fa5": "<strong>Only the orders website:</strong> <strong>Docker Desktop</strong> (with WSL&nbsp;2 enabled) and <strong>Git for Windows</strong>. Then <code>docker compose up -d --build</code> and open <code>http://localhost:8000</code>. It is a normal Python image, but <strong>we have not tested it on Windows</strong>.",
+  "t906fa5": "<strong>Only the orders website:</strong> <strong>Docker Desktop</strong> (with WSL&nbsp;2 enabled) and <strong>Git for Windows</strong>. Then <code>docker compose up -d --build</code> and open <code>http://localhost:8000</code>. <strong>Tested on a PC with Windows&nbsp;10</strong> (2026-09-23).",
   "tfa5e9f": "Internal access",
   "tcb4bc0": "<strong>Git:</strong> install <em>Git for Windows</em> from git-scm.com (just click \"Next\" all the way).",
   "td8741c": "Check that it works:",
@@ -45,7 +46,7 @@ window.VR_I18N = {
   "t92eb39": "Close",
   "t64cabd": "3 — Start the simulated cell (optional)",
   "tc240fc": "Gernika estuary, Bizkaia",
-  "t1a6a87": "<strong>The cell with the robots:</strong> <strong>it is not tested on Windows</strong>. It uses Docker with Linux graphical windows. The way we have tested is a <strong>Linux virtual machine</strong> (VirtualBox with Linux Mint). Another option, untested: WSL&nbsp;2 with Ubuntu, which on Windows&nbsp;11 already brings graphical windows, and follow the Linux steps there.",
+  "t1a6a87": "<strong>The cell with the robots:</strong> <strong>it works on Windows</strong> (tested on 2026-09-24 and 2026-09-26): Webots installed on Windows and only ROS&nbsp;2 in Docker, started with a double click on <code>arrancar_windows.bat</code>. On a laptop with Windows&nbsp;11 (Ryzen&nbsp;7, 30&nbsp;GB), <strong>4 lines at once</strong> worked for the same orders website, each with its own Webots and its own panel: <code>crear_linea_windows.bat</code> adds another one and <code>cerrar_windows.bat</code> shuts everything down. Step by step in <code>INSTALAR_WINDOWS.md</code>.",
   "t639ada": "You do not need to know any of this to play with the project — it is only for those who feel technically curious, told in the same hobbyist vocabulary I used to build it.",
   "t6b1124": "Everything else (Python, FastAPI, ROS&nbsp;2, Webots…) lives inside the containers: you do not have to install it by hand. The <strong>Raspberry Pi Picos</strong> are optional (a USB cable and Thonny). Always start with the orders website: the \"Play with it\" section gives you the commands.",
   "t9562a2": "This did not start as a business plan: it started with wanting to understand how a robot arm really moves, cube by cube, until a good grasp was no longer enough and sorting, restocking and orders had to be solved as if it were a real workshop.",
@@ -94,13 +95,20 @@ window.VR_I18N = {
   "t9b4bd7": "Built with <a href=\"https://claude.com/claude-code\">Claude Code</a> (Anthropic).",
   "t8d0305": "Belt and tray",
   "tded7f5": "<strong>Only the orders website:</strong> that is all you need. It takes up a little over 0.5&nbsp;GB.",
-  "t2e7ad2": "Loader &amp; Sorter"
+  "t2e7ad2": "Loader &amp; Sorter",
+  "twinprob": "<strong>If Docker Desktop does not start:</strong> it needs <strong>WSL&nbsp;2</strong> (if <code>wsl</code> only shows its help, enable it with <code>dism</code>). <strong>Windows inside VirtualBox does not work</strong>: WSL&nbsp;2 needs Hyper-V and VirtualBox does not support nested Hyper-V (tested thoroughly: not even with nested virtualisation, 8&nbsp;GB and 6 processors — it does not pass the NPT bit to the guest). To try it on Windows you need a real Windows PC. The error <code>500 Internal Server Error ... dockerDesktopLinuxEngine/_ping</code> only means the Docker engine is not running: open it and wait for <em>Engine running</em>. On Windows do not use <code>arrancar_todo.sh</code> (that is the Linux one): for the website alone, <code>docker compose up -d --build</code>; for everything, <code>arrancar_windows.bat</code>. All of this, step by step, is in <code>INSTALAR_WINDOWS.md</code>, together with the robots and the multiple lines.",
+  "tfooter": "© 2026 Virtual Robotic<br>Personal project, work in progress.<br>Built with <a href=\"https://claude.com/claude-code\" style=\"color:inherit;\">Claude Code</a> (Anthropic).",
+  "tvideo1": "The Loader puts the cubes on the belt and the Sorter picks them up and sorts them by colour.",
+  "tvideo2": "Both arms working at the same time, recorded in the simulation (Webots).",
+  "tplant1": "Word templates to write down your workshop's setup: production lines, computers, products, users and the step-by-step start-up.",
+  "tplant2": "📄 Template with a filled-in example",
+  "tplant3": "📄 Blank template to fill in"
  },
  "eu": {
   "t22a830": "2 — Sartu panelean",
   "t225062": "Orri hau ikusten ari bazara, eskaeren panela martxan dagoelako da — sakatu goiko \"Sartu\" botoia <strong>admin</strong> / <strong>admin</strong> erabiliz eta zuzenean sisteman sartuko zara. Zeure ordenagailuan hutsetik jarri nahi baduzu:",
   "t60d2bc": "<strong>Robotekin gelaxka</strong> (Webots + ROS&nbsp;2): horrez gain, X11 duen mahaigain grafikoa eta <code>xhost</code> agindua, <strong>15&nbsp;GB disko</strong> libre inguru, <strong>8&nbsp;GB RAM</strong> edo gehiago eta internet lehen aldian (Webots eta bere testurak deskargatzen ditu). Txartel grafikoarekin arin dabil; gabe, <code>docker-compose.yml</code> fitxategiko lerro bat komentatu behar da eta motelago dabil.",
-  "t906fa5": "<strong>Eskaeren webgunea soilik:</strong> <strong>Docker Desktop</strong> (WSL&nbsp;2 gaituta) eta <strong>Git for Windows</strong>. Gero <code>docker compose up -d --build</code> eta ireki <code>http://localhost:8000</code>. Python irudi arrunt bat da, baina <strong>ez dugu Windows-en probatu</strong>.",
+  "t906fa5": "<strong>Eskaeren webgunea soilik:</strong> <strong>Docker Desktop</strong> (WSL&nbsp;2 gaituta) eta <strong>Git for Windows</strong>. Gero <code>docker compose up -d --build</code> eta ireki <code>http://localhost:8000</code>. <strong>Windows&nbsp;10 duen PC batean probatua</strong> (2026-09-23).",
   "tfa5e9f": "Barne-sarbidea",
   "tcb4bc0": "<strong>Git:</strong> instalatu <em>Git for Windows</em> git-scm.com-etik (\"Hurrengoa\" sakatzearekin nahikoa da).",
   "td8741c": "Egiaztatu funtzionatzen duela:",
@@ -136,7 +144,7 @@ window.VR_I18N = {
   "t92eb39": "Itxi",
   "t64cabd": "3 — Abiarazi simulatutako gelaxka (aukerakoa)",
   "tc240fc": "Gernikako itsasadarra, Bizkaia",
-  "t1a6a87": "<strong>Robotekin gelaxka:</strong> <strong>ez dago Windows-en probatuta</strong>. Docker erabiltzen du Linux leiho grafikoekin. Probatu dugun bidea <strong>Linux makina birtual</strong> bat da (VirtualBox eta Linux Mint). Beste aukera bat, probatu gabe: WSL&nbsp;2 eta Ubuntu, Windows&nbsp;11-n leiho grafikoak dakartzana, eta bertan Linux-eko pausoak jarraitu.",
+  "t1a6a87": "<strong>Robotekin gelaxka:</strong> <strong>Windows-en badabil</strong> (2026-09-24an eta 2026-09-26an probatua): Webots Windows-en instalatuta eta ROS&nbsp;2 bakarrik Docker-en, <code>arrancar_windows.bat</code>-en klik bikoitza eginez abiarazita. Windows&nbsp;11 duen ordenagailu eramangarri batean (Ryzen&nbsp;7, 30&nbsp;GB) <strong>4 kate aldi berean</strong> aritu dira eskaeren webgune berarentzat, bakoitza bere Webots eta bere panelarekin: <code>crear_linea_windows.bat</code>-ek beste bat gehitzen du eta <code>cerrar_windows.bat</code>-ek dena itzaltzen du. Urratsez urrats <code>INSTALAR_WINDOWS.md</code>-n.",
   "t639ada": "Ez duzu honetako ezer jakin beharrik proiektuarekin jolasteko — jakin-min teknikoa duenarentzat besterik ez da, nik eraikitzeko erabili dudan zaletuaren hiztegi berarekin kontatua.",
   "t6b1124": "Gainerako guztia (Python, FastAPI, ROS&nbsp;2, Webots…) edukiontzien barruan dago: ez da eskuz instalatu behar. <strong>Raspberry Pi Pico</strong>-ak aukerakoak dira (USB kable bat eta Thonny). Hasi beti eskaeren webgunearekin: \"Jolastu harekin\" atalak komandoak ematen dizkizu.",
   "t9562a2": "Hau ez zen negozio-plan batekin hasi: beso robotiko batek benetan nola mugitzen den ulertu nahi izatetik hasi zen, kuboz kubo, harrapaketa on bat nahikoa izan ez zen arte eta sailkapena, berrornitzea eta eskaerak benetako tailer batean bezala ebatzi behar izan ziren.",
@@ -185,7 +193,14 @@ window.VR_I18N = {
   "t9b4bd7": "<a href=\"https://claude.com/claude-code\">Claude Code</a>-rekin eraikia (Anthropic).",
   "t8d0305": "Uhala eta erretilua",
   "tded7f5": "<strong>Eskaeren webgunea soilik:</strong> horrekin nahikoa duzu. 0,5&nbsp;GB baino apur bat gehiago hartzen du.",
-  "t2e7ad2": "Loader &amp; Sorter"
+  "t2e7ad2": "Loader &amp; Sorter",
+  "twinprob": "<strong>Docker Desktop abiarazten ez bada:</strong> <strong>WSL&nbsp;2</strong> behar du (<code>wsl</code>-ek bere laguntza bakarrik erakusten badu, <code>dism</code>-ekin gaitu behar da). <strong>VirtualBox barruko Windows-ekin ez dabil</strong>: WSL&nbsp;2-k Hyper-V behar du eta VirtualBox-ek ez du Hyper-V habiaratua onartzen (sakon probatua: ezta birtualizazio habiaratuarekin, 8&nbsp;GB eta 6 prozesadorerekin ere — ez dio NPT bita gonbidatuari pasatzen). Windows-en probatzeko benetako Windows PC bat behar da. <code>500 Internal Server Error ... dockerDesktopLinuxEngine/_ping</code> erroreak Docker-en motorra martxan ez dagoela esan nahi du soilik: ireki eta itxaron <em>Engine running</em> jarri arte. Windows-en ez erabili <code>arrancar_todo.sh</code> (Linuxekoa da): webgunea bakarrik nahi baduzu, <code>docker compose up -d --build</code>; dena nahi baduzu, <code>arrancar_windows.bat</code>. Hau guztia, urratsez urrats, <code>INSTALAR_WINDOWS.md</code>-n dago, robotekin eta kate anitzekin batera.",
+  "tfooter": "© 2026 Virtual Robotic<br>Proiektu pertsonala, martxan.<br><a href=\"https://claude.com/claude-code\" style=\"color:inherit;\">Claude Code</a>-rekin eraikia (Anthropic).",
+  "tvideo1": "Loaderrak kuboak zintan uzten ditu eta Sorterrak jaso eta kolorearen arabera sailkatzen ditu.",
+  "tvideo2": "Bi besoak aldi berean lanean, simulazioan grabatua (Webots).",
+  "tplant1": "Word txantiloiak zure tailerraren konfigurazioa idazteko: kateak, ordenagailuak, produktuak, erabiltzaileak eta abian jartzea urratsez urrats.",
+  "tplant2": "📄 Adibide batekin betetako txantiloia",
+  "tplant3": "📄 Betetzeko txantiloi hutsa"
  }
 };
 (function () {

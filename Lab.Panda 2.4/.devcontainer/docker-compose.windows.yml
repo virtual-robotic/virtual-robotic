@@ -1,0 +1,54 @@
+# Version: 2026-09-25 14:43 -- varias cadenas en el mismo Windows (variables LINEA_*)
+#
+# En Windows, Webots va instalado en el propio Windows (no en Docker: el de
+# Docker necesita una pantalla de Linux) y aqui solo se levanta ROS 2. Los
+# controladores <extern> llegan a ese Webots por "host.docker.internal", que
+# Docker Desktop ya hace apuntar al Windows. El panel de control se ve en el
+# navegador (panel_web.sh, puerto 6080) por la misma razon.
+#
+# Fichero COMPLETO, no un anadido al docker-compose.yml: aquel trae el Webots
+# de Linux, la pantalla X11 y la tarjeta grafica, que en Windows no existen.
+# Lo usa arrancar_windows.bat; a mano:
+#   docker compose -f docker-compose.windows.yml up -d --build
+#
+# Se probo primero en Linux con Webots fuera de esta red (ver
+# docker-compose.windows-sim.yml).
+#
+# Varias cadenas en el mismo Windows: arrancar_windows.bat pone estas
+# variables segun el numero de cadena N (sin ellas, valen las de la cadena 1).
+# Cada cadena necesita su propio Webots (dos no pueden escuchar en el mismo
+# puerto), su contenedor, su ROS_DOMAIN_ID y su puerto del panel:
+#   LINEA_SUFIJO    ""       / "_lineaN"   nombre del contenedor
+#   LINEA_DOMINIO   31       / 30+N        ROS_DOMAIN_ID (no mezclar mensajes)
+#   LINEA_WEBOTS    1234     / 1233+N      puerto de SU Webots
+#   LINEA_PANEL     6080     / 6079+N      panel en el navegador
+#   LINEA_BOTON     5002     / 5001+N      boton de parada de la Pico Wi-Fi
+# La imagen es la misma para todas (no se construye una por cadena).
+services:
+  ros2_app:
+    build:
+      context: ../ros2_app
+      dockerfile: Dockerfile
+    image: devcontainer-ros2_app
+    container_name: ros2_panda_dev24${LINEA_SUFIJO:-}
+    hostname: ros2_panda_dev24${LINEA_SUFIJO:-}
+    environment:
+      - ROS_DOMAIN_ID=${LINEA_DOMINIO:-31}
+      - WEBOTS_PORT=${LINEA_WEBOTS:-1234}
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      # Solo hace de interruptor: con esta variable el conector de ROS 2 usa
+      # TCP hacia host.docker.internal (no comparte ninguna carpeta).
+      - WEBOTS_SHARED_FOLDER=/tmp/webots_shared:/tmp/webots_shared
+      - DISPLAY=:99
+    volumes:
+      - ../ros2_ws:/workspace
+    ports:
+      - "${LINEA_BOTON:-5002}:5002"
+      # Solo en este equipo (127.0.0.1): el panel no pide clave para verse.
+      - "127.0.0.1:${LINEA_PANEL:-6080}:6080"
+    extra_hosts:
+      - "taller_host:host-gateway"
+      - "host.docker.internal:host-gateway"
+    stdin_open: true
+    tty: true
+    command: bash

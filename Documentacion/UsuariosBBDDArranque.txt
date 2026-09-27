@@ -1,0 +1,50 @@
+Usuarios BBDD Inicial
+
+Admin -> Admin.sistema
+
+Cliente:
+    R.S.: Astilleros Murueta S.L.
+    Cod.: MUR
+    Cif : B48111222
+    Dir.: Carretera Bermeo 34
+    C.P.: 48333
+    Pob.: Murueta
+    Pro.: Bizkaia
+    cor.: administracion@AstillerosMurueta.com
+
+        sucursal admin -> Murueta
+        sucursal -> Bilbao
+        sucursal -> Barcelona
+        sucursal -> Madrid
+
+    R.S.: Suministros Ereño S.A.
+    Cod.: ERE
+    Cif : A48765432
+    Dir.: Barrio akorda-bollar, 6
+    C.P.: 48222
+    Pob.: Ereño
+    Pro.: Bizkaia
+    cor.: compras@sumierno.es
+
+        sucursal admin -> Ereño
+        sucursal -> Navarra
+        sucursal -> Valencia
+        sucursal -> Bilbao
+
+    R.S.: Ferreteria Irazabal S.A.
+    Cod.: IRA
+    Cif : B48123456
+    Dir.: Iparraguire, 12 bajo
+    C.P.: 48666
+    Pob.: Gernika
+    Pro.: Bizkaia
+    cor.: almacen@irazabal.eus
+
+        sucursal admin -> Gernika
+        sucursal -> Alava
+        sucursal -> Donosti
+
+# Los usuarios salen solos del codigo del cliente y la sucursal:
+#   'sucursal admin -> Murueta'  ->  usuario mur-admin
+#   'sucursal -> Bilbao'         ->  usuario mur-bilbao
+# Todos nacen con la contrasena 1111. Ver Taller_Administracion/DETALLE_TECNICO.md ("Clientes y usuarios de arranque").

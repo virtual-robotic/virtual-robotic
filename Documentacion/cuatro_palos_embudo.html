@@ -1,0 +1,159 @@
+<!-- Version: 2026-09-18 14:58 -- cuatro_palos_embudo.html (migrado al diseno de marca: tokens de color, tipografia y migas de pan; esquema SUPERADO, se conserva por sus figuras) -->
+<title>Los cuatro palos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (mismos que landing.html / PI_PICO_montaje.html) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --ink: #16211f;
+    --muted: #55655f;
+    --border: rgba(22,33,31,0.14);
+    --accent: #a8461f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --ink: #eee7da;
+      --muted: #9fb0ac;
+      --border: rgba(238,231,218,0.14);
+      --accent: #c9683c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --ink: #eee7da;
+    --muted: #9fb0ac;
+    --border: rgba(238,231,218,0.14);
+    --accent: #c9683c;
+  }
+
+  body{max-width:600px;margin:2rem auto;padding:0 1rem;font-family:'Archivo', system-ui, sans-serif;color:var(--ink);background:var(--bg)}
+  h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;color:var(--accent);font-size:1.3rem;margin:0 0 1rem}
+  figure{margin:0}
+  figcaption{font-size:.85rem;opacity:.75;margin-top:.6rem}
+  svg{display:block;max-width:100%;height:auto}
+  table{border-collapse:collapse;margin-top:1rem;font-size:.9rem;width:100%}
+  td,th{border:1px solid currentColor;border-opacity:.2;padding:.35rem .6rem;text-align:left}
+  th{opacity:.7;font-weight:600}
+  code{font-family:'IBM Plex Mono', monospace}
+  .n{display:inline-flex;align-items:center;justify-content:center;width:1.3em;height:1.3em;border-radius:50%;background:#c9691f;color:#fff;font-weight:700;font-size:.8em}
+
+  /* ---------- Migas de pan ---------- */
+  .migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+  .migas a { color: var(--muted); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<nav class="migas" aria-label="Ruta">
+  <a href="/">Principal</a>
+  <span class="migas-sep">→</span>
+  <a href="/manual/lanzar">Cómo arranca todo</a>
+  <span class="migas-sep">→</span>
+  <a href="carriles_completo.html">Carriles de la cinta</a>
+  <span class="migas-sep">→</span>
+  <span class="migas-actual" aria-current="page">Los cuatro palos</span>
+</nav>
+
+<h2>Los cuatro palos de la zona del embudo, vistos desde arriba</h2>
+<figure>
+<svg viewBox="0 0 420 440" role="img" aria-label="Vista superior de la cinta con los cuatro palos numerados: 1 y 2 son las paredes del embudo de entrada, en forma de V; 3 y 4 son las paredes del tramo recto donde agarra la pinza del Sorter, justo después">
+  <defs>
+    <marker id="arrY" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- cinta -->
+  <rect x="76" y="30" width="96" height="360" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"/>
+  <text x="124" y="20" text-anchor="middle" font-size="12" opacity=".65">cinta (30 cm de ancho)</text>
+
+  <!-- punto donde el Loader suelta el cubo -->
+  <circle cx="124" cy="168" r="4" fill="currentColor" opacity=".55"/>
+  <text x="134" y="172" font-size="10.5" opacity=".65">suelta el Loader (y=0,70)</text>
+
+  <!-- palo 1: L_EMBUDO -->
+  <line x1="86" y1="120" x2="108" y2="264" stroke="#c9691f" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="86" cy="120" r="11" fill="#c9691f"/>
+  <text x="86" y="124" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">1</text>
+
+  <!-- palo 2: R_EMBUDO -->
+  <line x1="162" y1="120" x2="140" y2="264" stroke="#2f6e3d" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="162" cy="120" r="11" fill="#2f6e3d"/>
+  <text x="162" y="124" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">2</text>
+
+  <!-- palo 3: L_RECTO -->
+  <line x1="108" y1="264" x2="108" y2="354" stroke="#1f6fb2" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="108" cy="309" r="11" fill="#1f6fb2"/>
+  <text x="108" y="313" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">3</text>
+
+  <!-- palo 4: R_RECTO -->
+  <line x1="140" y1="264" x2="140" y2="354" stroke="#9a3fa8" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="140" cy="309" r="11" fill="#9a3fa8"/>
+  <text x="140" y="313" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">4</text>
+
+  <!-- tope final -->
+  <rect x="73" y="356" width="102" height="8" fill="currentColor" opacity=".55"/>
+  <text x="124" y="378" text-anchor="middle" font-size="10.5" opacity=".65">tope (y=1,30)</text>
+
+  <!-- punto de recogida del sorter -->
+  <circle cx="124" cy="344" r="4" fill="none" stroke="#b23327" stroke-width="2"/>
+  <text x="196" y="348" text-anchor="middle" font-size="10.5" fill="#b23327" opacity=".85">punto de recogida</text>
+
+  <!-- ROBOTS: donde esta cada uno (añadido 2026-09-10) -->
+  <g>
+    <rect x="8" y="286" width="56" height="46" rx="6" fill="#b23327" opacity=".85"/>
+    <text x="36" y="304" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">SORTER</text>
+    <text x="36" y="318" text-anchor="middle" font-size="9" fill="#fff" opacity=".9">(0,00 · 1,00)</text>
+    <text x="36" y="328" text-anchor="middle" font-size="8.5" fill="#fff" opacity=".85">girado 26,6°</text>
+    <line x1="66" y1="309" x2="94" y2="309" stroke="#b23327" stroke-width="1.6" marker-end="url(#arrY)"/>
+    <text x="36" y="348" text-anchor="middle" font-size="9.5" fill="#b23327" font-weight="600">el 3 es el suyo</text>
+  </g>
+  <g>
+    <rect x="196" y="140" width="60" height="34" rx="6" fill="currentColor" opacity=".5"/>
+    <text x="226" y="155" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">LOADER</text>
+    <text x="226" y="168" text-anchor="middle" font-size="9" fill="#fff" opacity=".9">(0,50 · −0,30)</text>
+  </g>
+
+  <!-- flecha de avance -->
+  <line x1="30" y1="60" x2="30" y2="340" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrY)" opacity=".5"/>
+  <text x="18" y="200" font-size="10.5" opacity=".6" transform="rotate(-90 18 200)">avance del cubo</text>
+</svg>
+<figcaption>1 y 2: paredes del embudo de entrada (cajas rectas). 3 y 4: paredes del tramo recto, justo donde cierra la pinza del Sorter (cuñas). <strong>El 3 es el del lado del Sorter</strong> — esa es la forma de no confundirlos. El tope del final (5, <code>belt_end_stop</code>) no sale en este dibujo.</figcaption>
+</figure>
+
+<table>
+  <tr><th>#</th><th>Nombre en el mundo</th><th>Tramo (en Y)</th><th>Estado</th></tr>
+  <tr><td><span class="n" style="background:#c9691f">1</span></td><td><code>belt_rail_l_embudo</code></td><td>0,55 – 1,00 m</td><td><strong>caja simple</strong> (Box 1,5 × 45,5 × 3 cm, inclinada) — la cuña se probó aquí y se revirtió el 2026-09-04</td></tr>
+  <tr><td><span class="n" style="background:#2f6e3d">2</span></td><td><code>belt_rail_r_embudo</code></td><td>0,55 – 1,00 m</td><td><strong>caja simple</strong> (Box 1,5 × 45,5 × 3 cm, inclinada) — la cuña se probó aquí y se revirtió el 2026-09-04</td></tr>
+  <tr><td><span class="n" style="background:#1f6fb2">3</span></td><td><code>belt_rail_l_recto</code></td><td>1,00 – 1,28 m</td><td><strong>cuña 2→9 cm</strong> (Extrusion), puesta el 2026-09-04 — <strong style="color:#1a7f37">el bueno, la referencia — NO TOCAR</strong></td></tr>
+  <tr><td><span class="n" style="background:#9a3fa8">4</span></td><td><code>belt_rail_r_recto</code></td><td>1,00 – 1,28 m</td><td><strong>cuña 2→9 cm</strong> (Extrusion), puesta el 2026-09-04 — NO TOCAR sin cuidado, ver más abajo</td></tr>
+  <tr><td><span class="n" style="background:#666">5</span></td><td><code>belt_end_stop</code></td><td>tope en y=1,30</td><td><strong>cuña 2→9 cm</strong> (Extrusion), spine a lo largo de X — <strong style="color:#1a7f37">correcto — NO TOCAR</strong></td></tr>
+</table>
+
+<h2>El sentido de giro del perfil — RESUELTO y validado (2026-09-10)</h2>
+<p class="note">Corregido el 2026-09-10, tras verlo en vivo: «el palo 3 no tiene rampa, es como una L en vez de un triángulo, y el cubo rojo se ha metido dentro y se ha perdido». El 4 se ve bien.</p>
+<p>Los tres llevan el <em>mismo</em> perfil de cuña, pero el orden en que se
+listan los vértices del <code>crossSection</code> da la vuelta al sentido de giro
+del polígono, y con él a las caras que genera el <code>Extrusion</code>:</p>
+<p>Ojo: no vale con mirar el sentido de giro a secas — cuenta el sentido
+<em>relativo al eje del <code>spine</code></em>. El palo 5 es horario como lo era
+el 3 y aun así se ve bien, porque se extruye por el eje X en vez de por el Y.</p>
+<table>
+  <tr><th>Pieza</th><th>Área con signo</th><th>Sentido</th><th><code>spine</code></th><th>Resultado</th></tr>
+  <tr><td>3 <code>belt_rail_l_recto</code> (lado Sorter)</td><td>−0,0046</td><td>horario</td><td>eje Y</td><td><strong style="color:#1a7f37">ES EL BUENO — NO TOCAR</strong></td></tr>
+  <tr><td>4 <code>belt_rail_r_recto</code></td><td>−0,0046</td><td>horario</td><td>eje Y</td><td><strong style="color:#1a7f37">arreglado el 2026-09-10 igualándolo al 3 — NO TOCAR</strong></td></tr>
+  <tr><td>5 <code>belt_end_stop</code></td><td>−0,0046</td><td>horario</td><td><strong>eje X</strong></td><td><strong style="color:#1a7f37">correcto — NO TOCAR</strong></td></tr>
+</table>
+<p>No estaba mal colocado ni mal apuntado: la traslación y el sentido de
+crecimiento eran correctos. Lo que estaba del revés era el trazado del
+perfil. Además de verse mal, una cara invertida no frena al cubo — es la
+explicación del cubo rojo que se metió dentro del palo 3 y desapareció.</p>
+<p><strong>PROBADO Y REVERTIDO el 2026-09-10</strong>: invertir el orden del
+<code>crossSection</code> del 3 salió PEOR (se veían huecos el 3 y el 4). Revertido.</p>

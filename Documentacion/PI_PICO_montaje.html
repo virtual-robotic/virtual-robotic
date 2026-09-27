@@ -1,0 +1,552 @@
+<!-- Version: 2026-09-18 15:35 -- PI_PICO_montaje.html (documento consolidado, con el diseno de la marca y los esquemas SVG embebidos) -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo están montadas las dos Raspberry Pi Pico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- Tokens (mismos que landing.html / Virtual_Robotic, + alias para los esquemas SVG) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --bg-elevated: #ffffff;
+    --bg-elevated-2: #f4f5ef;
+    --fg: #16211f;
+    --fg-muted: #55655f;
+    --accent-brick: #a8461f;
+    --accent-brick-strong: #8c3717;
+    --accent-copper: #b97a34;
+    --accent-water: #2f645f;
+    --line: rgba(22,33,31,0.14);
+    --shadow: rgba(22,33,31,0.10);
+    --hazard: #c9450c;
+    --red: #c8433f;
+    --green: #2f8f5b;
+    --blue: #3572b8;
+    --ground: #6b7480;
+    /* alias que usan los <svg> embebidos, copiados tal cual de los esquemas originales */
+    --ink: var(--fg);
+    --ink-soft: var(--fg-muted);
+    --muted: var(--fg-muted);
+    --surface: var(--bg-elevated);
+    --surface-2: var(--bg-elevated-2);
+    --accent: var(--accent-brick);
+    --power: var(--accent-water);
+    --wire-a: var(--fg);
+    --wire-b: var(--accent-water);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --bg-elevated: #182322;
+      --bg-elevated-2: #1c2827;
+      --fg: #eee7da;
+      --fg-muted: #9fb0ac;
+      --accent-brick: #c9683c;
+      --accent-brick-strong: #e08658;
+      --accent-copper: #d69a55;
+      --accent-water: #5b9a92;
+      --line: rgba(238,231,218,0.14);
+      --shadow: rgba(0,0,0,0.35);
+      --hazard: #ff7a4d;
+      --red: #ef6a66;
+      --green: #5cc98c;
+      --blue: #6fa8dd;
+      --ground: #9aa4b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --bg-elevated: #182322;
+    --bg-elevated-2: #1c2827;
+    --fg: #eee7da;
+    --fg-muted: #9fb0ac;
+    --accent-brick: #c9683c;
+    --accent-brick-strong: #e08658;
+    --accent-copper: #d69a55;
+    --accent-water: #5b9a92;
+    --line: rgba(238,231,218,0.14);
+    --shadow: rgba(0,0,0,0.35);
+    --hazard: #ff7a4d;
+    --red: #ef6a66;
+    --green: #5cc98c;
+    --blue: #6fa8dd;
+    --ground: #9aa4b2;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-water); }
+  a:focus-visible { outline: 2px solid var(--accent-copper); outline-offset: 2px; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem) 5rem; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    margin: 0 0 0.9rem;
+  }
+
+  h1 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    text-wrap: balance;
+    line-height: 0.95;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 1rem;
+  }
+
+  .dek { max-width: 68ch; color: var(--fg-muted); font-size: 1.08rem; margin: 0 0 2rem; }
+
+  h2 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    line-height: 1;
+    margin: 3rem 0 1rem;
+  }
+  section:first-of-type h2 { margin-top: 0; }
+
+  p { margin: 0 0 1.1rem; }
+  ul { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+  li + li { margin-top: 0.4rem; }
+  code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.1em 0.4em;
+  }
+  strong { font-weight: 700; }
+
+  .callout {
+    display: flex; gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--hazard);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 0 0 1.3rem;
+  }
+  .callout.info { border-left-color: var(--accent-water); }
+  .callout .mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--hazard);
+    color: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 15px;
+  }
+  .callout.info .mark { background: var(--accent-water); }
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  figure { margin: 1.5rem 0; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
+  .diagram-scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 620px; font-family: 'IBM Plex Mono', monospace; }
+  figcaption { font-size: 0.85rem; color: var(--fg-muted); margin-top: 0.8rem; line-height: 1.55; }
+  figcaption code { font-size: 0.85em; }
+
+  .legend { display: flex; gap: 1.3rem; flex-wrap: wrap; margin-top: 0.8rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--fg-muted); }
+  .legend span.swatch { display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; }
+
+  .table-wrap { overflow-x: auto; margin-bottom: 1.3rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); font-weight: 600; }
+  td.mono { font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+  .swatch-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+
+  footer { margin-top: 3rem; padding-top: 1.3rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--fg-muted); }
+  footer a { color: var(--fg-muted); }
+
+  /* ---------- Migas de pan (mismo patron que manual.html: "Principal ->
+     Como arranca todo -> ...", a peticion del usuario: "respeta en todas
+     las paginas") ---------- */
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--fg-muted); text-decoration: none; }
+  .migas a:hover { color: var(--fg); }
+  .migas-sep { color: var(--fg-muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent-brick); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Montaje de las Pico</span>
+  </nav>
+
+  <p class="eyebrow">Documentación técnica · Lab.Panda 2.4</p>
+  <h1>Cómo están montadas las dos Raspberry Pi Pico</h1>
+  <p class="dek">Hay una Pico por robot. Las dos hacen lo mismo en esencia — un LED que dice qué color se está fabricando — pero el Loader lleva además un segundo LED (para el producto) y un sensor de proximidad que el Sorter no tiene.</p>
+
+  <div class="callout info">
+    <div class="mark">i</div>
+    <p><strong>Es opcional.</strong> Si no montas ninguna de las dos Pico, la celda simulada funciona exactamente igual — sin LED físico ni botón físico de parada, pero el panel web y el STOP/REARME del panel de control manual siguen funcionando sin hardware. Ver <code>LANZAR_PROYECTO.md</code>, sección "0. Encender las dos Raspberry Pi Pico".</p>
+  </div>
+
+  <div class="callout info">
+    <div class="mark">i</div>
+    <p><strong>¿Y entonces para qué están?</strong> Porque por aquí empezó todo. No teníamos un robot de verdad (un brazo como el Panda cuesta un pastón) y queríamos tocar algo físico: que lo que pasa dentro del ordenador hiciera algo <em>de verdad</em>, fuera de la pantalla. Así que arrancamos con una Pico, un LED y un botón cableados a mano en una protoboard. Luego creció todo lo demás y las Pico se quedaron como el puente entre lo virtual y lo físico: el día que llegue un robot de verdad, ya sabemos cómo enchufarle cosas al ordenador.</p>
+  </div>
+
+  <div class="callout info">
+    <div class="mark">i</div>
+    <p><strong>Tu Wi-Fi: las claves son solo tuyas.</strong> La Pico W del Sorter entra en tu red con lo que pongas en <code>Rasberry_Pi_Pico/wifi_config.py</code> (<code>SSID</code>, <code>PASSWORD</code> y <code>PC_IP</code>, la IP de tu ordenador) y <code>webrepl_cfg.py</code> (<code>PASS</code>). En el repositorio son <strong>plantillas</strong> (<code>TU_WIFI_AQUI</code>…): rellénalas en tu copia y, para que Git no te las suba por accidente, ejecuta <code>git update-index --skip-worktree Rasberry_Pi_Pico/wifi_config.py Rasberry_Pi_Pico/webrepl_cfg.py</code>. Nunca subas las claves reales; si se cuela alguna, cambia la contraseña del Wi-Fi. Detalle en <code>LANZAR_PROYECTO.md</code>, apartado «Tu Wi-Fi».</p>
+  </div>
+
+  <figure>
+    <img src="PI_PICO_montaje_foto.jpg" alt="Montaje real sobre una protoboard: las dos Pico, la pantalla OLED junto al Loader, el sensor HC-SR04 arriba a la izquierda y la fuente de alimentación regulada arriba a la derecha, con los dos LED de agarre encendidos en rojo y azul">
+    <figcaption>El montaje real: protoboard con las dos Pico, la pantalla OLED (izquierda, junto al Loader), el HC-SR04 (arriba a la izquierda) y la fuente de alimentación regulada de la regleta de 5&nbsp;V (arriba a la derecha, mostrando 4,95&nbsp;V / 3,3&nbsp;A).</figcaption>
+  </figure>
+
+  <section>
+    <h2>Resumen rápido</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Sorter (Pico W)</th><th>Loader (Pico sin wifi)</th></tr></thead>
+        <tbody>
+          <tr><td>Cómo habla con el PC</td><td>Wi-Fi, <code>192.168.1.101:5001</code></td><td>Cable USB (puerto serie)</td></tr>
+          <tr><td>LED de agarre (on/off)</td><td class="mono">GP13 / GP14 / GP15</td><td class="mono">GP13 / GP14 / GP15</td></tr>
+          <tr><td>LED de producto (PWM)</td><td>— no tiene —</td><td class="mono">GP17 / GP18 / GP19</td></tr>
+          <tr><td>Botón de parada</td><td class="mono">GP16</td><td class="mono">GP16</td></tr>
+          <tr><td>Sensor de proximidad</td><td>— no tiene —</td><td class="mono">HC-SR04: TRIG=GP20, ECHO=GP21</td></tr>
+          <tr><td>Pantalla (producto en curso)</td><td>— no tiene —</td><td class="mono">OLED SSD1306: SDA=GP4, SCL=GP5</td></tr>
+          <tr><td>Firmware</td><td class="mono">Rasberry_Pi_Pico/main.py</td><td class="mono">Rasberry_Pi_Pico_USB_Loader/main.py</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. LED de agarre (igual en las dos Pico)</h2>
+    <p>Un LED RGB normal de cátodo común, encendido en on/off — nunca dos colores mezclados a la vez, así que una sola resistencia en el cátodo vale:</p>
+    <ul>
+      <li><strong>GP13</strong> → rojo, <strong>GP14</strong> → verde, <strong>GP15</strong> → azul.</li>
+      <li>Resistencia: <strong>220&nbsp;Ω</strong> en el cátodo común (compartida).</li>
+      <li>Protocolo: una letra (<code>R</code>/<code>G</code>/<code>B</code>/<code>0</code>) por Wi-Fi (Sorter) o por el propio cable USB (Loader).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. Botón de parada de emergencia</h2>
+    <p>Igual en las dos Pico: <strong>GP16</strong>, con la resistencia <strong>pull-up interna de la propia Pico</strong> activada por software (<code>machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)</code>) — <strong>no hace falta ninguna resistencia externa</strong>. Un terminal del pulsador va a GP16, el otro a GND.</p>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg viewBox="0 0 1000 420" role="img" aria-label="Dos esquemas eléctricos comparados: a la izquierda, pull-up, con la resistencia de 10 kilo-ohmios entre 3V3 y el nodo GPIO16, y el pulsador entre ese nodo y GND; a la derecha, pull-down, con el pulsador entre 3V3 y el nodo GPIO16, y la resistencia entre ese nodo y GND. Ambos nodos GPIO16 se conectan a la Raspberry Pi Pico W.">
+          <g font-family="IBM Plex Mono">
+            <text x="180" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">PULL-UP · código actual, sin cambios</text>
+            <text x="180" y="52" text-anchor="middle" font-size="13" font-weight="600">3V3</text>
+            <circle cx="180" cy="62" r="3.5" fill="currentColor" />
+            <line x1="180" y1="62" x2="180" y2="92" stroke="var(--wire-a)" stroke-width="2" />
+            <rect x="163" y="92" width="34" height="58" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="205" y="126" font-size="12">10 kΩ</text>
+            <line x1="180" y1="150" x2="180" y2="178" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="178" r="4" fill="var(--wire-b)" />
+            <line x1="180" y1="178" x2="300" y2="178" stroke="var(--wire-b)" stroke-width="2" />
+            <text x="240" y="170" text-anchor="middle" font-size="11.5" fill="var(--wire-b)">GPIO16</text>
+            <rect x="300" y="153" width="92" height="50" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="346" y="183" text-anchor="middle" font-size="12" font-weight="600">Pico W</text>
+            <line x1="180" y1="178" x2="180" y2="206" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="210" r="3.5" fill="currentColor" />
+            <line x1="180" y1="210" x2="203" y2="228" stroke="currentColor" stroke-width="2" />
+            <circle cx="180" cy="250" r="3.5" fill="currentColor" />
+            <text x="215" y="232" font-size="11" opacity="0.65">pulsador</text>
+            <line x1="180" y1="250" x2="180" y2="290" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="300" r="3.5" fill="currentColor" />
+            <line x1="180" y1="290" x2="180" y2="300" stroke="var(--wire-a)" stroke-width="2" />
+            <text x="180" y="322" text-anchor="middle" font-size="13" font-weight="600">GND</text>
+            <text x="180" y="365" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">reposo = 1 · pulsado = 0</text>
+            <text x="180" y="382" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">(flanco de bajada)</text>
+          </g>
+          <line x1="500" y1="20" x2="500" y2="400" stroke="currentColor" stroke-width="1" opacity="0.15" />
+          <g font-family="IBM Plex Mono" transform="translate(440,0)">
+            <text x="180" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">PULL-DOWN · invierte el flanco</text>
+            <text x="180" y="52" text-anchor="middle" font-size="13" font-weight="600">3V3</text>
+            <circle cx="180" cy="62" r="3.5" fill="currentColor" />
+            <line x1="180" y1="62" x2="180" y2="90" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="94" r="3.5" fill="currentColor" />
+            <line x1="180" y1="112" x2="203" y2="130" stroke="currentColor" stroke-width="2" />
+            <circle cx="180" cy="134" r="3.5" fill="currentColor" />
+            <text x="215" y="116" font-size="11" opacity="0.65">pulsador</text>
+            <line x1="180" y1="134" x2="180" y2="178" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="178" r="4" fill="var(--wire-b)" />
+            <line x1="180" y1="178" x2="300" y2="178" stroke="var(--wire-b)" stroke-width="2" />
+            <text x="240" y="170" text-anchor="middle" font-size="11.5" fill="var(--wire-b)">GPIO16</text>
+            <rect x="300" y="153" width="92" height="50" rx="4" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="346" y="183" text-anchor="middle" font-size="12" font-weight="600">Pico W</text>
+            <line x1="180" y1="178" x2="180" y2="208" stroke="var(--wire-a)" stroke-width="2" />
+            <rect x="163" y="208" width="34" height="58" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <text x="205" y="242" font-size="12">10 kΩ</text>
+            <line x1="180" y1="266" x2="180" y2="300" stroke="var(--wire-a)" stroke-width="2" />
+            <circle cx="180" cy="300" r="3.5" fill="currentColor" />
+            <text x="180" y="322" text-anchor="middle" font-size="13" font-weight="600">GND</text>
+            <text x="180" y="365" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">reposo = 0 · pulsado = 1</text>
+            <text x="180" y="382" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">(flanco de subida)</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legend">
+        <div><span class="swatch" style="background:var(--wire-a)"></span>alimentación / GND</div>
+        <div><span class="swatch" style="background:var(--wire-b)"></span>señal hacia GPIO16</div>
+      </div>
+      <figcaption>Los dos montajes posibles con resistencia física de 10&nbsp;kΩ, por si prefieres no depender de la pull-up interna. El código actual está montado en pull-up (izquierda) — es el que ya usa <code>main.py</code> tal cual, sin resistencia externa.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg viewBox="0 0 620 260" role="img" aria-label="Vista desde arriba de un pulsador de 4 patas: las dos patas del lado izquierdo están unidas por dentro, igual que las dos del lado derecho. Hay que cablear una pata de cada lado, nunca las dos del mismo lado.">
+          <g font-family="IBM Plex Mono">
+            <text x="150" y="24" text-anchor="middle" font-size="12.5" font-weight="600">vista desde arriba</text>
+            <rect x="100" y="40" width="100" height="100" rx="8" fill="var(--surface-2)" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="100" cy="55" r="5" fill="currentColor" />
+            <circle cx="100" cy="125" r="5" fill="currentColor" />
+            <circle cx="200" cy="55" r="5" fill="currentColor" />
+            <circle cx="200" cy="125" r="5" fill="currentColor" />
+            <line x1="80" y1="55" x2="80" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="100" y1="55" x2="80" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="100" y1="125" x2="80" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <text x="55" y="94" text-anchor="middle" font-size="10.5" opacity="0.6" transform="rotate(-90 55 94)">unidas por dentro</text>
+            <line x1="220" y1="55" x2="220" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="200" y1="55" x2="220" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <line x1="200" y1="125" x2="220" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55" />
+            <text x="245" y="94" text-anchor="middle" font-size="10.5" opacity="0.6" transform="rotate(90 245 94)">unidas por dentro</text>
+            <circle cx="100" cy="55" r="8" fill="none" stroke="var(--accent)" stroke-width="2" />
+            <circle cx="200" cy="125" r="8" fill="none" stroke="var(--accent)" stroke-width="2" />
+            <text x="150" y="200" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="600">usa una pata de cada lado</text>
+            <text x="150" y="220" text-anchor="middle" font-size="11" fill="var(--ink-soft)">(cualquier combinación izq. + der. sirve)</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>El pulsador típico de protoboard tiene 4 patas, pero por dentro son solo 2 contactos: las dos de un mismo lado están unidas. Si cableas las dos patas de un mismo lado, el circuito queda cerrado siempre — el botón "lee" como pulsado permanentemente, se toque o no.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>3. LED de producto — solo en el Loader</h2>
+    <p>Un segundo LED RGB, controlado por <strong>PWM de verdad</strong> (no on/off) para poder mostrar cualquier color, no solo R/G/B puros.</p>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p>El esquema de abajo se hizo antes de descubrir que <strong>GP16 ya estaba ocupado por el botón de parada</strong> (sección 2) — por eso dibuja GP16/17/18. Los pines reales que lleva el firmware hoy son <strong>GP17/18/19</strong>. Los valores de las resistencias sí son correctos.</p>
+    </div>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg viewBox="0 0 760 420" role="img" aria-label="Esquema: los pines GP17, GP18 y GP19 de la Pico salen cada uno por su propia resistencia (150, 68 y 68 ohmios) hacia las patas roja, verde y azul del LED; el cátodo común del LED y el pin GND de la Pico comparten el mismo nodo de tierra.">
+          <defs>
+            <marker id="arrow-prod" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <rect x="34" y="34" width="150" height="300" rx="14" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"/>
+          <text x="109" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="currentColor">Pico</text>
+          <text x="109" y="88" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="currentColor" opacity="0.6">USB Loader</text>
+          <line x1="184" y1="110" x2="222" y2="110" stroke="var(--red)" stroke-width="2.4"/>
+          <text x="150" y="103" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP17</text>
+          <line x1="184" y1="184" x2="222" y2="184" stroke="var(--green)" stroke-width="2.4"/>
+          <text x="150" y="177" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP18</text>
+          <line x1="184" y1="258" x2="222" y2="258" stroke="var(--blue)" stroke-width="2.4"/>
+          <text x="150" y="251" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GP19</text>
+          <line x1="184" y1="310" x2="222" y2="310" stroke="var(--ground)" stroke-width="2.4"/>
+          <text x="150" y="303" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="currentColor">GND</text>
+          <line x1="222" y1="310" x2="222" y2="366" stroke="var(--ground)" stroke-width="2.2"/>
+          <rect x="222" y="99" width="58" height="22" rx="2" fill="none" stroke="var(--red)" stroke-width="2"/>
+          <text x="251" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--red)">150 Ω</text>
+          <line x1="280" y1="110" x2="446" y2="110" stroke="var(--red)" stroke-width="2.4" marker-end="url(#arrow-prod)"/>
+          <rect x="222" y="173" width="58" height="22" rx="2" fill="none" stroke="var(--green)" stroke-width="2"/>
+          <text x="251" y="164" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--green)">68 Ω</text>
+          <line x1="280" y1="184" x2="446" y2="184" stroke="var(--green)" stroke-width="2.4" marker-end="url(#arrow-prod)"/>
+          <rect x="222" y="247" width="58" height="22" rx="2" fill="none" stroke="var(--blue)" stroke-width="2"/>
+          <text x="251" y="238" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="var(--blue)">68 Ω</text>
+          <line x1="280" y1="258" x2="446" y2="258" stroke="var(--blue)" stroke-width="2.4" marker-end="url(#arrow-prod)"/>
+          <rect x="446" y="80" width="120" height="200" rx="16" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"/>
+          <text x="506" y="66" text-anchor="middle" font-family="IBM Plex Mono" font-size="12.5" font-weight="600" fill="currentColor">LED RGB (4 patas)</text>
+          <line x1="524" y1="70" x2="538" y2="56" stroke="currentColor" stroke-width="1.6" opacity="0.6" marker-end="url(#arrow-prod)"/>
+          <line x1="542" y1="76" x2="556" y2="62" stroke="currentColor" stroke-width="1.6" opacity="0.6" marker-end="url(#arrow-prod)"/>
+          <circle cx="446" cy="110" r="4.5" fill="var(--red)"/>
+          <text x="462" y="132" font-family="IBM Plex Mono" font-size="11" fill="var(--red)">R (ánodo)</text>
+          <circle cx="446" cy="184" r="4.5" fill="var(--green)"/>
+          <text x="462" y="206" font-family="IBM Plex Mono" font-size="11" fill="var(--green)">G (ánodo)</text>
+          <circle cx="446" cy="258" r="4.5" fill="var(--blue)"/>
+          <text x="462" y="280" font-family="IBM Plex Mono" font-size="11" fill="var(--blue)">B (ánodo)</text>
+          <line x1="506" y1="280" x2="506" y2="366" stroke="var(--ground)" stroke-width="2.4"/>
+          <text x="516" y="300" font-family="IBM Plex Mono" font-size="11" fill="var(--ground)">cátodo común</text>
+          <line x1="222" y1="366" x2="506" y2="366" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="364" y1="366" x2="364" y2="380" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="346" y1="380" x2="382" y2="380" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="352" y1="386" x2="376" y2="386" stroke="var(--ground)" stroke-width="2.2"/>
+          <line x1="358" y1="392" x2="370" y2="392" stroke="var(--ground)" stroke-width="2.2"/>
+          <text x="364" y="410" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--ground)">GND común</text>
+        </svg>
+      </div>
+      <figcaption>Cada pin PWM lleva su <strong>propia</strong> resistencia hacia su pata del LED (a diferencia del LED de agarre, que comparte una); el cátodo común y el GND de la Pico comparten el mismo nodo.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Canal</th><th>V<sub>f</sub> típica</th><th>Corriente objetivo</th><th>Resistencia</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch-dot" style="background:var(--red)"></span>Rojo — GP17</td><td>≈ 2,0 V</td><td>≈ 9 mA</td><td class="mono">150 Ω</td></tr>
+          <tr><td><span class="swatch-dot" style="background:var(--green)"></span>Verde — GP18</td><td>≈ 3,0 V</td><td>≈ 4–7 mA</td><td class="mono">68 Ω</td></tr>
+          <tr><td><span class="swatch-dot" style="background:var(--blue)"></span>Azul — GP19</td><td>≈ 3,0–3,2 V</td><td>≈ 4–7 mA</td><td class="mono">68 Ω</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Cátodo directo a GND, sin resistencia. Comando por USB: <code>PROD:r,g,b</code> (0-255 por canal); <code>PROD:0,0,0</code> lo apaga.</p>
+  </section>
+
+  <section>
+    <h2>4. Sensor de proximidad HC-SR04 — solo en el Loader</h2>
+    <p>Tercera forma de disparar la parada de emergencia, sin tocar ningún botón: si algo se acerca a menos de una distancia mínima, dispara la parada exactamente igual que el botón físico.</p>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p>El pin <strong>ECHO</strong> del HC-SR04 responde a <strong>5&nbsp;V</strong>, pero un GPIO de la Pico admite como máximo ~3,3&nbsp;V. Conectado directo, la primera vez que el sensor detecte algo <strong>frie el pin</strong> (o la placa entera) — por eso ECHO pasa por un divisor resistivo. TRIG no lo necesita: ahí es la Pico quien manda la señal (3,3&nbsp;V de salida disparan el sensor sin problema).</p>
+    </div>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg viewBox="0 0 1000 640" role="img" aria-label="Esquema de cableado: HC-SR04 alimentado por la regleta de 5V de la protoboard, TRIG conectado directo a GP20 de la Pico del Loader, y ECHO conectado a GP21 a través de un divisor resistivo de 1kΩ y 2,2kΩ que baja la señal de 5V a 3,44V. GND del sensor y de la Pico comparten la misma regleta de tierra.">
+          <defs>
+            <marker id="arrow-hc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          <line x1="20" y1="90" x2="920" y2="90" stroke="var(--power)" stroke-width="3"></line>
+          <circle cx="20" cy="90" r="4" fill="var(--power)"></circle>
+          <text x="34" y="76" fill="var(--power)" font-size="13" font-weight="600">+5V — regleta de alimentación de la protoboard</text>
+          <line x1="20" y1="560" x2="920" y2="560" stroke="var(--muted)" stroke-width="3"></line>
+          <line x1="20" y1="560" x2="20" y2="578" stroke="var(--muted)" stroke-width="2"></line>
+          <line x1="10" y1="578" x2="30" y2="578" stroke="var(--muted)" stroke-width="2"></line>
+          <line x1="14" y1="584" x2="26" y2="584" stroke="var(--muted)" stroke-width="2"></line>
+          <line x1="17" y1="590" x2="23" y2="590" stroke="var(--muted)" stroke-width="2"></line>
+          <text x="34" y="580" fill="var(--muted)" font-size="13" font-weight="600">GND común — protoboard + Pico, obligatorio compartirla</text>
+          <rect x="60" y="220" width="200" height="120" rx="6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"></rect>
+          <text x="160" y="272" fill="var(--ink)" font-size="17" font-weight="700" text-anchor="middle">HC-SR04</text>
+          <text x="160" y="292" fill="var(--muted)" font-size="11.5" text-anchor="middle">sensor ultrasonidos</text>
+          <line x1="60" y1="240" x2="20" y2="240" stroke="var(--power)" stroke-width="2"></line>
+          <line x1="20" y1="240" x2="20" y2="90" stroke="var(--power)" stroke-width="2"></line>
+          <text x="64" y="234" fill="var(--power)" font-size="12" font-weight="600">VCC</text>
+          <line x1="160" y1="340" x2="160" y2="560" stroke="var(--muted)" stroke-width="2"></line>
+          <circle cx="160" cy="560" r="4" fill="var(--muted)"></circle>
+          <text x="167" y="356" fill="var(--muted)" font-size="12" font-weight="600">GND</text>
+          <line x1="260" y1="240" x2="694" y2="240" stroke="var(--ink)" stroke-width="2" marker-end="url(#arrow-hc)"></line>
+          <text x="255" y="234" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="end">TRIG</text>
+          <text x="470" y="226" fill="var(--muted)" font-size="12" text-anchor="middle">3,3V basta para disparar — sin divisor</text>
+          <line x1="260" y1="300" x2="290" y2="300" stroke="var(--ink)" stroke-width="2"></line>
+          <text x="255" y="294" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="end">ECHO</text>
+          <rect x="290" y="292" width="90" height="16" fill="var(--surface)" stroke="var(--hazard)" stroke-width="2"></rect>
+          <text x="335" y="284" fill="var(--hazard)" font-size="12" font-weight="600" text-anchor="middle">R1 · 1 kΩ</text>
+          <line x1="380" y1="300" x2="420" y2="300" stroke="var(--ink)" stroke-width="2"></line>
+          <circle cx="420" cy="300" r="4.5" fill="var(--ink)"></circle>
+          <line x1="420" y1="304" x2="420" y2="380" stroke="var(--ink)" stroke-width="2"></line>
+          <rect x="412" y="380" width="16" height="90" fill="var(--surface)" stroke="var(--hazard)" stroke-width="2"></rect>
+          <line x1="420" y1="470" x2="420" y2="560" stroke="var(--muted)" stroke-width="2"></line>
+          <circle cx="420" cy="560" r="4" fill="var(--muted)"></circle>
+          <text x="440" y="429" fill="var(--hazard)" font-size="12" font-weight="600">R2 · 2k2 Ω</text>
+          <text x="440" y="446" fill="var(--muted)" font-size="11.5">(2,2 kΩ — valor de kit)</text>
+          <line x1="420" y1="300" x2="694" y2="300" stroke="var(--ink)" stroke-width="2" marker-end="url(#arrow-hc)"></line>
+          <text x="557" y="292" fill="var(--muted)" font-size="12" text-anchor="middle">5V × 2,2⁄3,2 ≈ 3,44V</text>
+          <path d="M560,430 C520,430 480,400 425,320" fill="none" stroke="var(--hazard)" stroke-width="1.5" stroke-dasharray="3 4"></path>
+          <polygon points="500,398 502,414 486,406" fill="var(--hazard)"></polygon>
+          <text x="565" y="420" fill="var(--hazard)" font-size="12.5" font-weight="600">divisor obligatorio</text>
+          <text x="565" y="436" fill="var(--hazard)" font-size="11.5">ECHO real es 5V, no 3,3V</text>
+          <rect x="700" y="180" width="220" height="220" rx="6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"></rect>
+          <text x="810" y="212" fill="var(--ink)" font-size="17" font-weight="700" text-anchor="middle">Pico Loader (USB)</text>
+          <text x="810" y="232" fill="var(--muted)" font-size="11.5" text-anchor="middle">RP2040 — GPIO a 3,3V</text>
+          <circle cx="700" cy="240" r="3.5" fill="var(--ink)"></circle>
+          <text x="712" y="236" fill="var(--ink)" font-size="12.5" font-weight="600">GP20</text>
+          <text x="712" y="250" fill="var(--muted)" font-size="11">pin físico 26 — TRIG</text>
+          <circle cx="700" cy="300" r="3.5" fill="var(--ink)"></circle>
+          <text x="712" y="296" fill="var(--ink)" font-size="12.5" font-weight="600">GP21</text>
+          <text x="712" y="310" fill="var(--muted)" font-size="11">pin físico 27 — ECHO (ya dividido)</text>
+          <line x1="780" y1="400" x2="780" y2="560" stroke="var(--muted)" stroke-width="2"></line>
+          <circle cx="780" cy="560" r="4" fill="var(--muted)"></circle>
+          <text x="712" y="352" fill="var(--ink)" font-size="12.5" font-weight="600">GND</text>
+          <text x="712" y="366" fill="var(--muted)" font-size="11">pin físico 28 — junto a GP21</text>
+          <text x="810" y="382" fill="var(--muted)" font-size="11" text-anchor="middle">GP13–19 ya ocupados (LED + botón)</text>
+        </svg>
+      </div>
+      <figcaption>HC-SR04 alimentado desde la regleta de +5V que ya usa la protoboard. TRIG va directo a GP20; ECHO pasa por el divisor R1/R2 antes de llegar a GP21. GND del sensor y de la Pico comparten la misma regleta de tierra.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pin HC-SR04</th><th>Va a</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">VCC</td><td class="mono">Regleta +5V</td><td>La misma que ya alimenta el resto de la protoboard.</td></tr>
+          <tr><td class="mono">TRIG</td><td class="mono">GP20 · pin 26</td><td>Directo, sin divisor.</td></tr>
+          <tr><td class="mono">ECHO</td><td class="mono">R1(1k) → nodo → GP21 · pin 27</td><td>Nodo baja a GND por R2 (2k2) — sale a 3,44V.</td></tr>
+          <tr><td class="mono">GND</td><td class="mono">Regleta GND común</td><td>Debe compartirse con la GND de la Pico.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Umbral de disparo en el firmware: <code>DISTANCIA_MIN_CM = 10</code> (en <code>Rasberry_Pi_Pico_USB_Loader/main.py</code>) — si salta solo durante la producción normal, lo que hay que tocar es ese número o reubicar el sensor, no quitar el aviso.</p>
+  </section>
+
+  <section>
+    <h2>5. Pantalla OLED — solo en el Loader</h2>
+    <p>Muestra en texto qué producto se está fabricando ahora mismo (nombre, variante y código) — lo mismo que dice en color el LED de producto, pero legible sin tener que aprenderse la paleta. Es una SSD1306 de 128×64 por I2C, cableada a <strong>GP4 (SDA)</strong> / <strong>GP5 (SCL)</strong>.</p>
+
+    <figure>
+      <img src="PI_PICO_oled_foto.jpg" alt="Pantalla OLED SSD1306 de 128×64 montada en protoboard, con sus 4 pines etiquetados GND, VCC, SCL y SDA">
+      <figcaption>La pantalla OLED SSD1306 usada, con sus 4 pines de serigrafía: GND, VCC, SCL, SDA.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p>Con este montaje concreto hace falta <code>machine.SoftI2C</code>, no el I2C por hardware: <code>machine.I2C(0, ...)</code> encuentra la pantalla al escanear pero cualquier escritura real falla con <code>OSError: [Errno 5] EIO</code>. Esquema completo, tabla de pines y esta misma explicación en detalle en <a href="PI_PICO_cableado_oled.html">PI_PICO_cableado_oled.html</a>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Material usado (las dos Pico juntas)</h2>
+    <ul>
+      <li>2× Raspberry Pi Pico (una <strong>W</strong>, con wifi, para el Sorter; una normal, sin wifi, para el Loader).</li>
+      <li>2× LED RGB de cátodo común, 4 patas.</li>
+      <li>1× sensor de proximidad HC-SR04 (solo Loader).</li>
+      <li>1× pantalla OLED SSD1306 0,96", 128×64, I2C (solo Loader).</li>
+      <li>2× pulsador táctil de 4 patas, tipo protoboard.</li>
+      <li>Resistencias: 220&nbsp;Ω ×2 (LED de agarre), 150&nbsp;Ω y 68&nbsp;Ω ×2 (LED de producto), 1&nbsp;kΩ y 2,2&nbsp;kΩ (divisor del HC-SR04).</li>
+      <li>Protoboard(s) y cables puente macho-macho / macho-hembra.</li>
+      <li>Fuente de alimentación regulada para la regleta de 5&nbsp;V.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Código: <code>Rasberry_Pi_Pico/main.py</code> (Sorter) ·
+    <code>Rasberry_Pi_Pico_USB_Loader/main.py</code> (Loader) ·
+    puentes ROS2: <code>led_publisher.py</code> / <code>led_publisher_usb.py</code>.
+    Ver también los esquemas originales:
+    <a href="PI_PICO_cableado_boton.html">cableado del pulsador</a>,
+    <a href="PI_PICO_cableado_hcsr04.html">HC-SR04</a>,
+    <a href="PI_PICO_led_producto_pwm_esquema.html">LED RGB por PWM</a>.
+  </footer>
+
+</div>
+</body>
+</html>

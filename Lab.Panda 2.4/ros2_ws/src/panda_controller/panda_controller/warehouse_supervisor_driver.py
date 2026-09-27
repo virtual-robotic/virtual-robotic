@@ -1,4 +1,4 @@
-# Version: 2026-09-14 19:59 -- plugin supervisor del almacen (letrero, lee config_cadena)
+# Version: 2026-09-24 20:22 -- publica la hora de la simulacion en /clock
 """Plugin de Webots (sesion 2026-08-28) para el robot sin cuerpo fisico
 DEF WAREHOUSE_SUPERVISOR (worlds/panda_industrial_cell.wbt, supervisor TRUE).
 
@@ -44,6 +44,7 @@ fuerte en el log.
 import time
 
 import rclpy
+from rosgraph_msgs.msg import Clock
 from std_msgs.msg import Bool, Float64MultiArray, String
 
 from panda_controller import config_cadena
@@ -201,6 +202,13 @@ class WarehouseSupervisorDriver:
         # de si la camara ve o no ve algo cerca de un punto.
         self.__pub_positions = self.__node.create_publisher(
             Float64MultiArray, '/warehouse/cube_positions', 10)
+        # Hora de la SIMULACION en /clock, cada step() (2026-09-24). Nadie la
+        # publicaba: Loader y Sorter median sus esperas y el ritmo de sus
+        # movimientos con el reloj del ordenador, y en un PC lento (Webots a
+        # 0.22x en Windows) todo les pasaba 4-5 veces mas deprisa dentro de la
+        # simulacion -- el brazo no llegaba, la pinza cerraba a destiempo y se
+        # dislocaba el dedo. Ver CubeShuttleDemo.spin_for.
+        self.__pub_clock = self.__node.create_publisher(Clock, '/clock', 10)
         self.__node.get_logger().info(
             f'Almacen listo -- {len(self.__cubes)}/3 cubos localizados, '
             'esperando confirmaciones de entrega en /warehouse/cube_delivered. '
@@ -377,6 +385,11 @@ class WarehouseSupervisorDriver:
 
     def step(self):
         rclpy.spin_once(self.__node, timeout_sec=0)
+        t = self.__robot.getTime()
+        reloj = Clock()
+        reloj.clock.sec = int(t)
+        reloj.clock.nanosec = int(round((t - int(t)) * 1e9)) % 1000000000
+        self.__pub_clock.publish(reloj)
         self.__publish_positions()
         ahora_real = time.monotonic()
         if ahora_real - self.__letrero_ultimo >= LETRERO_PERIODO_S:

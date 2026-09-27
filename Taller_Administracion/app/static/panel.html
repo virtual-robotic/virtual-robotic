@@ -1,4 +1,4 @@
-<!-- Version: 2026-09-22 -- selector de idioma ES/EN/EU traduce TODO el panel: las 19 pestañas completas via i18n_panel.js (394 claves EN/EU) -->
+<!-- Version: 2026-09-27 18:36 -- enlaces a las plantillas Word en Administracion > Empresas. Antes: empleados de la empresa con permiso por grupo (Produccion/Contabilidad) -->
 <!doctype html>
 <!-- 2026-09-12: cabecera de marca (Virtual Robotic) anadida para que el
      panel comparta anagrama/tipografia con la web de aterrizaje ("/"). -->
@@ -317,8 +317,16 @@
     return t("primera_ultima_pieza", "De la primera a la última pieza: {a}. Desde que se hizo el pedido: {b}.", { a: duracion(segundos), b: duracion(segundosTotal) });
   }
 
-  const ROLES = { ADMIN_SISTEMA: "admin_sistema", ADMIN_CLIENTE: "admin_cliente", NORMAL: "normal" };
-  const NOMBRES_ROL = { admin_sistema: "Admin. sistema", admin_cliente: "Admin. cliente", normal: "Normal" };
+  const ROLES = { ADMIN_SISTEMA: "admin_sistema", ADMIN_CLIENTE: "admin_cliente", NORMAL: "normal", EMPLEADO: "empleado" };
+  const NOMBRES_ROL = { admin_sistema: "Admin. sistema", admin_cliente: "Admin. cliente", normal: "Normal", empleado: "Empleado de la empresa" };
+  // Mismo criterio que auth.tiene_permiso del servidor (sesion 2026-09-26): el
+  // admin_sistema puede todo; un empleado, solo los grupos que tenga marcados.
+  function puede(grupo) {
+    if (estado.yo.rol === ROLES.ADMIN_SISTEMA) return true;
+    return estado.yo.rol === ROLES.EMPLEADO && !!estado.yo["permiso_" + grupo];
+  }
+  // Gente de nuestra empresa: ve los datos de todos los clientes (y no hace pedidos).
+  function esInterno() { return puede("produccion") || puede("contabilidad"); }
   function nombreRol(rol) { return t("rol_" + rol, NOMBRES_ROL[rol] || rol); }
   // "completado" significa REPARTIDO (con albaran): se le llama asi al usuario
   // para que no se confunda con "fabricado" (lo que ahora es "listo").
@@ -525,8 +533,12 @@
     { id: "auditoria", grupo: "administracion", nombre: "Auditoría", roles: [ROLES.ADMIN_SISTEMA] },
   ];
 
+  // Un empleado ve las pestanas de la gente de la empresa (las del admin) en los
+  // grupos que tenga marcados; Administracion nunca.
   function pestanasDisponibles() {
-    return TODAS_LAS_TABS.filter((t) => t.roles.includes(estado.yo.rol));
+    return TODAS_LAS_TABS.filter((t) => t.roles.includes(estado.yo.rol)
+      || (estado.yo.rol === ROLES.EMPLEADO && t.grupo !== "administracion"
+          && t.roles.includes(ROLES.ADMIN_SISTEMA) && puede(t.grupo)));
   }
 
   function gruposDisponibles() {
@@ -594,7 +606,7 @@
       <p class="ayuda">${t("ayuda_pedidos", 'Aquí se piden piezas: eliges un producto (una variante concreta) o un paquete entero, la cantidad, y lo metes en la <b>cesta</b> con <b>+ Añadir a la cesta</b>. Cuando la cesta está como quieres, pulsa <b>Pedir la cesta</b>: todo lo de una cesta se entrega <b>junto, en un solo albarán</b>. Un pedido de una sola cosa es simplemente una cesta de una línea; si quieres entregas separadas, haz una cesta para cada una. La cesta se guarda en este navegador hasta que la pidas. Cada pedido pasa por dos etapas: primero se consiguen las piezas (de <b>stock</b> o fabricándolas la celda) y quedan <b>listas</b>; luego se <b>reparten</b> al cliente y queda su albarán. Aquí ves en qué punto está cada uno: "<b>Completado</b>" son las piezas ya listas, "<b>Repartido</b>" las ya entregadas. "<b>Activos</b>" son los que aún no se han entregado del todo; "<b>Histórico</b>" los ya repartidos o cancelados.')}</p>
       <div id='pedidos-form'></div><div id='pedidos-tabla'></div>`;
 
-    if (estado.yo.rol !== ROLES.ADMIN_SISTEMA) {
+    if (!esInterno()) {
       await pintarFormNuevoPedido();
     }
     await pintarTablaPedidos();
@@ -753,13 +765,13 @@
   async function pintarTablaPedidos() {
     const [pedidos, clientes] = await Promise.all([
       api("/pedidos"),
-      estado.yo.rol === ROLES.ADMIN_SISTEMA ? api("/clientes") : Promise.resolve([]),
+      esInterno() ? api("/clientes") : Promise.resolve([]),
     ]);
     const clientesPorId = {};
     clientes.forEach((c) => { clientesPorId[c.id] = c; });
 
     const f = estado.filtrosPedidos;
-    const verCliente = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+    const verCliente = esInterno();
     const verQuien = estado.yo.rol !== ROLES.NORMAL;
 
     const activosEstados = ["pendiente", "en_proceso", "listo"];
@@ -790,11 +802,12 @@
     }
 
     function filaPedido(p, conAcciones) {
-      const puedeGestionar = estado.yo.rol === ROLES.ADMIN_SISTEMA || estado.yo.rol === ROLES.ADMIN_CLIENTE;
-      // /pedidos/{id}/reclamar y /liberar son solo de admin_sistema en el
-      // backend (ver Taller_Administracion/app/main.py) -- ni se ofrece el
-      // control a un admin_cliente, le daria 403 si lo usara.
-      const esAdminSistema = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+      const puedeGestionar = puede("produccion") || estado.yo.rol === ROLES.ADMIN_CLIENTE;
+      // /pedidos/{id}/reclamar y /liberar son de Produccion en el backend (ver
+      // Taller_Administracion/app/main.py) -- ni se ofrece el control a un
+      // admin_cliente, le daria 403 si lo usara. Corregir precios es de Contabilidad.
+      const puedeMaquina = puede("produccion");
+      const puedePrecio = puede("contabilidad");
       const nombreCliente = etiquetaCliente(clientesPorId[p.cliente_id]) || `#${p.cliente_id}`;
       return `<tr class="${p.urgente ? "urgente" : ""}">
         <td>${p.id}</td>
@@ -807,13 +820,13 @@
         <td>${p.cantidad_pedida}</td>
         <td title="${t("titulo_precio_ud", "Precio por unidad, sin IVA ({iva} %). Origen: {origen}", { iva: p.iva_porcentaje, origen: origenPrecio(p.precio_origen) })}">${
           p.paquete_pedido_id && p.paquete_precio_centimos !== null
-            ? `<small style="color:#9a8f7d" title="${t("titulo_paquete_entero", "El paquete se cobra entero: {n} × {precio}", { n: p.paquete_cantidad, precio: euros(p.paquete_precio_centimos) })}">${t("en_el_paquete", "📦 en el paquete ({precio})", { precio: euros(p.paquete_precio_centimos) })}</small>${conAcciones && esAdminSistema && p.cantidad_repartida === 0 ? ` <button data-precio-paquete="${p.paquete_pedido_id}" data-actual="${(p.paquete_precio_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_paquete", "Corregir el precio del paquete (queda en el historial)")}">✎</button>` : ""}`
-            : `${p.precio_unitario_centimos ? euros(p.precio_unitario_centimos) : `<span style="color:#e0a030">${t("sin_precio", "sin precio")}</span>`}${p.precio_origen !== "tarifa_general" ? ` <small style="color:#9a8f7d">${p.precio_origen === "manual" ? t("manual_corto", "manual") : t("cliente_corto", "cliente")}</small>` : ""}${conAcciones && esAdminSistema && p.cantidad_repartida === 0 ? ` <button data-precio-pedido="${p.id}" data-actual="${(p.precio_unitario_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_pedido", "Corregir el precio de este pedido (queda en el historial)")}">✎</button>` : ""}`}</td>
+            ? `<small style="color:#9a8f7d" title="${t("titulo_paquete_entero", "El paquete se cobra entero: {n} × {precio}", { n: p.paquete_cantidad, precio: euros(p.paquete_precio_centimos) })}">${t("en_el_paquete", "📦 en el paquete ({precio})", { precio: euros(p.paquete_precio_centimos) })}</small>${conAcciones && puedePrecio && p.cantidad_repartida === 0 ? ` <button data-precio-paquete="${p.paquete_pedido_id}" data-actual="${(p.paquete_precio_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_paquete", "Corregir el precio del paquete (queda en el historial)")}">✎</button>` : ""}`
+            : `${p.precio_unitario_centimos ? euros(p.precio_unitario_centimos) : `<span style="color:#e0a030">${t("sin_precio", "sin precio")}</span>`}${p.precio_origen !== "tarifa_general" ? ` <small style="color:#9a8f7d">${p.precio_origen === "manual" ? t("manual_corto", "manual") : t("cliente_corto", "cliente")}</small>` : ""}${conAcciones && puedePrecio && p.cantidad_repartida === 0 ? ` <button data-precio-pedido="${p.id}" data-actual="${(p.precio_unitario_centimos / 100).toFixed(2)}" title="${t("titulo_corregir_precio_pedido", "Corregir el precio de este pedido (queda en el historial)")}">✎</button>` : ""}`}</td>
         <td>${p.cantidad_completada}</td>
         <td>${p.cantidad_repartida}</td>
         <td>${conAcciones ? escapeHtml(celdaAlmacen(p)) : "—"}</td>
         <td class="estado-${p.estado}">${escapeHtml(etiquetaEstado(p.estado))}</td>
-        <td title="${t("titulo_maquina_0", "0 = libre, sin asignar todavía a ninguna máquina")}">${conAcciones && esAdminSistema
+        <td title="${t("titulo_maquina_0", "0 = libre, sin asignar todavía a ninguna máquina")}">${conAcciones && puedeMaquina
           ? `<span class="maquina-editor">
               <input type="number" min="0" max="99" value="${p.numero_maquina}" data-maquina-input="${p.id}" style="width:5.5em" />
               <button data-maquina-asignar="${p.id}" title="${t("titulo_asignar_maquina", "Asignar este número a mano (fuerza, salta la comprobación de libre/mío)")}">✓</button>
@@ -1058,7 +1071,7 @@
           </tr>`).join("") : `<tr><td colspan="12">${t("nada_pendiente_reparto", "Nada pendiente de reparto.")}</td></tr>`}</tbody>
       </table>
       <h3>${t("albaranes_emitidos", "Albaranes emitidos")}</h3>
-      ${tablaAlbaranes(repartos, true, true)}`;
+      ${tablaAlbaranes(repartos, true, puede("contabilidad"))}`;
 
     async function repartir(ids) {
       const msg = document.getElementById("rep-msg");
@@ -1140,7 +1153,7 @@
 
   function notaFactorPiezas(factor) {
     return factor > 1
-      ? `<p class="peq">Nota: cantidades e importes multiplicados ×${factor} respecto al pedido real, para ver aquí una factura con más piezas y más volumen (factor de demo, configurable en Facturación — no afecta al stock ni a la contabilidad real).</p>`
+      ? `<p class="peq">${t("nota_factor_piezas", "Nota: cantidades e importes multiplicados ×{factor} respecto al pedido real, para ver aquí una factura con más piezas y más volumen (factor de demo, configurable en Facturación — no afecta al stock ni a la contabilidad real).", { factor })}</p>`
       : "";
   }
 
@@ -1225,7 +1238,7 @@
       <p>${t("base_imponible_dosp", "Base imponible")}: ${euros(f.base_centimos)} &nbsp; ${t("th_iva", "IVA")}: ${euros(f.iva_centimos)}</p>
       <p class="total">${t("total_mayus", "TOTAL")}: ${euros(f.total_centimos)}</p>
       ${f.cobrada ? `<p>${t("cobrada_el", "Cobrada el {fecha}", { fecha: fechaLocal(f.fecha_pago) })}${f.metodo_pago ? ` (${escapeHtml(f.metodo_pago)})` : ""}.</p>` : ""}
-      <p class="peq">Nota: esta es la factura de producción, pero todavía le faltan conceptos que llevaría una factura real (transporte, envío, recargos u otros gastos).</p>
+      <p class="peq">${t("nota_factura_produccion", "Nota: esta es la factura de producción, pero todavía le faltan conceptos que llevaría una factura real (transporte, envío, recargos u otros gastos).")}</p>
       ${notaFactorPiezas(estado.factorPiezas)}`;
   }
 
@@ -1442,7 +1455,7 @@
 
   async function renderResumenContable() {
     const cont = document.getElementById("contenido");
-    const admin = estado.yo.rol === ROLES.ADMIN_SISTEMA;
+    const admin = esInterno();
     const [facturas, repartos] = await Promise.all([api("/facturas?limite=2000"), api("/repartos?limite=2000")]);
     const ahora = new Date();
     const vigentes = facturas.filter((f) => f.tipo === "factura" && f.estado === "emitida");
@@ -1510,6 +1523,9 @@
       const emisores = await api("/emisores");
       cont.innerHTML = `<h2>${t("tab_empresa", "Empresas que facturan")}</h2>
         <p class="ayuda">${t("ayuda_empresa", "Las empresas que <b>emiten facturas</b>: puede haber varias, cada una con su razón social, CIF, dirección y su <b>numeración propia</b> (la serie: p.ej. <code>FAC-2026-000001</code> y las rectificativas <code>RECT-2026-000001</code>). Al facturar eliges con cuál; la marcada como <b>por defecto</b> es la que sale preseleccionada. Los datos se copian a la factura al emitirla, así que cambiarlos aquí no altera las ya emitidas. Una empresa no se borra: se <b>desactiva</b>. Y cuando ya ha emitido facturas, su serie deja de poder cambiarse (se rompería la correlatividad).")}</p>
+        <p class="ayuda">📄 ${t("plantillas_word", "Plantillas en Word para apuntar la configuración del taller (cadenas, ordenadores, productos, usuarios y puesta en marcha):")}
+          <a href="/plantillas/Configuracion_Taller_EJEMPLO.docx" download>${t("plantilla_ejemplo", "con un ejemplo relleno")}</a> ·
+          <a href="/plantillas/Configuracion_Taller_VACIA.docx" download>${t("plantilla_vacia", "vacía para rellenar")}</a></p>
         <h3>${t("nueva_empresa", "Nueva empresa")}</h3>
         <form class="alta" id="form-emisor">
           <input id="em-razon" placeholder="${t("razon_social", "Razón social")}" style="width:18em" required />
@@ -1639,9 +1655,9 @@
       }
       cont.innerHTML = `<h2>${t("tab_facturacion", "Facturación")}</h2>
         <p class="ayuda">${t("ayuda_facturacion", "La factura recoge los <b>albaranes</b> de un cliente que aún no se han facturado: copia sus líneas, precios y los datos fiscales de las dos partes, y ya no cambia. Si hay un error, no se edita: se <b>anula</b> emitiendo una factura rectificativa (numeración propia RECT), y los albaranes quedan libres para facturarse de nuevo, ya corregidos. Antes de facturar hace falta que el cliente tenga CIF y dirección (pestaña Clientes); eliges con qué empresa se factura (puede haber varias) y que estén los datos de quien factura (Administración → Empresas). Las líneas a 0 € se rechazan por si falta un precio.")}</p>
-        <p class="demo-factor">⚠ <b>Factor de piezas al imprimir (solo demo)</b>:
+        <p class="demo-factor">⚠ <b>${t("factor_piezas_titulo", "Factor de piezas al imprimir (solo demo)")}</b>:
           <select id="fac-factor">${[1, 10, 100, 1000].map((n) => `<option value="${n}" ${n === estado.factorPiezas ? "selected" : ""}>×${n}</option>`).join("")}</select>
-          multiplica cantidad e importe <b>solo al ver/imprimir</b> un albarán o factura ya emitidos, para que se vean con más piezas y más volumen. No cambia nada en la base de datos: el stock, el reparto y la contabilidad real siguen con los números de verdad.</p>
+          ${t("factor_piezas_ayuda", "multiplica cantidad e importe <b>solo al ver/imprimir</b> un albarán o factura ya emitidos, para que se vean con más piezas y más volumen. No cambia nada en la base de datos: el stock, el reparto y la contabilidad real siguen con los números de verdad.")}</p>
         ${activos.length ? `<p>${t("facturar_como", "Facturar como")} <select id="fac-emisor">${activos.map((e) =>
             `<option value="${e.id}" ${String(e.id) === estado.emisorFacturar ? "selected" : ""}>${escapeHtml(e.razon_social)} (${t("cif", "CIF")} ${escapeHtml(e.cif)}) · ${t("serie_min", "serie")} ${escapeHtml(e.serie_facturas)}</option>`).join("")}</select>
           <button id="ir-empresa">${t("gestionar_empresas", "Gestionar empresas")}</button></p>`
@@ -2146,14 +2162,19 @@
     const cont = document.getElementById("contenido");
     cont.innerHTML = `
       <h2>${t("tab_usuarios", "Usuarios")}</h2>
-      <p class="ayuda">${t("ayuda_usuarios", 'Las personas que pueden entrar a este sistema. Un usuario "<b>Normal</b>" solo puede hacer pedidos y consultarlos; un "<b>Admin. cliente</b>" además gestiona el catálogo y los usuarios de su propia empresa; "<b>Admin. sistema</b>" lo ve y toca absolutamente todo, de todos los clientes. Si dejas el usuario <b>vacío</b>, se forma solo con el código del cliente y la sucursal (<b>mur-bilbao</b>, o <b>mur-admin</b> para un administrador de empresa).')}</p>
+      <p class="ayuda">${t("ayuda_usuarios", 'Las personas que pueden entrar a este sistema. Un usuario "<b>Normal</b>" solo puede hacer pedidos y consultarlos; un "<b>Admin. cliente</b>" además gestiona el catálogo y los usuarios de su propia empresa; "<b>Admin. sistema</b>" lo ve y toca absolutamente todo, de todos los clientes; un "<b>Empleado de la empresa</b>" es alguien de nuestro taller que solo ve lo que le marques: <b>Producción</b>, <b>Contabilidad</b> o las dos (nunca Administración). Si dejas el usuario <b>vacío</b>, se forma solo con el código del cliente y la sucursal (<b>mur-bilbao</b>, o <b>mur-admin</b> para un administrador de empresa).')}</p>
       <form class="alta" id="form-nuevo-usuario">
         <input id="us-username" placeholder="${t("usuario_vacio_automatico", "usuario (vacío = automático)")}" style="width:14em" title="${t("titulo_usuario_automatico", "Si lo dejas vacío se forma con el código del cliente y la sucursal: mur-bilbao (o mur-admin para un administrador de empresa).")}" />
         <input id="us-nombre" placeholder="${t("nombre_completo_min", "nombre completo")}" required />
         <select id="us-rol">
           <option value="normal">${nombreRol("normal")}</option>
           <option value="admin_cliente">${nombreRol("admin_cliente")}</option>
+          ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<option value="empleado">${nombreRol("empleado")}</option>` : ""}
         </select>
+        <span id="us-permisos" class="oculto">
+          <label><input type="checkbox" id="us-p-produccion" /> ${t("grupo_produccion", "Producción")}</label>
+          <label><input type="checkbox" id="us-p-contabilidad" /> ${t("grupo_contabilidad", "Contabilidad")}</label>
+        </span>
         ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<select id="us-cliente">
           <option value="">${t("elige_cliente_paren", "(elige cliente)")}</option>
           ${clientes.map((c) => `<option value="${c.id}">${escapeHtml(etiquetaCliente(c))}</option>`).join("")}
@@ -2164,18 +2185,24 @@
         <span id="us-error" style="color:#c0392b"></span>
       </form>
       <table>
-        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_usuario", "Usuario")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_rol", "Rol")}</th>${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<th>${t("th_cliente", "Cliente")}</th>` : ""}<th>${t("th_sucursal", "Sucursal")}</th><th>${t("th_activo", "Activo")}</th><th>${t("th_nueva_password", "Nueva contraseña")}</th><th></th></tr></thead>
+        <thead><tr><th>${t("th_id", "ID")}</th><th>${t("th_usuario", "Usuario")}</th><th>${t("th_nombre", "Nombre")}</th><th>${t("th_rol", "Rol")}</th>${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<th>${t("th_cliente", "Cliente")}</th>` : ""}${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<th>${t("th_permisos", "Permisos")}</th>` : ""}<th>${t("th_sucursal", "Sucursal")}</th><th>${t("th_activo", "Activo")}</th><th>${t("th_nueva_password", "Nueva contraseña")}</th><th></th></tr></thead>
         <tbody>${usuarios.map((u) => `
           <tr data-fila-usuario="${u.id}">
             <td>${u.id}</td>
             <td>${escapeHtml(u.username)}</td>
             <td><input data-campo="nombre_completo" value="${escapeHtml(u.nombre_completo)}" /></td>
             <td><select data-campo="rol">
+              ${u.cliente_id ? `
               <option value="normal" ${u.rol === "normal" ? "selected" : ""}>${nombreRol("normal")}</option>
-              <option value="admin_cliente" ${u.rol === "admin_cliente" ? "selected" : ""}>${nombreRol("admin_cliente")}</option>
+              <option value="admin_cliente" ${u.rol === "admin_cliente" ? "selected" : ""}>${nombreRol("admin_cliente")}</option>` : `
+              <option value="empleado" ${u.rol === "empleado" ? "selected" : ""}>${nombreRol("empleado")}</option>`}
               ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<option value="admin_sistema" ${u.rol === "admin_sistema" ? "selected" : ""}>${nombreRol("admin_sistema")}</option>` : ""}
             </select></td>
-            ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<td>${escapeHtml(u.cliente_id ? etiquetaCliente(clientesPorId[u.cliente_id]) || ("#" + u.cliente_id) : "—")}</td>` : ""}
+            ${estado.yo.rol === ROLES.ADMIN_SISTEMA ? `<td>${escapeHtml(u.cliente_id ? etiquetaCliente(clientesPorId[u.cliente_id]) || ("#" + u.cliente_id) : t("nuestra_empresa", "(nuestra empresa)"))}</td>
+            <td>${u.rol === "empleado" ? `
+              <label><input type="checkbox" data-campo="permiso_produccion" ${u.permiso_produccion ? "checked" : ""} /> ${t("grupo_produccion", "Producción")}</label>
+              <label><input type="checkbox" data-campo="permiso_contabilidad" ${u.permiso_contabilidad ? "checked" : ""} /> ${t("grupo_contabilidad", "Contabilidad")}</label>`
+              : (u.rol === "admin_sistema" ? t("permisos_todo", "todo") : "—")}</td>` : ""}
             <td><input data-campo="sucursal" value="${escapeHtml(u.sucursal || "")}" /></td>
             <td><input type="checkbox" data-campo="activo" ${u.activo ? "checked" : ""} /></td>
             <td><input type="password" data-campo="password" placeholder="${t("sin_cambios_paren", "(sin cambios)")}" /></td>
@@ -2183,9 +2210,24 @@
           </tr>`).join("")}</tbody>
       </table>`;
 
+    // Empleado de la empresa: sin cliente ni sucursal, con casillas de permisos.
+    const selRol = document.getElementById("us-rol");
+    selRol.onchange = () => {
+      const esEmpleado = selRol.value === "empleado";
+      document.getElementById("us-permisos").classList.toggle("oculto", !esEmpleado);
+      ["us-cliente", "us-sucursal"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle("oculto", esEmpleado);
+      });
+      document.getElementById("us-username").placeholder = esEmpleado
+        ? t("usuario_empleado", "usuario (p. ej. antonio)") : t("usuario_vacio_automatico", "usuario (vacío = automático)");
+      document.getElementById("us-password").placeholder = esEmpleado
+        ? t("contrasena_obligatoria", "contraseña (obligatoria)") : t("contrasena_opcional", "contraseña (opcional)");
+    };
     document.getElementById("form-nuevo-usuario").onsubmit = async (ev) => {
       ev.preventDefault();
       try {
+        const esEmpleado = document.getElementById("us-rol").value === "empleado";
         await api("/usuarios", { method: "POST", body: JSON.stringify({
           username: document.getElementById("us-username").value || null,
           nombre_completo: document.getElementById("us-nombre").value,
@@ -2194,6 +2236,8 @@
             ? (Number(document.getElementById("us-cliente").value) || null) : undefined,
           sucursal: document.getElementById("us-sucursal").value || null,
           password: document.getElementById("us-password").value || null,
+          permiso_produccion: esEmpleado && document.getElementById("us-p-produccion").checked,
+          permiso_contabilidad: esEmpleado && document.getElementById("us-p-contabilidad").checked,
         }) });
         renderUsuarios();
       } catch (e) { document.getElementById("us-error").textContent = e.message; }
@@ -2207,6 +2251,10 @@
           sucursal: fila.querySelector('[data-campo="sucursal"]').value || null,
           activo: fila.querySelector('[data-campo="activo"]').checked,
         };
+        ["permiso_produccion", "permiso_contabilidad"].forEach((campo) => {
+          const chk = fila.querySelector(`[data-campo="${campo}"]`);
+          if (chk) payload[campo] = chk.checked;
+        });
         const password = fila.querySelector('[data-campo="password"]').value;
         if (password) payload.password = password;
         try {

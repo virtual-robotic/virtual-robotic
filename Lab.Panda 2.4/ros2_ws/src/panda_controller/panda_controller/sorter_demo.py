@@ -1,5 +1,5 @@
-# Version: 2026-09-19 10:52 -- Sorter: avisa de cada pieza al Taller que tiene configurado el panel (no solo taller_host)
 #!/usr/bin/env python3
+# Version: 2026-09-19 10:52 -- Sorter: avisa de cada pieza al Taller que tiene configurado el panel (no solo taller_host)
 """Robot "Sorter" de la celda industrial (sesion 2026-08-27): recoge un
 cubo del punto donde la cinta lo deja (el tope fisico) y lo deposita en la
 caja de su color, detectado por su PROPIA camara cenital

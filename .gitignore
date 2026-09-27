@@ -20,9 +20,26 @@ Lab.Panda 2.4/.devcontainer/webots_asset_cache/
 # funciona igual). Ver Lab.Panda 2.4/.devcontainer/docker-compose.yml.
 Lab.Panda 2.4/.devcontainer/.env
 
+# Ajustes de cada maquina para la web (p.ej. TALLER_RELOAD=1 en el equipo de
+# desarrollo para la recarga automatica). Ver Taller_Administracion/Dockerfile.
+Taller_Administracion/.env
+
 # Version mostrada en el panel web y en teleop_gui (Ver. AAMM.NNNNN),
 # generada por generar_version.sh a partir del propio git -- si se
 # commitea queda desfasada en el siguiente commit, mejor recalcularla
 # siempre.
 Taller_Administracion/app/version.py
 Lab.Panda 2.4/ros2_ws/src/panda_controller/panda_controller/version.py
+
+# Webots reescribe los .wbproj solos al abrir un mundo (posicion de ventanas,
+# vista...). Seguirlos en git bloqueaba el "git pull" en Windows (2026-09-24).
+*.wbproj
+
+# Copia de la memoria de Claude para seguir desde otro equipo (via MEGA; sin
+# punto delante: MEGA no sincroniza los nombres que empiezan por punto).
+# Tiene datos de la red de casa: NUNCA a git.
+claude_memoria/
+
+# Grabaciones originales de Webots (decenas de MB): van por MEGA, no a git.
+# Los clips comprimidos para la web estan en Virtual_Robotic/img/.
+img/webots_video_*.mp4

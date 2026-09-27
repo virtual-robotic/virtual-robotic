@@ -1,4 +1,4 @@
-# Version: 2026-09-21 18:22 -- Taller_Administracion API (codigo de cliente, usuarios por codigo, barrido periodico de stock parado)
+# Version: 2026-09-27 18:35 -- descarga de las plantillas Word (/plantillas). Antes: Taller_Administracion API (empleados con permiso por grupo: Produccion/Contabilidad)
 import asyncio
 import datetime
 import logging
@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
@@ -228,6 +228,43 @@ migrar_columnas_faltantes(engine, Base)
 
 app = FastAPI(title="Taller - Administracion")
 app.include_router(contabilidad.router)
+
+
+# Videos de la portada (sesion 2026-09-26): Safari solo reproduce un <video>
+# si el servidor contesta a "Range: bytes=..." con un 206 y ese trozo. El
+# StaticFiles de starlette 0.38 (el que trae fastapi 0.115.0) ignora Range y
+# siempre manda el fichero entero con 200 -> en Safari el video no arranca
+# (Chrome/Firefox si lo toleran). Esta ruta va ANTES del mount de /static
+# para que la encuentre primero; los clips pesan ~400 KB, se leen enteros.
+@app.get("/static/img/{nombre}.mp4", include_in_schema=False)
+def video_con_range(nombre: str, range: str | None = Header(default=None)) -> Response:
+    carpeta = (BASE_DIR / "static" / "img").resolve()
+    ruta = (carpeta / f"{nombre}.mp4").resolve()
+    if ruta.parent != carpeta or not ruta.is_file():
+        raise HTTPException(status_code=404, detail="Not Found")
+    datos = ruta.read_bytes()
+    total = len(datos)
+    cabeceras = {"Accept-Ranges": "bytes"}
+    if not range:
+        return Response(datos, media_type="video/mp4", headers=cabeceras)
+    try:
+        unidad, _, trozo = range.partition("=")
+        inicio_txt, _, fin_txt = trozo.split(",")[0].strip().partition("-")
+        if unidad.strip() != "bytes":
+            raise ValueError
+        if inicio_txt == "":  # "bytes=-500" = los ultimos 500
+            inicio, fin = max(total - int(fin_txt), 0), total - 1
+        else:
+            inicio = int(inicio_txt)
+            fin = min(int(fin_txt), total - 1) if fin_txt else total - 1
+        if inicio > fin or inicio >= total:
+            raise ValueError
+    except ValueError:
+        return Response(status_code=416, headers={**cabeceras, "Content-Range": f"bytes */{total}"})
+    cabeceras["Content-Range"] = f"bytes {inicio}-{fin}/{total}"
+    return Response(datos[inicio:fin + 1], status_code=206, media_type="video/mp4", headers=cabeceras)
+
+
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 
@@ -747,6 +784,8 @@ NO_CACHE = {"Cache-Control": "no-cache, no-store, must-revalidate"}
 MANUALES = {
     "lanzar": REPO_DIR / "LANZAR_PROYECTO.md",
     "taller": REPO_DIR / "Taller_Administracion" / "README.md",
+    # 2026-09-26: la parte tecnica del README de la web vive aparte.
+    "taller-tecnico": REPO_DIR / "Taller_Administracion" / "DETALLE_TECNICO.md",
     "panda": REPO_DIR / "Lab.Panda 2.4" / "resumen_proyecto_panda.md",
 }
 
@@ -812,7 +851,41 @@ def manual_asset(nombre: str, ruta_asset: str) -> FileResponse:
         raise HTTPException(404, "Recurso no encontrado.")
     if not destino.is_file():
         raise HTTPException(404, "Recurso no encontrado.")
+    # Un manual que enlaza a OTRO manual (p.ej. README de la web ->
+    # DETALLE_TECNICO.md): se abre con su pagina bonita, no como texto crudo.
+    # Tambien sus traducciones hermanas (DETALLE_TECNICO.en.md...): el idioma
+    # lo pone luego el selector de la propia pagina del manual.
+    for clave, ruta in MANUALES.items():
+        hermanas = {ruta.resolve()} | {
+            ruta.with_name(f"{ruta.stem}.{lang}{ruta.suffix}").resolve() for lang in ("en", "eu")
+        }
+        if destino in hermanas:
+            return RedirectResponse(f"/manual/{clave}")
     return FileResponse(str(destino), headers=NO_CACHE)
+
+
+# Plantillas Word de configuracion del taller (2026-09-27, peticion del
+# usuario: descargarlas desde la portada y desde Administracion -> Empresas).
+# Se leen del repo montado (Documentacion/Plantillas, las genera
+# generar_plantillas.py), asi siempre sale la ultima. Lista cerrada: esta
+# ruta no debe servir ningun otro fichero del repo.
+PLANTILLAS = {
+    "Configuracion_Taller_EJEMPLO.docx": REPO_DIR / "Documentacion" / "Plantillas" / "Configuracion_Taller_EJEMPLO.docx",
+    "Configuracion_Taller_VACIA.docx": REPO_DIR / "Documentacion" / "Plantillas" / "Configuracion_Taller_VACIA.docx",
+}
+
+
+@app.get("/plantillas/{nombre}")
+def plantilla(nombre: str) -> FileResponse:
+    ruta = PLANTILLAS.get(nombre)
+    if ruta is None or not ruta.is_file():
+        raise HTTPException(404, "Plantilla no encontrada.")
+    return FileResponse(
+        str(ruta),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=nombre,
+        headers=NO_CACHE,
+    )
 
 
 @app.post("/login", response_model=schemas.LoginResponse)
@@ -1259,10 +1332,19 @@ def crear_usuario(
         raise HTTPException(400, f"Rol '{payload.rol}' no valido.")
     cliente_id = payload.cliente_id
     if usuario.rol == auth.ROL_ADMIN_CLIENTE:
-        if payload.rol == auth.ROL_ADMIN_SISTEMA:
-            raise HTTPException(403, "No puedes crear un administrador del sistema.")
+        if payload.rol in (auth.ROL_ADMIN_SISTEMA, auth.ROL_EMPLEADO):
+            raise HTTPException(403, "No puedes crear usuarios de la empresa.")
         cliente_id = usuario.cliente_id
-    if payload.rol != auth.ROL_ADMIN_SISTEMA and cliente_id is None:
+    es_empleado = payload.rol == auth.ROL_EMPLEADO
+    if es_empleado:
+        # Gente de nuestra empresa: sin cliente, con usuario puesto a mano y
+        # con contrasena propia (la clave maestra no les vale, ver auth.check_password).
+        cliente_id = None
+        if not (payload.username or "").strip():
+            raise HTTPException(400, "Un empleado necesita un nombre de usuario (p. ej. antonio).")
+        if not payload.password:
+            raise HTTPException(400, "Un empleado necesita una contrasena.")
+    elif payload.rol != auth.ROL_ADMIN_SISTEMA and cliente_id is None:
         raise HTTPException(400, "Este rol necesita un cliente.")
     # El login busca por username.strip().lower(): se guarda ya normalizado
     # para que un usuario creado con mayusculas pueda entrar. Sin username, se forma con
@@ -1289,6 +1371,8 @@ def crear_usuario(
         sucursal=payload.sucursal,
         activo=True,
         password_hash=auth.hash_password(payload.password) if payload.password else None,
+        permiso_produccion=es_empleado and payload.permiso_produccion,
+        permiso_contabilidad=es_empleado and payload.permiso_contabilidad,
         creado_por_id=usuario.id,
     )
     db.add(nuevo)
@@ -1316,9 +1400,20 @@ def actualizar_usuario(
     if "rol" in cambios:
         if cambios["rol"] not in auth.ROLES_VALIDOS:
             raise HTTPException(400, f"Rol '{cambios['rol']}' no valido.")
-        if usuario.rol == auth.ROL_ADMIN_CLIENTE and cambios["rol"] == auth.ROL_ADMIN_SISTEMA:
+        if usuario.rol == auth.ROL_ADMIN_CLIENTE and cambios["rol"] in (auth.ROL_ADMIN_SISTEMA, auth.ROL_EMPLEADO):
             raise HTTPException(403, "No puedes ascender a administrador del sistema.")
+        # Empleado = sin cliente: no se convierte un usuario de cliente en empleado
+        # ni al reves (se crea uno nuevo); entre admin_sistema y empleado si se puede.
+        if (cambios["rol"] == auth.ROL_EMPLEADO) != (objetivo.rol == auth.ROL_EMPLEADO) and objetivo.cliente_id is not None:
+            raise HTTPException(400, "Un usuario de un cliente no puede pasar a empleado de la empresa: crea uno nuevo.")
+        if objetivo.rol == auth.ROL_EMPLEADO and cambios["rol"] in (auth.ROL_ADMIN_CLIENTE, auth.ROL_NORMAL):
+            raise HTTPException(400, "Un empleado no tiene cliente: crea un usuario nuevo en el cliente.")
         objetivo.rol = cambios["rol"]
+    for permiso in ("permiso_produccion", "permiso_contabilidad"):
+        if cambios.get(permiso) is not None:
+            if usuario.rol != auth.ROL_ADMIN_SISTEMA:
+                raise HTTPException(403, "Solo el administrador del sistema cambia los permisos.")
+            setattr(objetivo, permiso, cambios[permiso])
     if "nombre_completo" in cambios:
         objetivo.nombre_completo = cambios["nombre_completo"]
     if "sucursal" in cambios:
@@ -1353,7 +1448,7 @@ def listar_clientes(
     db: Session = Depends(get_db),
 ):
     query = db.query(models.Cliente)
-    if usuario.rol != auth.ROL_ADMIN_SISTEMA:
+    if not auth.es_interno(usuario):
         query = query.filter(models.Cliente.id == usuario.cliente_id)
     return query.order_by(models.Cliente.id).all()
 
@@ -1468,6 +1563,7 @@ def productos_de_cliente(
 ):
     if not (
         auth.puede_gestionar_cliente(usuario, cliente_id) or usuario.cliente_id == cliente_id
+        or auth.es_interno(usuario)
     ):
         raise HTTPException(403, "No tienes permiso para ver estos productos.")
     asignaciones = (
@@ -1771,6 +1867,8 @@ def listar_pedidos(
     usuario: models.Usuario = Depends(auth.get_current_usuario),
     db: Session = Depends(get_db),
 ):
+    if usuario.rol == auth.ROL_EMPLEADO and not auth.es_interno(usuario):
+        raise HTTPException(403, "No tienes permiso para esto.")
     query = db.query(models.Pedido)
     if usuario.rol == auth.ROL_NORMAL:
         query = query.filter(models.Pedido.usuario_id == usuario.id)
@@ -1793,6 +1891,8 @@ def obtener_pedido(
         raise HTTPException(403, "No tienes permiso para ver este pedido.")
     if usuario.rol == auth.ROL_ADMIN_CLIENTE and pedido.cliente_id != usuario.cliente_id:
         raise HTTPException(403, "No tienes permiso para ver este pedido.")
+    if usuario.rol == auth.ROL_EMPLEADO and not auth.es_interno(usuario):
+        raise HTTPException(403, "No tienes permiso para ver este pedido.")
     return _con_stock_disponible(db, [pedido])[0]
 
 
@@ -1801,14 +1901,14 @@ def actualizar_pedido(
     pedido_id: int,
     payload: schemas.PedidoUpdate,
     usuario: models.Usuario = Depends(
-        auth.require_roles(auth.ROL_ADMIN_SISTEMA, auth.ROL_ADMIN_CLIENTE)
+        auth.require_permiso(auth.PRODUCCION, roles_extra=(auth.ROL_ADMIN_CLIENTE,))
     ),
     db: Session = Depends(get_db),
 ):
     pedido = db.query(models.Pedido).filter(models.Pedido.id == pedido_id).first()
     if pedido is None:
         raise HTTPException(404, "Pedido no encontrado.")
-    if not auth.puede_gestionar_cliente(usuario, pedido.cliente_id):
+    if not (auth.tiene_permiso(usuario, auth.PRODUCCION) or auth.puede_gestionar_cliente(usuario, pedido.cliente_id)):
         raise HTTPException(403, "No tienes permiso para gestionar este pedido.")
     pedido.urgente = payload.urgente
     db.commit()
@@ -1820,14 +1920,14 @@ def actualizar_pedido(
 def cancelar_pedido(
     pedido_id: int,
     usuario: models.Usuario = Depends(
-        auth.require_roles(auth.ROL_ADMIN_SISTEMA, auth.ROL_ADMIN_CLIENTE)
+        auth.require_permiso(auth.PRODUCCION, roles_extra=(auth.ROL_ADMIN_CLIENTE,))
     ),
     db: Session = Depends(get_db),
 ):
     pedido = db.query(models.Pedido).filter(models.Pedido.id == pedido_id).first()
     if pedido is None:
         raise HTTPException(404, "Pedido no encontrado.")
-    if not auth.puede_gestionar_cliente(usuario, pedido.cliente_id):
+    if not (auth.tiene_permiso(usuario, auth.PRODUCCION) or auth.puede_gestionar_cliente(usuario, pedido.cliente_id)):
         raise HTTPException(403, "No tienes permiso para gestionar este pedido.")
     if pedido.estado != "pendiente":
         raise HTTPException(
@@ -1846,7 +1946,7 @@ def cancelar_pedido(
 def reclamar_pedido(
     pedido_id: int,
     payload: schemas.PedidoReclamar,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     """Marca un pedido como asignado a una maquina/celda concreta -- ver
@@ -1893,7 +1993,7 @@ def reclamar_pedido(
 @app.post("/pedidos/{pedido_id}/liberar", response_model=schemas.PedidoOut)
 def liberar_pedido(
     pedido_id: int,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     """Vuelve a poner numero_maquina a 0 (libre) -- para el caso de una
@@ -1912,7 +2012,7 @@ def liberar_pedido(
 def reprocesar_pedido(
     pedido_id: int,
     usuario: models.Usuario = Depends(
-        auth.require_roles(auth.ROL_ADMIN_SISTEMA, auth.ROL_ADMIN_CLIENTE)
+        auth.require_permiso(auth.PRODUCCION, roles_extra=(auth.ROL_ADMIN_CLIENTE,))
     ),
     db: Session = Depends(get_db),
 ):
@@ -1930,7 +2030,7 @@ def reprocesar_pedido(
     original = db.query(models.Pedido).filter(models.Pedido.id == pedido_id).first()
     if original is None:
         raise HTTPException(404, "Pedido no encontrado.")
-    if not auth.puede_gestionar_cliente(usuario, original.cliente_id):
+    if not (auth.tiene_permiso(usuario, auth.PRODUCCION) or auth.puede_gestionar_cliente(usuario, original.cliente_id)):
         raise HTTPException(403, "No tienes permiso para gestionar este pedido.")
     if original.estado != "completado":
         raise HTTPException(
@@ -2093,7 +2193,7 @@ def evento_produccion(payload: schemas.EventoProduccionCreate, db: Session = Dep
 @app.get("/taller/diagnostico", response_model=schemas.DiagnosticoOut)
 def diagnostico(
     ventana_minutos: int = 60,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     desde = datetime.datetime.utcnow() - datetime.timedelta(minutes=ventana_minutos)
@@ -2176,7 +2276,7 @@ def listar_stock(
 
 @app.get("/movimientos_stock", response_model=list[schemas.MovimientoStockOut])
 def listar_movimientos(
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     return db.query(models.MovimientoStock).order_by(models.MovimientoStock.fecha.desc()).all()
@@ -2184,7 +2284,7 @@ def listar_movimientos(
 
 @app.post("/almacen/repartir")
 def repartir_stock(
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     pedidos_activos = (
@@ -2218,7 +2318,7 @@ def repartir_stock(
 @app.post("/almacen/ajustar", response_model=schemas.StockOut)
 def ajustar_stock(
     payload: schemas.AjusteStock,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     if payload.cantidad <= 0:
@@ -2251,7 +2351,7 @@ def ajustar_stock(
 @app.post("/almacen/quitar", response_model=schemas.StockOut)
 def quitar_stock(
     payload: schemas.AjusteStock,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     if payload.cantidad <= 0:
@@ -2289,7 +2389,7 @@ def obtener_configuracion(
 @app.patch("/almacen/configuracion", response_model=schemas.ConfiguracionAlmacenOut)
 def actualizar_configuracion(
     payload: schemas.ConfiguracionAlmacenUpdate,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     cambios = payload.model_dump(exclude_none=True)
@@ -2318,7 +2418,7 @@ def actualizar_configuracion(
 @app.post("/reparto/expedir", response_model=list[schemas.RepartoOut])
 def expedir(
     payload: schemas.ExpedirPedidos,
-    usuario: models.Usuario = Depends(auth.require_roles(auth.ROL_ADMIN_SISTEMA)),
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
     db: Session = Depends(get_db),
 ):
     """Reparto manual: entrega lo que hay para los pedidos indicados (o para
@@ -2351,7 +2451,7 @@ def listar_repartos(
     cliente_id: int | None = None,
     limite: int = 200,
     usuario: models.Usuario = Depends(
-        auth.require_roles(auth.ROL_ADMIN_SISTEMA, auth.ROL_ADMIN_CLIENTE)
+        auth.require_permiso(auth.PRODUCCION, auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))
     ),
     db: Session = Depends(get_db),
 ):
@@ -2368,7 +2468,7 @@ def listar_repartos(
 def obtener_reparto(
     reparto_id: int,
     usuario: models.Usuario = Depends(
-        auth.require_roles(auth.ROL_ADMIN_SISTEMA, auth.ROL_ADMIN_CLIENTE)
+        auth.require_permiso(auth.PRODUCCION, auth.CONTABILIDAD, roles_extra=(auth.ROL_ADMIN_CLIENTE,))
     ),
     db: Session = Depends(get_db),
 ):

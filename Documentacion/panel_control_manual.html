@@ -1,0 +1,259 @@
+<!-- Version: 2026-09-21 20:55 -- + restablecer la clave manteniendo 10 s el boton (antes: + cambiar la clave y que hacer si se olvida (antes: + explicacion: el OLED muestra variante/codigo tambien en lotes agrupados (no solo Lanzar este pedido))) -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El panel de control manual, pestaña a pestaña</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef0e8;
+    --bg-elevated: #ffffff;
+    --bg-elevated-2: #f4f5ef;
+    --fg: #16211f;
+    --fg-muted: #55655f;
+    --accent-brick: #a8461f;
+    --accent-brick-strong: #8c3717;
+    --accent-copper: #b97a34;
+    --accent-water: #2f645f;
+    --line: rgba(22,33,31,0.14);
+    --shadow: rgba(22,33,31,0.10);
+    --hazard: #c9450c;
+    --red: #c8433f;
+    --green: #2f8f5b;
+    --blue: #3572b8;
+    --ground: #6b7480;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --bg-elevated: #182322;
+      --bg-elevated-2: #1c2827;
+      --fg: #eee7da;
+      --fg-muted: #9fb0ac;
+      --accent-brick: #c9683c;
+      --accent-brick-strong: #e08658;
+      --accent-copper: #d69a55;
+      --accent-water: #5b9a92;
+      --line: rgba(238,231,218,0.14);
+      --shadow: rgba(0,0,0,0.35);
+      --hazard: #ff7a4d;
+      --red: #ef6a66;
+      --green: #5cc98c;
+      --blue: #6fa8dd;
+      --ground: #9aa4b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --bg-elevated: #182322;
+    --bg-elevated-2: #1c2827;
+    --fg: #eee7da;
+    --fg-muted: #9fb0ac;
+    --accent-brick: #c9683c;
+    --accent-brick-strong: #e08658;
+    --accent-copper: #d69a55;
+    --accent-water: #5b9a92;
+    --line: rgba(238,231,218,0.14);
+    --shadow: rgba(0,0,0,0.35);
+    --hazard: #ff7a4d;
+    --red: #ef6a66;
+    --green: #5cc98c;
+    --blue: #6fa8dd;
+    --ground: #9aa4b2;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-water); }
+  a:focus-visible { outline: 2px solid var(--accent-copper); outline-offset: 2px; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem) 5rem; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    margin: 0 0 0.9rem;
+  }
+
+  h1 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    text-wrap: balance;
+    line-height: 0.95;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 1rem;
+  }
+
+  .dek { max-width: 68ch; color: var(--fg-muted); font-size: 1.08rem; margin: 0 0 2rem; }
+
+  h2 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    line-height: 1;
+    margin: 3rem 0 1rem;
+  }
+  section:first-of-type h2 { margin-top: 0; }
+
+  p { margin: 0 0 1.1rem; }
+  ul { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+  li + li { margin-top: 0.4rem; }
+  code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.1em 0.4em;
+  }
+  strong { font-weight: 700; }
+
+  .callout {
+    display: flex; gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--hazard);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 0 0 1.3rem;
+  }
+  .callout.info { border-left-color: var(--accent-water); }
+  .callout .mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--hazard);
+    color: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 15px;
+  }
+  .callout.info .mark { background: var(--accent-water); }
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  figure { margin: 1.5rem 0; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
+  figcaption { font-size: 0.85rem; color: var(--fg-muted); margin-top: 0.8rem; line-height: 1.55; }
+
+  .pestana {
+    background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1.1rem;
+  }
+  .pestana h3 {
+    font-family: 'Big Shoulders Display', sans-serif; text-transform: uppercase;
+    color: var(--accent-copper); font-size: 1.2rem; margin: 0 0 0.6rem;
+  }
+  .pestana p:last-child { margin-bottom: 0; }
+
+  footer { margin-top: 3rem; padding-top: 1.3rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--fg-muted); }
+  footer a { color: var(--fg-muted); }
+
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--fg-muted); text-decoration: none; }
+  .migas a:hover { color: var(--fg); }
+  .migas-sep { color: var(--fg-muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent-brick); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Panel de control manual</span>
+  </nav>
+
+  <p class="eyebrow">Documentación técnica · Lab.Panda 2.4 · Panel de control</p>
+  <h1>El panel de control manual, pestaña a pestaña</h1>
+  <p class="dek">Es la ventana que se abre al final del arranque (<code>teleop_gui</code>) — desde aquí se mueve el brazo a mano, se lanza producción y se ve el estado de la celda de un vistazo. Cada línea de producción tiene la suya propia, independiente de las demás.</p>
+
+  <figure>
+    <img src="panel_control_manual_foto.png" alt="Ventana del panel de control manual: cabecera con EN MARCHA, estado del lote, botones de parada y rearme y el nombre de la cadena, y cuatro pestañas: Movimiento, Producción, Raspberry Pi Pico y Configuración">
+    <figcaption>El panel tal cual se ve al abrirlo, con la cabecera fija arriba (siempre visible, cambies a la pestaña que cambies) y las cuatro pestañas debajo.</figcaption>
+  </figure>
+
+  <section>
+    <h2>La cabecera (siempre visible)</h2>
+    <p>Da igual en qué pestaña estés: esto se ve siempre arriba del todo.</p>
+    <ul>
+      <li><strong>EN MARCHA / PARADO:</strong> el semáforo de la celda. En verde, todo funciona con normalidad. En rojo (PARADO), algo ha activado la parada de emergencia — puede ser este mismo botón, el botón físico de una Pico, el sensor de proximidad, u otra ventana de la misma cadena.</li>
+      <li><strong>Estado del lote:</strong> una línea que dice qué está haciendo el Loader y el Sorter ahora mismo (o "sin lotes lanzados todavía" si no hay nada en marcha).</li>
+      <li><strong>PARADA DE EMERGENCIA / REARME:</strong> el botón rojo para todo YA, y el amarillo para volver a arrancar después. La parada no rompe nada — es una pausa; el rearme continúa justo donde se quedó.</li>
+      <li><strong>Nombre de la cadena:</strong> el nombre libre que se le puso a esta línea concreta (útil cuando hay varias ventanas abiertas a la vez, cada una de una línea).</li>
+      <li><strong>Robot controlado (LOADER / SORTER):</strong> a qué de los dos brazos afectan los botones de la pestaña Movimiento. Se cambia sin tener que cerrar ni relanzar nada.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Pestaña Movimiento</h2>
+    <div class="pestana">
+      <h3>Mover el brazo a mano</h3>
+      <p>Botones para desplazar la pinza en las 3 direcciones del espacio (adelante/atrás, izquierda/derecha, subir/bajar), con un tamaño de paso ajustable ("Paso"), más botones para abrir/cerrar la pinza, girarla, llevarla a HOME (posición de reposo) u orientarla mirando hacia abajo. También hay botones sueltos para encender el LED de agarre en rojo/verde/azul o apagarlo, y un botón para centrar el brazo sobre un cubo usando la cámara.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pestaña Producción</h2>
+    <div class="pestana">
+      <h3>Fabricar de verdad</h3>
+      <p>Aquí se ve la lista de pedidos pendientes del panel web (Taller_Administracion) y hay un botón "Lanzar este pedido" por cada uno — al pulsarlo, el Loader y el Sorter se ponen a fabricar esa cantidad exacta solos. También hay un resumen agrupado por producto con un botón "Lanzar todo", "Lanzar todo el resumen" (los encadena todos, uno detrás de otro) y el <strong>Modo Automático</strong> (los lanza solo, sin confirmar); y "Repetir último lote" para relanzar exactamente lo último que se lanzó, sin tener que volver a elegirlo.</p>
+      <p>Se lance como se lance, la pantalla OLED y el resumen de "Lote en curso" muestran siempre el nombre del producto, la variante y el código — con una excepción: si un lote agrupado mezcla pedidos de varias variantes distintas del mismo producto a la vez (p.ej. arandelas de 10mm y de 20mm juntas en el mismo "Lanzar todo"), no hay una única variante que mostrar y se deja solo el nombre del producto.</p>
+    </div>
+    <figure>
+      <img src="panel_control_produccion.png" alt="Pestaña Producción: resumen por producto, lista de pedidos pendientes de Taller_Administracion y botón Repetir último lote">
+      <figcaption>Sin pedidos pendientes se ve así — en cuanto hay alguno, aparece en la lista con su propio botón "Lanzar este pedido".</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Pestaña Raspberry Pi Pico</h2>
+    <div class="pestana">
+      <h3>Ver el LED y la pantalla sin tener la Pico enchufada</h3>
+      <p>Simula, con un dibujo, las dos Raspberry Pi Pico de la celda: sus LED (de agarre y de producto) con el mismo color y parpadeo que tendrían de verdad, la pantalla OLED del Loader mostrando el producto en curso, y un control que simula el sensor de proximidad HC-SR04. Útil en cualquier máquina que no tenga el hardware físico conectado — la simulación escucha los mismos datos que usaría la Pico real, así que se ve exactamente lo mismo. Cada recuadro lleva también su propio botón de parada de emergencia.</p>
+    </div>
+    <figure>
+      <img src="panel_control_pico.png" alt="Pestaña Raspberry Pi Pico: simulación de las dos placas con sus LED de agarre y producto, la pantalla OLED del Loader, el control del HC-SR04 y un botón de parada de emergencia en cada recuadro">
+      <figcaption>El recuadro del Loader (izquierda) lleva LED de agarre y producto, el control del HC-SR04 y la pantalla OLED; el del Sorter (derecha) solo lleva su LED de agarre, porque es lo único que tiene esa Pico de verdad.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Pestaña Configuración</h2>
+    <div class="pestana">
+      <h3>Los ajustes de esta línea (con clave)</h3>
+      <p>Todo aquí empieza bloqueado — hay que pulsar "Desbloquear (clave)" e introducir la clave maestra para poder tocar nada, y se vuelve a bloquear sola al cambiar de pestaña. Desde aquí se ajusta: el nombre de la cadena, el idioma del panel, qué pestañas se ven (se puede ocultar Producción o Raspberry Pi Pico si esta línea no las usa), el <a href="anadir_cadena_produccion.html#grupo-cadena">Grupo Cadena y Nº Máquina</a> (para que el reparto de pedidos no se cruce entre líneas), si la producción automática está activada, qué Raspberry Pi Pico están asignadas a esta cadena, y la <a href="anadir_cadena_produccion.html#url-taller">URL de Taller_Administracion</a> (solo hace falta tocarla <a href="anadir_cadena_produccion.html#se-puede-lanzar-una-linea-en-otro-ordenador-fisico">si esta línea vive en otro ordenador</a> distinto del de la web de pedidos).</p>
+      <p><strong>Cambiar la clave.</strong> Con la pestaña desbloqueada hay un recuadro <em>Cambiar clave de configuración</em> justo debajo de Idioma: se escribe la clave nueva dos veces y solo se guarda si coinciden y tienen al menos 4 caracteres. Cada línea tiene la suya, se guarda cifrada y no se pierde al reiniciar. De fábrica es <code>1111</code>.</p>
+      <p><strong>Si se olvida la clave.</strong> Se borra la entrada <code>clave_config</code> del fichero <code>config_maquina_*.json</code> de esa línea (está en <code>ros2_ws/</code>) y el panel vuelve a aceptar la <code>1111</code> de fábrica. Hace falta estar en el ordenador de la máquina.</p>
+      <p><strong>Restablecerla con el botón (como un router).</strong> Con la pestaña <em>Configuración</em> o <em>Raspberry Pi Pico</em> abierta, mantén pulsado <strong>10 segundos</strong> el botón de la Pico USB del Loader (o cualquiera de los dos botones rojos <em>PARADA DE EMERGENCIA</em> simulados de la pestaña Raspberry Pi Pico: verás la cuenta atrás debajo). El panel pregunta si quieres volver a la clave de fábrica (<code>1111</code>); al confirmar, la pantalla OLED muestra unos segundos <em>Contrasena reseteada</em>. En cualquier otra pestaña la pulsación larga se ignora. La parada de emergencia salta igual al primer toque: los 10 segundos solo cuentan para esto. Más detalle en <a href="PI_PICO_cableado_boton.html">Cableado del pulsador</a>.</p>
+    </div>
+    <figure>
+      <img src="panel_control_configuracion.png" alt="Pestaña Configuración: identidad de la cadena, idioma, checkboxes para mostrar/ocultar pestañas, producción automática y las dos Raspberry Pi Pico asignadas a esta cadena">
+      <figcaption>Con la configuración desbloqueada: nombre/grupo/número de la cadena, idioma con los checks de qué pestañas mostrar, y las dos Pico de esta cadena con su estado ("en marcha").</figcaption>
+    </figure>
+  </section>
+
+  <footer>
+    Ver también <a href="anadir_cadena_produccion.html">cómo añadir una línea de producción más</a> (cada línea nueva abre su propio panel, idéntico a este) y <a href="PI_PICO_montaje.html">cómo están montadas las Raspberry Pi Pico</a>.
+  </footer>
+
+</div>
+</body>
+</html>

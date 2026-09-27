@@ -19,6 +19,12 @@ from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_controller import WebotsController
 
+# Puerto de Webots para los controladores <extern> (1234 si no se dice otra
+# cosa). Solo hace falta cambiarlo si en la MISMA maquina corre mas de un
+# Webots, p.ej. dos cadenas con Webots nativo en Windows (ver
+# INSTALAR_WINDOWS.md): cada una escucha en el suyo.
+WEBOTS_PORT = os.environ.get('WEBOTS_PORT', '1234')
+
 
 def generate_launch_description():
     package_dir = get_package_share_directory('panda_controller')
@@ -28,13 +34,13 @@ def generate_launch_description():
     sorter_driver = WebotsController(
         robot_name='Sorter',
         namespace='sorter',
-        port='1234',
+        port=WEBOTS_PORT,
         parameters=[{'robot_description': urdf}],
     )
 
     cam_sorter_driver = WebotsController(
         robot_name='OverheadCamSorter',
-        port='1234',
+        port=WEBOTS_PORT,
         parameters=[{'robot_description': cam_sorter_urdf}],
     )
 

@@ -1,0 +1,247 @@
+<!-- Version: 2026-09-18 14:58 -- carril_recto_rampa_lateral_esquema.html (migrado al diseno de marca: tokens de color, tipografia y migas de pan; esquema SUPERADO, se conserva por sus figuras) -->
+<title>Grosor Nuevo del Carril Derecho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef0e8; --surface:#ffffff; --ink:#16211f; --muted:#55655f;
+    --border:rgba(22,33,31,0.14); --belt:#cfd3d9; --belt-stroke:#9aa0a8;
+    --existing:#4b5157; --rail-green:#2f6e3d; --accent:#a8461f;
+    --cube:#b23327; --grid:#e6e1d3;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101817; --surface:#182322; --ink:#eee7da; --muted:#9fb0ac;
+      --border:rgba(238,231,218,0.14); --belt:#3a3d42; --belt-stroke:#585c62;
+      --existing:#b8bcc2; --rail-green:#5da473; --accent:#c9683c;
+      --cube:#e2796a; --grid:#2c2e31;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101817; --surface:#182322; --ink:#eee7da; --muted:#9fb0ac;
+    --border:rgba(238,231,218,0.14); --belt:#3a3d42; --belt-stroke:#585c62;
+    --existing:#b8bcc2; --rail-green:#5da473; --accent:#c9683c;
+    --cube:#e2796a; --grid:#2c2e31;
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'Archivo', system-ui, sans-serif;margin:0;}
+  .wrap{max-width:780px;margin:0 auto;padding:36px 20px 64px;}
+  header{margin-bottom:28px;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 8px;}
+  h1{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;font-size:32px;font-weight:700;margin:0 0 10px;text-wrap:balance;}
+  header p{font-size:15px;line-height:1.55;color:var(--muted);max-width:62ch;margin:0;}
+  .sheet{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 18px 0;margin-bottom:22px;}
+  .sheet h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;font-size:16px;font-weight:700;margin:0 0 4px;}
+  .sheet .sub{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin:0 0 10px;}
+  figure{margin:0;}
+  svg{display:block;width:100%;height:auto;overflow:visible;}
+  .titleblock{display:flex;justify-content:space-between;gap:12px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.02em;border-top:1px solid var(--border);padding:8px 0;margin-top:4px;}
+  figcaption{font-size:13px;color:var(--muted);padding:0 0 14px;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:16px 22px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:22px;font-size:13px;}
+  .legend-item{display:flex;align-items:center;gap:8px;}
+  .swatch{width:16px;height:16px;border-radius:3px;flex:none;}
+  .swatch.existing{background:var(--existing);}
+  .swatch.green{background:var(--rail-green);}
+  .swatch.cube{background:transparent;border:2px dashed var(--cube);}
+  .swatch.accent{background:var(--accent);}
+  .swatch.ghost{background:transparent;border:2px dashed var(--muted);}
+
+  .confirm{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px 20px;}
+  .confirm h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;font-size:17px;font-weight:700;margin:0 0 4px;}
+  .confirm .sub{font-size:13px;color:var(--muted);margin:0 0 14px;}
+  .confirm ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;}
+  .confirm li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.5;}
+  .badge{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .confirm b{font-weight:600;}
+
+  /* ---------- Migas de pan ---------- */
+  .migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+  .migas a { color: var(--muted); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+
+<div class="wrap">
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <a href="carriles_completo.html">Carriles de la cinta</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Grosor nuevo del carril derecho</span>
+  </nav>
+  <header>
+    <p class="eyebrow">Lab.Panda 2.4 · sesión 2026-09-03</p>
+    <h1>Un centímetro plano antes de la rampa</h1>
+    <p>Diseño final de <code>belt_rail_l_recto</code> / <code>belt_rail_r_recto</code>:
+    en vez de empezar a subir justo en el lado ① (hacia la cinta), la pieza se
+    queda <b>plana 1&nbsp;cm</b> a la altura de siempre (2&nbsp;cm) y solo
+    después empieza a subir hasta los 9&nbsp;cm del lado ② (hacia fuera).
+    Aplicado en <code>panda_industrial_cell.wbt</code> con una <code>Extrusion</code>,
+    en espejo en los dos carriles, con el mismo perfil también como
+    <code>boundingObject</code> (no una caja que lo envuelva entero, que
+    rozaba con la pinza en el agarre).</p>
+  </header>
+
+  <div class="sheet">
+    <h2>Vista en corte</h2>
+    <p class="sub">cortando la pieza de lado, mirando hacia la cinta — antes y después</p>
+    <figure>
+      <svg viewBox="0 0 340 260" role="img" aria-label="Corte transversal: en el lado 1, hacia la cinta, la pieza mide 3 centímetros de alto y se queda plana durante el primer centímetro; después, en el resto del ancho, sube en rampa recta hasta 9 centímetros en el lado 2, hacia fuera.">
+
+        <defs>
+          <linearGradient id="heightGradX" x1="134" y1="0" x2="246" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="var(--accent)" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="var(--accent)" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+
+        <!-- superficie de la cinta -->
+        <line x1="40" y1="220" x2="300" y2="220" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 4"/>
+        <text x="40" y="236" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">superficie de la cinta</text>
+
+        <!-- borde de la cinta -->
+        <line x1="270" y1="80" x2="270" y2="220" stroke="var(--grid)" stroke-width="1.5" stroke-dasharray="3 4"/>
+        <text x="270" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">borde cinta (65 cm)</text>
+
+        <!-- canal / hacia el cubo -->
+        <text x="60" y="253" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">← canal</text>
+
+        <!-- pieza nueva: 1cm plano + rampa lateral 2cm -> 9cm -->
+        <polygon points="120,220 246,220 246,94 134,178 120,178" fill="url(#heightGradX)" stroke="var(--accent)" stroke-width="1.5"/>
+
+        <!-- marca del tramo plano de 1cm, para que se vea aparte de la rampa -->
+        <line x1="120" y1="178" x2="134" y2="178" stroke="var(--ink)" stroke-width="2.5"/>
+
+        <!-- carril actual (1.5cm x 3cm), referencia -->
+        <rect x="120" y="178" width="20" height="42" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="4 3"/>
+
+        <!-- dimension 1cm plano -->
+        <line x1="120" y1="165" x2="134" y2="165" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="120" y1="160" x2="120" y2="170" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="134" y1="160" x2="134" y2="170" stroke="var(--ink)" stroke-width="1"/>
+        <text x="127" y="153" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--ink)">1 cm plano</text>
+
+        <!-- dimension 2cm (lado 1) -->
+        <line x1="105" y1="178" x2="115" y2="178" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="105" y1="220" x2="115" y2="220" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="110" y1="178" x2="110" y2="220" stroke="var(--ink)" stroke-width="1"/>
+        <text x="98" y="203" text-anchor="end" font-family="IBM Plex Mono" font-size="11" fill="var(--ink)">2 cm</text>
+
+        <!-- dimension 9cm (lado 2) -->
+        <line x1="255" y1="94" x2="265" y2="94" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="255" y1="220" x2="265" y2="220" stroke="var(--ink)" stroke-width="1"/>
+        <line x1="260" y1="94" x2="260" y2="220" stroke="var(--ink)" stroke-width="1"/>
+        <text x="272" y="160" font-family="IBM Plex Mono" font-size="11" fill="var(--ink)">9 cm</text>
+
+        <!-- ancho 9cm -->
+        <line x1="120" y1="66" x2="246" y2="66" stroke="var(--muted)" stroke-width="1"/>
+        <line x1="120" y1="61" x2="120" y2="71" stroke="var(--muted)" stroke-width="1"/>
+        <line x1="246" y1="61" x2="246" y2="71" stroke="var(--muted)" stroke-width="1"/>
+        <text x="183" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">9 cm de ancho (grosor)</text>
+
+        <!-- flecha caida a lo largo de la rampa (ya no empieza en el lado 1, empieza tras el cm plano) -->
+        <line x1="150" y1="169" x2="225" y2="107" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arrowdown2)"/>
+        <text x="188" y="128" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--ink)" transform="rotate(-29 188 128)">caída</text>
+
+        <!-- callouts -->
+        <circle cx="120" cy="235" r="10" fill="var(--accent)"/>
+        <text x="120" y="239" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="11" fill="#fff">1</text>
+        <text x="120" y="250" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">hacia la cinta</text>
+
+        <circle cx="246" cy="235" r="10" fill="var(--accent)"/>
+        <text x="246" y="239" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="11" fill="#fff">2</text>
+        <text x="246" y="250" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">hacia fuera</text>
+
+        <defs>
+          <marker id="arrowdown2" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto">
+            <path d="M0,0 L8,0 L4,7 Z" fill="var(--ink)"/>
+          </marker>
+        </defs>
+      </svg>
+    </figure>
+    <figcaption>El recuadro punteado es el carril de hoy (1,5 × 3 cm), pegado al lado ①. Antes de empezar a subir, la pieza se queda plana 1 cm a 2 cm de alto (bajado desde los 3 cm del carril de hoy) — la rampa hacia los 9 cm del lado ② empieza después de ese centímetro, no desde el borde.</figcaption>
+    <div class="titleblock">
+      <span>CORTE A ESCALA REAL · CM</span>
+      <span>APLICADO EN panda_industrial_cell.wbt</span>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <h2>Vista desde arriba</h2>
+    <p class="sub">mismo tramo (100 a 128 cm), ahora más ancho hacia el borde de la cinta</p>
+    <figure>
+      <svg viewBox="0 0 690 300" role="img" aria-label="Vista desde arriba: la pieza nueva ocupa el mismo tramo a lo largo de la cinta que el carril actual, pero es mucho más ancha, extendiéndose hacia el borde de la cinta sin invadir el canal por donde pasa el cubo.">
+
+        <!-- cinta -->
+        <rect x="60" y="46" width="570" height="180" fill="var(--belt)" stroke="var(--belt-stroke)" stroke-width="1"/>
+
+        <!-- carriles del embudo -->
+        <line x1="150" y1="64" x2="420" y2="106" stroke="var(--existing)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="150" y1="208" x2="420" y2="166" stroke="var(--existing)" stroke-width="6" stroke-linecap="round"/>
+
+        <!-- carril recto izquierdo -->
+        <line x1="420" y1="106" x2="588" y2="106" stroke="var(--rail-green)" stroke-width="7" stroke-linecap="round"/>
+
+        <!-- pieza nueva (9cm de grosor, techo inclinado 3->9cm) -->
+        <rect x="420" y="162" width="168" height="54" fill="url(#heightGradY)"/>
+        <!-- carril actual, referencia dentro del bloque nuevo -->
+        <rect x="420" y="163" width="168" height="9" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+        <defs>
+          <linearGradient id="heightGradY" x1="0" y1="162" x2="0" y2="216" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="var(--accent)" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="var(--accent)" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+
+        <!-- tope final -->
+        <rect x="594" y="40" width="12" height="192" fill="var(--existing)"/>
+
+        <!-- cubo de referencia -->
+        <rect x="552" y="118" width="36" height="36" fill="none" stroke="var(--cube)" stroke-width="2" stroke-dasharray="4 3"/>
+
+        <!-- callouts -->
+        <circle cx="500" cy="150" r="11" fill="var(--existing)"/>
+        <text x="500" y="154" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="12" fill="#fff">1</text>
+        <text x="500" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">carril de hoy (1,5 cm)</text>
+
+        <circle cx="500" cy="230" r="11" fill="var(--accent)"/>
+        <text x="500" y="234" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="12" fill="#fff">2</text>
+        <text x="500" y="250" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">pieza nueva — techo inclinado, ver corte</text>
+
+        <!-- barra de escala -->
+        <line x1="60" y1="270" x2="120" y2="270" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="60" y1="265" x2="60" y2="275" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="120" y1="265" x2="120" y2="275" stroke="var(--ink)" stroke-width="2"/>
+        <text x="90" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--muted)">10 cm</text>
+      </svg>
+    </figure>
+    <figcaption>El tramo a lo largo de la cinta (100 a 128 cm) y el ancho (9 cm, hasta 1,75 cm del borde) no cambian respecto al paso anterior. El degradado de color es solo para recordar que el techo ya no es plano — sube hacia fuera (ver la vista de corte, arriba).</figcaption>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch existing"></span>Carriles del embudo</div>
+    <div class="legend-item"><span class="swatch green"></span>Carril recto izquierdo</div>
+    <div class="legend-item"><span class="swatch cube"></span>Cubo, referencia</div>
+    <div class="legend-item"><span class="swatch ghost"></span>Carril derecho de hoy</div>
+    <div class="legend-item"><span class="swatch accent"></span>Pieza nueva (9 cm)</div>
+  </div>
+
+  <div class="confirm">
+    <h2>Dónde acabó aplicado esto de verdad (2026-09-04)</h2>
+    <p class="sub">este diseño se probó primero en el carril recto y se revirtió (interfería con la pinza del Sorter, ver <code>robotica_carril_rampa_agarre_abierto.md</code> en memoria). El mismo perfil (con 2&nbsp;cm en vez de 3&nbsp;cm) se aplicó después a <code>belt_rail_l_embudo</code> / <code>belt_rail_r_embudo</code> — el embudo de entrada, lejos de la pinza — para contener un cubo que se había quedado fuera del carril sin nada que lo devolviera al canal. El carril recto se quedó como la <code>Box</code> simple original.</p>
+    <h2>Notas de implementación</h2>
+    <ol>
+      <li><span class="badge">1</span><span>Lado ① (hacia la cinta): se queda a <b>2 cm</b> (bajado desde los 3 cm del carril de hoy), durante 1 cm plano.</span></li>
+      <li><span class="badge">2</span><span>Lado ② (hacia fuera, borde nuevo): sube a <b>9 cm</b>.</span></li>
+      <li><span class="badge">3</span><span>Entre los dos, tras el centímetro plano, la parte de arriba <b>baja en línea recta</b> (rampa plana, no curva).</span></li>
+      <li><span class="badge">4</span><span>El <code>boundingObject</code> usa el mismo perfil (<code>Extrusion</code>), no una caja que lo envuelva entero — una caja a 9 cm de alto en todo el ancho creaba una pared de colisión invisible en el tramo plano y molestaba a la pinza al agarrar.</span></li>
+    </ol>
+  </div>
+</div>

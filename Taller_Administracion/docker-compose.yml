@@ -1,3 +1,4 @@
+# Version: 2026-09-27 18:14 -- monta requirements-dev.txt para poder instalar pytest dentro
 services:
   admin_api:
     build:
@@ -10,6 +11,7 @@ services:
       - ./data:/workspace/data
       - ./tests:/workspace/tests
       - ./pytest.ini:/workspace/pytest.ini
+      - ./requirements-dev.txt:/workspace/requirements-dev.txt:ro   # para "pip install -r requirements-dev.txt" (DETALLE_TECNICO)
       - ..:/workspace/repo:ro
     ports:
       - "8000:8000"
@@ -17,3 +19,5 @@ services:
       - TALLER_DB_PATH=/workspace/data/taller.db
       - TALLER_DEV_MODE=true
       - TALLER_REPO_DIR=/workspace/repo
+      # Vacio = sin recarga automatica (lo normal). Ver el comentario del Dockerfile.
+      - TALLER_RELOAD=${TALLER_RELOAD:-}

@@ -1,0 +1,434 @@
+<!-- Version: 2026-09-19 10:34 -- manual_usuario_avanzado.html (Lanzar todos los pedidos pendientes solo fabrica lo que falta; reparto aparte) -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual de Usuario Avanzado — Lab.Panda 2.4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16211f;
+  --muted:#55655f;
+  --line:rgba(22,33,31,0.14);
+  --bg-soft:#f4f5ef;
+  --accent:#a8461f;
+  --accent-soft:#dcefe3;
+  --red:#c8433f;
+  --red-soft:#f6dedd;
+  --blue:#3572b8;
+  --blue-soft:#dde8f4;
+  --gold:#a8590f;
+  --gold-soft:#f2dfc7;
+  --sans:'Archivo', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;}
+@page{ size:A4; margin:16mm 15mm 18mm; }
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  line-height:1.5;
+  font-size:13px;
+  background:#fff;
+}
+h1,h2,h3,h4{font-weight:700;line-height:1.25;break-after:avoid;}
+h1{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;font-size:26px;margin:0 0 4px;}
+h2{font-family:'Big Shoulders Display', sans-serif;text-transform:uppercase;font-size:18px;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--ink);}
+h3{font-size:14.5px;margin:16px 0 6px;}
+h4{font-size:12px;margin:10px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+p{margin:0 0 8px;}
+.section{margin:0 0 26px;break-inside:avoid-page;}
+.section-loose{margin:0 0 26px;}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:6px;display:block;}
+code,.mono{font-family:var(--mono);font-size:11.5px;}
+code{background:var(--bg-soft);border:1px solid var(--line);border-radius:3px;padding:1px 5px;}
+pre{background:#1b1f26;color:#e9ecf1;border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;line-height:1.5;overflow-x:auto;margin:8px 0;break-inside:avoid;white-space:pre-wrap;word-break:break-word;}
+pre .c{color:#8892a0;}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:11.5px;break-inside:avoid;}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top;}
+th{background:var(--bg-soft);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tr{break-inside:avoid;}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--bg-soft);margin:8px 0;break-inside:avoid;}
+.note{border-left:4px solid var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:0 6px 6px 0;margin:10px 0;break-inside:avoid;font-size:12px;}
+.note b{color:var(--accent);}
+.warn{border-left:4px solid var(--red);background:var(--red-soft);padding:8px 12px;border-radius:0 6px 6px 0;margin:10px 0;break-inside:avoid;font-size:12px;}
+.warn b{color:var(--red);}
+.tip{border-left:4px solid var(--blue);background:var(--blue-soft);padding:8px 12px;border-radius:0 6px 6px 0;margin:10px 0;break-inside:avoid;font-size:12px;}
+.tip b{color:var(--blue);}
+ul,ol{margin:6px 0 10px;padding-left:20px;}
+li{margin-bottom:3px;}
+.cover{min-height:245mm;display:flex;flex-direction:column;justify-content:center;page-break-after:always;}
+.cover .kicker{font-size:12px;}
+.cover h1{font-size:36px;margin-bottom:10px;}
+.cover .sub{font-size:16px;color:var(--muted);margin-bottom:26px;max-width:520px;}
+.cover .meta{font-family:var(--mono);font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:34px;}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:sect;}
+.toc li{counter-increment:sect;padding:6px 0;border-bottom:1px dotted var(--line);font-size:13px;}
+.toc li::before{content:counter(sect) ".";font-family:var(--mono);color:var(--accent);font-weight:700;margin-right:8px;}
+.step{display:flex;gap:12px;align-items:flex-start;margin:14px 0;break-inside:avoid;}
+.step .num{display:inline-flex;flex:none;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;}
+.step .body{flex:1;padding-top:2px;}
+.step .body h3{margin:0 0 4px;}
+.terminal-tag{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 7px;border-radius:10px;background:var(--ink);color:#fff;margin-left:6px;vertical-align:middle;}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 7px;border-radius:10px;font-weight:600;margin:1px 3px 1px 0;}
+.badge-r{background:var(--red-soft);color:var(--red);}
+.badge-g{background:var(--accent-soft);color:var(--accent);}
+.badge-b{background:var(--blue-soft);color:var(--blue);}
+.badge-y{background:var(--gold-soft);color:var(--gold);}
+.svg-wrap{break-inside:avoid;margin:12px 0;text-align:center;}
+.svg-wrap svg{max-width:100%;height:auto;}
+figcaption{font-size:10.5px;color:var(--muted);margin-top:6px;text-align:left;}
+.cheat{width:100%;border-collapse:collapse;font-size:11px;}
+.cheat th{background:var(--ink);color:#fff;}
+.cheat td.cmd{font-family:var(--mono);font-size:10.5px;background:var(--bg-soft);}
+footer.pagefoot{font-size:9.5px;color:var(--muted);text-align:center;margin-top:6px;}
+
+/* ---------- Migas de pan (mismo patron que el resto de Documentacion/) ---------- */
+.migas { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em; margin: 0 0 1.6rem; }
+.migas a { color: var(--muted); text-decoration: none; }
+.migas a:hover { color: var(--ink); }
+.migas-sep { color: var(--muted); opacity: 0.6; margin: 0 0.35em; }
+.migas-actual { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="migas" aria-label="Ruta">
+  <a href="/">Principal</a>
+  <span class="migas-sep">→</span>
+  <a href="/manual/lanzar">Cómo arranca todo</a>
+  <span class="migas-sep">→</span>
+  <span class="migas-actual" aria-current="page">Manual de Usuario Avanzado</span>
+</nav>
+
+<!-- ============ PORTADA ============ -->
+<section class="cover">
+  <span class="kicker">Manual de usuario avanzado</span>
+  <h1>Lab.Panda 2.4</h1>
+  <div class="sub">Cómo arrancar, operar y apagar a mano la celda industrial simulada de dos robots (Loader + Sorter) y su integración con el servidor de pedidos <code>Taller_Administracion</code>, sin necesidad de tocar código.</div>
+  <div class="badge-row" style="margin-bottom:20px">
+    <span class="badge badge-g">✓ arranque paso a paso</span>
+    <span class="badge badge-b">✓ panel de control</span>
+    <span class="badge badge-r">✓ parada de emergencia</span>
+    <span class="badge badge-y">✓ resolución de atascos</span>
+  </div>
+  <div class="meta">Directorio raíz: /home/aladin/MEGA/Robotica &nbsp;·&nbsp; Basado en LANZAR_PROYECTO.md (2026-09-01) &nbsp;·&nbsp; Audiencia: operador que ya tiene el sistema instalado</div>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="section toc">
+  <h2>Índice</h2>
+  <ol>
+    <li>Qué vas a arrancar</li>
+    <li>Antes de empezar</li>
+    <li>Arrancar Taller_Administracion (opcional, pero recomendado)</li>
+    <li>Arrancar Lab.Panda 2.4 — paso a paso</li>
+    <li>El panel de control (teleop_gui)</li>
+    <li>Producción automática por terminal (alternativa)</li>
+    <li>Parada de emergencia</li>
+    <li>Si algo se atasca</li>
+    <li>Apagar todo al terminar</li>
+    <li>Chuleta rápida de comandos</li>
+  </ol>
+</section>
+
+<!-- ============ 1. QUÉ VAS A ARRANCAR ============ -->
+<section class="section-loose">
+<span class="kicker">1</span>
+<h2>Qué vas a arrancar</h2>
+<p>Hay <b>dos proyectos independientes</b> que se hablan por red (HTTP), no comparten código ni contenedores:</p>
+<ol>
+<li><b>Lab.Panda 2.4</b> — la simulación (Webots + ROS 2): dos brazos Panda (<span class="badge badge-b">Loader</span> y <span class="badge badge-g">Sorter</span>) que mueven cubos por una cinta y los clasifican por color, más dos Raspberry Pi Pico con un LED RGB real cada una.</li>
+<li><b>Taller_Administracion</b> — servidor web de pedidos y almacén. Se entera de lo que fabrica el robot por HTTP; si está apagado, la simulación sigue funcionando igual, solo que nadie apunta la producción en ningún pedido.</li>
+</ol>
+<p>Puedes arrancar solo el que necesites. Si vas a hacer producción de verdad (que los pedidos se completen solos), hacen falta los dos.</p>
+
+<h3>Los 3 contenedores Docker de todo el proyecto</h3>
+<table>
+<tr><th>Contenedor</th><th>De qué proyecto</th><th>Qué es</th></tr>
+<tr><td><code>webots_panda_sim24</code></td><td>Lab.Panda 2.4</td><td>La simulación 3D (Webots)</td></tr>
+<tr><td><code>ros2_panda_dev24</code></td><td>Lab.Panda 2.4</td><td>ROS 2 y todos los nodos Python (brazos, cámaras, LEDs, panel de control)</td></tr>
+<tr><td><code>taller_admin_api</code></td><td>Taller_Administracion</td><td>Servidor web de pedidos/almacén</td></tr>
+</table>
+<div class="warn">Compruébalo con <code>docker ps</code>. Si ves otros nombres (<code>ros2_dev</code>, <code>webots_sim</code>, o los mismos sin el <code>24</code> al final) son restos de un proyecto antiguo ya borrado (<code>Lab.Panda 2.3</code>) — párralos y bórralos antes de seguir: <code>docker stop &lt;nombre&gt; && docker rm &lt;nombre&gt;</code>.</div>
+</section>
+
+<!-- ============ 2. ANTES DE EMPEZAR ============ -->
+<section class="section-loose">
+<span class="kicker">2</span>
+<h2>Antes de empezar</h2>
+<div class="step">
+  <span class="num">1</span>
+  <div class="body">
+    <h3>Enciende las dos Raspberry Pi Pico</h3>
+    <p>Hay una Pico por robot, cada una con su propio LED:</p>
+    <ul>
+      <li><b>Sorter → Pico W de siempre</b> (Wi-Fi). Dale corriente; <code>main.py</code> arranca solo y se conecta al Wi-Fi, quedando a la escucha en <code>192.168.1.101:5001</code>. Es también la que lleva el <b>botón físico de parada de emergencia</b>.</li>
+      <li><b>Loader → Pico nueva sin Wi-Fi</b> (USB). Conéctala por USB a este ordenador — el <code>docker-compose.yml</code> ya sabe encontrarla sola por su ruta estable, no hace falta tocar nada salvo que la sustituyas por otra Pico distinta.</li>
+    </ul>
+  </div>
+</div>
+<div class="step">
+  <span class="num">2</span>
+  <div class="body">
+    <h3>Autoriza la pantalla</h3>
+    <pre>xhost +local:docker</pre>
+    <p>Necesario para que Webots (y cualquier ventana gráfica lanzada dentro del contenedor) pueda dibujar en tu pantalla.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============ 3. TALLER ADMINISTRACION ============ -->
+<section class="section-loose">
+<span class="kicker">3</span>
+<h2>Arrancar Taller_Administracion <span style="font-weight:400;color:var(--muted);font-size:13px">(lo más simple, sin Webots)</span></h2>
+<pre>cd /home/aladin/MEGA/Robotica/Taller_Administracion
+docker compose up -d --build</pre>
+<p>Abre <b>http://localhost:8000</b>. Contraseña maestra <code>1111</code> para cualquier usuario mientras no tenga una propia (usuario de arranque: <code>aladin</code>).</p>
+<div class="tip"><b>Para verlo desde el móvil</b> (misma Wi-Fi que este ordenador): usa la IP local de este PC en vez de <code>localhost</code> — <code>hostname -I</code> (coge la que empiece por <code>192.168.x.x</code>) y entra en <code>http://&lt;esa_ip&gt;:8000</code>.</div>
+<p>Apagar: <code>docker compose down</code> en esta misma carpeta.</p>
+</section>
+
+<!-- ============ 4. LAB PANDA PASO A PASO ============ -->
+<section class="section-loose">
+<span class="kicker">4</span>
+<h2>Arrancar Lab.Panda 2.4 — paso a paso</h2>
+
+<div class="step">
+<span class="num">1</span>
+<div class="body">
+<h3>Levantar los 2 contenedores de la simulación</h3>
+<pre>cd "/home/aladin/MEGA/Robotica/Lab.Panda 2.4/.devcontainer"
+docker compose up -d --build</pre>
+<p>Esto crea/arranca <code>webots_panda_sim24</code> (carga directamente el mundo <code>panda_industrial_cell.wbt</code>, la celda de dos robots) y <code>ros2_panda_dev24</code>. Compruébalo con <code>docker ps</code>.</p>
+</div>
+</div>
+
+<div class="step">
+<span class="num">2</span>
+<div class="body">
+<h3>(Solo si has tocado código Python) recompilar</h3>
+<pre>docker exec -it ros2_panda_dev24 bash
+cd /workspace
+colcon build --packages-select panda_controller --symlink-install</pre>
+</div>
+</div>
+
+<div class="step">
+<span class="num">3</span>
+<div class="body">
+<h3>Lanzar la celda completa <span class="terminal-tag">deja esta terminal abierta</span></h3>
+<pre>docker exec -it ros2_panda_dev24 bash
+cd /workspace
+ros2 launch panda_controller robot_launch_industrial_cell.py</pre>
+<p>Esto conecta de golpe los 6 "controladores" de la celda: el brazo Loader, el brazo Sorter, las dos cámaras cenitales (una sobre la caja del Loader, otra sobre el punto de recogida del Sorter), el <code>WarehouseSupervisor</code> (un robot invisible que vigila la posición real de los 3 cubos: rescata los que se caen y recicla los ya clasificados de vuelta a la caja) y el <code>SorterShuttleSupervisor</code> (sesión 2026-09-10, sin cuerpo físico igual que el anterior: centra el cubo en el punto de recogida del Sorter antes de que la pinza opere). <b>Espera a ver 6 veces</b> <code>Controller successfully connected</code> en el log antes de seguir.</p>
+<div class="warn"><b>Esta terminal se queda abierta mientras trabajes.</b> Si la cierras (o el propio comando se para por lo que sea), este paso deja de estar "hecho" aunque los contenedores del paso 1 sigan arriba — y <b>nada</b> de lo de abajo (LEDs, panel, producción) va a funcionar hasta que lo relances. Para comprobar si ya lo tienes corriendo en OTRA terminal antes de lanzarlo otra vez:
+<pre style="margin-top:6px">docker exec ros2_panda_dev24 bash -c "ps -ef | grep robot_launch_industrial_cell | grep -v grep"</pre>
+Si no sale nada, no está corriendo — hazlo ahora antes de seguir con el paso 4 o el 5.</div>
+</div>
+</div>
+
+<div class="step">
+<span class="num">4</span>
+<div class="body">
+<h3>Puentes de LED <span style="font-weight:400;color:var(--muted);font-size:12.5px">(uno por robot, cada uno en su terminal)</span></h3>
+<pre>docker exec -it ros2_panda_dev24 bash
+ros2 run panda_controller led_publisher       <span class="c"># Sorter, habla con la Pico por Wi-Fi</span></pre>
+<pre>docker exec -it ros2_panda_dev24 bash
+ros2 run panda_controller led_publisher_usb   <span class="c"># Loader, habla con la Pico por USB</span></pre>
+<p>Cada uno reenvía lo que le llega por su topic ROS (<code>/comando_led</code> para el Sorter, <code>/comando_led_loader</code> para el Loader) al hardware real. Sin esto el robot se sigue moviendo igual, solo que el LED físico no reacciona.</p>
+</div>
+</div>
+
+<div class="step">
+<span class="num">5</span>
+<div class="body">
+<h3>Panel de control manual <span style="font-weight:400;color:var(--muted);font-size:12.5px">(el sitio desde el que se maneja todo)</span></h3>
+<div class="note"><b>Necesita el paso 3 corriendo de verdad</b> — si no, se queda 45s intentándolo y falla con <code>ERROR [...] Nadie se ha suscrito tras 45s</code> y la ventana no llega a abrirse.</div>
+<pre>docker exec -it ros2_panda_dev24 bash
+ros2 run panda_controller teleop_gui</pre>
+<p>Con esto solo, ya puedes producir sin tocar ninguna terminal más. Detalles completos en la sección 5 de este manual.</p>
+</div>
+</div>
+
+<div class="step">
+<span class="num">6</span>
+<div class="body">
+<h3>Producción automática a mano <span style="font-weight:400;color:var(--muted);font-size:12.5px">(alternativa a los botones del panel)</span></h3>
+<p>Solo si prefieres lanzarlo tú mismo por terminal en vez de usar los botones del paso 5 (por ejemplo para dejarlo con parámetros concretos). Ver detalle en la sección 6.</p>
+<div class="warn"><b>No lo lances si ya lo tienes corriendo desde el panel</b> (paso 5) — se pelearían por el mismo brazo.</div>
+</div>
+</div>
+</section>
+
+<!-- ============ 5. PANEL DE CONTROL ============ -->
+<section class="section-loose">
+<span class="kicker">5</span>
+<h2>El panel de control (teleop_gui)</h2>
+<p>Trae, en una sola ventana:</p>
+<div class="svg-wrap">
+<svg viewBox="0 0 700 260" role="img" aria-label="Esquema del panel teleop_gui: selector Loader/Sorter, botón STOP/REARME global, y dos pestañas: Movimiento y Producción">
+  <rect x="10" y="10" width="680" height="240" rx="10" fill="#f5f6f8" stroke="#1b1f26" stroke-width="1.5"/>
+  <text x="30" y="34" font-size="12" font-weight="700">Panel teleop_gui</text>
+
+  <rect x="30" y="50" width="180" height="44" rx="6" fill="#dde8f4" stroke="#3572b8"/>
+  <text x="120" y="68" text-anchor="middle" font-size="10.5" font-weight="700">Selector de robot</text>
+  <text x="120" y="82" text-anchor="middle" font-size="9" fill="#5b6472">LOADER  /  SORTER</text>
+
+  <rect x="230" y="50" width="180" height="44" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="320" y="68" text-anchor="middle" font-size="10.5" font-weight="700">STOP / REARME</text>
+  <text x="320" y="82" text-anchor="middle" font-size="9" fill="#5b6472">pausa la celda entera</text>
+
+  <rect x="30" y="112" width="310" height="120" rx="6" fill="#fff" stroke="#5b6472"/>
+  <text x="185" y="132" text-anchor="middle" font-size="11" font-weight="700">Pestaña Movimiento</text>
+  <text x="45" y="152" font-size="9.5" fill="#5b6472">Jog manual XYZ del brazo elegido</text>
+  <text x="45" y="168" font-size="9.5" fill="#5b6472">Abrir / cerrar pinza</text>
+  <text x="45" y="184" font-size="9.5" fill="#5b6472">Orientar pinza hacia abajo</text>
+  <text x="45" y="200" font-size="9.5" fill="#5b6472">Ir a HOME (con confirmación)</text>
+  <text x="45" y="216" font-size="9.5" fill="#5b6472">LED manual R/G/B/0</text>
+
+  <rect x="360" y="112" width="310" height="120" rx="6" fill="#fff" stroke="#5b6472"/>
+  <text x="515" y="132" text-anchor="middle" font-size="11" font-weight="700">Pestaña Producción</text>
+  <text x="375" y="152" font-size="9.5" fill="#5b6472">"Lanzar lote" — fabrica una cantidad</text>
+  <text x="375" y="166" font-size="9.5" fill="#5b6472">   de un solo producto elegido a mano</text>
+  <text x="375" y="186" font-size="9.5" fill="#5b6472">"Lanzar todos los pedidos pendientes"</text>
+  <text x="375" y="200" font-size="9.5" fill="#5b6472">   mira Taller_Administracion y fabrica</text>
+  <text x="375" y="214" font-size="9.5" fill="#5b6472">   lo que falte de los 3 colores</text>
+</svg>
+<figcaption>Fig. 1 — Panel único (Tkinter) desde el que se opera toda la celda a mano.</figcaption>
+</div>
+<ul>
+<li>Selector <b>LOADER / SORTER</b> para elegir qué brazo mueves a mano, sin reiniciar nada.</li>
+<li><b>STOP / REARME</b> de toda la celda (pausa el movimiento en curso, NO lo aborta; sigue exactamente donde se quedó al rearmar) — funciona tanto si mueves el brazo a mano como si hay una producción automática en marcha.</li>
+<li>Pestaña <b>Movimiento</b>: jog manual del brazo elegido.</li>
+<li>Pestaña <b>Producción</b>: botón <b>"Lanzar lote"</b> (fabrica una cantidad de un solo producto elegido a mano) y botón <b>"Lanzar todos los pedidos pendientes"</b> (mira los pedidos reales de Taller_Administracion y fabrica lo que falte de los tres colores a la vez — necesita la sección 3 arrancada). Solo ofrece lo que <b>falta fabricar</b>: lo que ya está listo o lo cubre el stock del almacén no se vuelve a fabricar. Entregar las piezas al cliente y emitir el albarán no se hace aquí, sino en la pestaña <b>Reparto</b> del panel web (<code>http://localhost:8000</code>).</li>
+</ul>
+</section>
+
+<!-- ============ 6. PRODUCCIÓN POR TERMINAL ============ -->
+<section class="section-loose">
+<span class="kicker">6</span>
+<h2>Producción automática por terminal (alternativa)</h2>
+<pre>docker exec -it ros2_panda_dev24 bash
+<span class="c"># Sorter: recoge lo que llegue a la cinta y lo clasifica, da igual el color</span>
+ros2 run panda_controller sorter_demo --ros-args -r __ns:=/sorter \
+  -p robot_base_x:=0.0 -p robot_base_y:=1.00 -p robot_base_z:=0.74</pre>
+<pre>docker exec -it ros2_panda_dev24 bash
+<span class="c"># Loader: reparte los tres colores a la vez, 6 vueltas</span>
+ros2 run panda_controller loader_demo --ros-args -r __ns:=/loader \
+  -p cycles:=6 -p led_topic:=/comando_led_loader -p led_topic_producto:=/comando_led_producto
+
+<span class="c"># o un solo color (ej. 30 tuercas = verde):</span>
+ros2 run panda_controller loader_demo --ros-args -r __ns:=/loader \
+  -p cycles:=30 -p only_color:=G -p led_topic:=/comando_led_loader -p led_topic_producto:=/comando_led_producto</pre>
+<div class="warn">No lo lances si ya lo tienes corriendo desde el panel (sección 5) — se pelearían por el mismo brazo.</div>
+</section>
+
+<!-- ============ 7. PARADA DE EMERGENCIA ============ -->
+<section class="section-loose">
+<span class="kicker">7</span>
+<h2>Parada de emergencia</h2>
+<div class="svg-wrap">
+<svg viewBox="0 0 700 220" role="img" aria-label="Flujo de la parada de emergencia: dos botones físicos, uno por robot, ambos publican en el mismo topic /emergency_stop que escuchan teleop_gui, loader_demo y sorter_demo">
+  <rect x="20" y="20" width="180" height="70" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="110" y="42" text-anchor="middle" font-size="11" font-weight="700">Botón Sorter</text>
+  <text x="30" y="58" font-size="9" fill="#5b6472">GPIO16 → GND, Pico W</text>
+  <text x="30" y="72" font-size="9" fill="#5b6472">avisa por Wi-Fi :5002</text>
+  <text x="30" y="84" font-size="9" fill="#5b6472">(button_listener, paso 3)</text>
+
+  <rect x="20" y="120" width="180" height="70" rx="6" fill="#f6dedd" stroke="#c8433f"/>
+  <text x="110" y="142" text-anchor="middle" font-size="11" font-weight="700">Botón Loader</text>
+  <text x="30" y="158" font-size="9" fill="#5b6472">GPIO16 → GND, Pico USB</text>
+  <text x="30" y="172" font-size="9" fill="#5b6472">avisa por cable USB</text>
+  <text x="30" y="184" font-size="9" fill="#5b6472">(led_publisher_usb, paso 4)</text>
+
+  <rect x="280" y="70" width="150" height="70" rx="6" fill="#f2dfc7" stroke="#a8590f"/>
+  <text x="355" y="100" text-anchor="middle" font-size="11" font-weight="700">/emergency_stop</text>
+  <text x="355" y="116" text-anchor="middle" font-size="9" fill="#5b6472">topic ROS 2 global</text>
+
+  <rect x="500" y="20" width="180" height="50" rx="6" fill="#fff" stroke="#5b6472"/>
+  <text x="590" y="42" text-anchor="middle" font-size="10.5" font-weight="700">teleop_gui</text>
+  <text x="590" y="56" text-anchor="middle" font-size="8.5" fill="#5b6472">botón STOP/REARME</text>
+
+  <rect x="500" y="90" width="180" height="50" rx="6" fill="#fff" stroke="#5b6472"/>
+  <text x="590" y="112" text-anchor="middle" font-size="10.5" font-weight="700">loader_demo</text>
+  <text x="590" y="126" text-anchor="middle" font-size="8.5" fill="#5b6472">corta el bucle al recibir True</text>
+
+  <rect x="500" y="160" width="180" height="50" rx="6" fill="#fff" stroke="#5b6472"/>
+  <text x="590" y="182" text-anchor="middle" font-size="10.5" font-weight="700">sorter_demo</text>
+  <text x="590" y="196" text-anchor="middle" font-size="8.5" fill="#5b6472">corta el bucle al recibir True</text>
+
+  <line x1="200" y1="55" x2="280" y2="95" stroke="#c8433f" stroke-width="1.5"/>
+  <line x1="200" y1="155" x2="280" y2="115" stroke="#c8433f" stroke-width="1.5"/>
+  <line x1="430" y1="95" x2="500" y2="45" stroke="#a8590f" stroke-width="1.5"/>
+  <line x1="430" y1="105" x2="500" y2="115" stroke="#a8590f" stroke-width="1.5"/>
+  <line x1="430" y1="115" x2="500" y2="185" stroke="#a8590f" stroke-width="1.5"/>
+</svg>
+<figcaption>Fig. 2 — Ambos botones son globales: paran la celda ENTERA, no solo su propio robot.</figcaption>
+</div>
+
+<h3>Botones físicos (uno por robot)</h3>
+<ul>
+<li><b>Sorter</b>: GPIO16 a GND en la Pico W. Corta el LED al instante (no depende de la red) y avisa a ROS por el puerto 5002 (Wi-Fi). <b>El nodo puente (<code>button_listener</code>) va incluido en el paso 3</b> del arranque — sin él corriendo de verdad, este botón no avisa a ROS aunque el LED sí se apague.</li>
+<li><b>Loader</b>: GPIO16 a GND en la Pico USB. Corta el LED al instante igual que el del Sorter, pero al no tener Wi-Fi avisa por el mismo cable USB (imprime <code>BOTON_PARADA</code>, que lee <code>led_publisher_usb</code> — paso 4). Sin ese paso corriendo, este botón tampoco avisa a ROS.</li>
+</ul>
+<p>Ambos publican en <code>/emergency_stop</code>, el mismo topic que ya escuchan <code>teleop_gui</code>, <code>loader_demo</code> y <code>sorter_demo</code>. <b>Si un botón físico no corta el movimiento</b>, lo primero que hay que comprobar es que el paso 3 (<code>button_listener</code>, Sorter) o el paso 4 (<code>led_publisher_usb</code>, Loader) estén de verdad corriendo — sin ellos, tampoco hay puente.</p>
+
+<h3>Desde el panel</h3>
+<p>El botón STOP/REARME de <code>teleop_gui</code> (paso 5) hace lo mismo sin tocar hardware — <b>es la forma recomendada del día a día</b>.</p>
+
+<div class="tip"><b>Nota — <code>estop_panel.py</code>:</b> una ventana aparte solo con STOP/REARME, de antes de que <code>teleop_gui</code> los integrara. Sigue funcionando pero ya es redundante si usas el panel completo; solo útil si quieres un botón de pánico en una ventana pequeña separada.</div>
+
+<h3>Protocolo</h3>
+<p>Un carácter por Pico — <code>R</code>/<code>G</code>/<code>B</code>/<code>0</code> (apagado), más <code>PARADA</code>/<code>REARME</code> para el parpadeo de emergencia. Los dos Pico entienden el mismo protocolo, cada una en su canal (Wi-Fi puerto 5001 / USB serie).</p>
+</section>
+
+<!-- ============ 8. SI ALGO SE ATASCA ============ -->
+<section class="section-loose">
+<span class="kicker">8</span>
+<h2>Si algo se atasca <span style="font-weight:400;color:var(--muted);font-size:13px">(cubos amontonados en la cinta, los dos robots parados)</span></h2>
+<p>Puede pasar si un brazo se rinde con un cubo difícil tras varios intentos: hasta el 2026-08-31 podía quedarse colgado tapando su propia cámara para siempre (ya arreglado — se aparca solo). Si aun así algo se lía, la forma limpia de resetear sin perder nada importante:</p>
+<pre>docker restart webots_panda_sim24   <span class="c"># repone los 3 cubos a su sitio de siempre</span></pre>
+<p>Espera unos 8 segundos y vuelve a hacer los pasos <b>3, 4, 5</b> (y 6 si usabas producción por terminal). Los pedidos y el stock de Taller_Administracion NO se tocan con esto — solo se resetea la simulación.</p>
+</section>
+
+<!-- ============ 9. APAGAR ============ -->
+<section class="section-loose">
+<span class="kicker">9</span>
+<h2>Apagar todo al terminar</h2>
+<pre>cd "/home/aladin/MEGA/Robotica/Lab.Panda 2.4/.devcontainer" && docker compose down
+cd /home/aladin/MEGA/Robotica/Taller_Administracion && docker compose down</pre>
+</section>
+
+<!-- ============ 10. CHULETA ============ -->
+<section class="section">
+<span class="kicker">10</span>
+<h2>Chuleta rápida de comandos</h2>
+<table class="cheat">
+<tr><th>Quiero…</th><th>Comando</th></tr>
+<tr><td>Autorizar pantalla (una vez por sesión de escritorio)</td><td class="cmd">xhost +local:docker</td></tr>
+<tr><td>Arrancar Taller_Administracion</td><td class="cmd">cd Taller_Administracion && docker compose up -d --build</td></tr>
+<tr><td>Arrancar simulación (contenedores)</td><td class="cmd">cd "Lab.Panda 2.4/.devcontainer" && docker compose up -d --build</td></tr>
+<tr><td>Recompilar tras editar Python</td><td class="cmd">docker exec -it ros2_panda_dev24 bash -c "cd /workspace && colcon build --packages-select panda_controller --symlink-install"</td></tr>
+<tr><td>Lanzar la celda (6 controladores)</td><td class="cmd">docker exec -it ros2_panda_dev24 bash → ros2 launch panda_controller robot_launch_industrial_cell.py</td></tr>
+<tr><td>Comprobar si la celda ya está lanzada</td><td class="cmd">docker exec ros2_panda_dev24 bash -c "ps -ef | grep robot_launch_industrial_cell | grep -v grep"</td></tr>
+<tr><td>Puente LED Sorter</td><td class="cmd">ros2 run panda_controller led_publisher</td></tr>
+<tr><td>Puente LED Loader</td><td class="cmd">ros2 run panda_controller led_publisher_usb</td></tr>
+<tr><td>Abrir panel de control</td><td class="cmd">ros2 run panda_controller teleop_gui</td></tr>
+<tr><td>Producción Sorter por terminal</td><td class="cmd">ros2 run panda_controller sorter_demo --ros-args -r __ns:=/sorter -p robot_base_x:=0.0 -p robot_base_y:=1.00 -p robot_base_z:=0.74</td></tr>
+<tr><td>Producción Loader (todos los colores)</td><td class="cmd">ros2 run panda_controller loader_demo --ros-args -r __ns:=/loader -p cycles:=6 -p led_topic:=/comando_led_loader -p led_topic_producto:=/comando_led_producto</td></tr>
+<tr><td>Resetear simulación tras un atasco</td><td class="cmd">docker restart webots_panda_sim24</td></tr>
+<tr><td>Ver contenedores activos</td><td class="cmd">docker ps</td></tr>
+<tr><td>Apagar simulación</td><td class="cmd">cd "Lab.Panda 2.4/.devcontainer" && docker compose down</td></tr>
+<tr><td>Apagar Taller_Administracion</td><td class="cmd">cd Taller_Administracion && docker compose down</td></tr>
+<tr><td>Panel web de pedidos</td><td class="cmd">http://localhost:8000  (usuario aladin / contraseña 1111)</td></tr>
+</table>
+<div class="note" style="margin-top:14px"><b>Orden recomendado de arranque diario:</b> Taller_Administracion (sección 3) → contenedores de Lab.Panda 2.4 (paso 1) → recompilar solo si tocaste código (paso 2) → lanzar la celda (paso 3, esperar 5 conexiones) → puentes de LED (paso 4) → panel de control (paso 5).</div>
+<footer class="pagefoot">Manual de Usuario Avanzado — Lab.Panda 2.4 · generado 2026-09-01</footer>
+</section>
+
+</body>
+</html>

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Version: 2026-09-26 10:21 -- base Loader/Sorter: _cronometro no mezcla reloj de simulacion y del ordenador (baile infinito)
 """Demo de pick-and-place repetido, usando la cinematica ikpy validada
 (panda_ikpy_kinematics.py) en vez de la tabla DH manual de los demas nodos.
 
@@ -40,6 +41,7 @@ import urllib.request
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rosgraph_msgs.msg import Clock
 from std_msgs.msg import Float64MultiArray, Float64, String, Bool
 
 from panda_controller.panda_ikpy_kinematics import (
@@ -255,6 +257,20 @@ JUMP_MAX_RAD = 0.6
 # clasifico el mismo cubo sin problema. Sigue de sobra por encima de un
 # fallo real (~0%, ver comentario historico arriba).
 GROUND_TRUTH_LIFT_FRACTION = 0.28
+
+# Reloj de la simulacion (2026-09-24). Las esperas (spin_for) y el ritmo de
+# las rampas (_publish) se miden con la hora de Webots que publica el
+# supervisor del almacen en /clock, no con la del ordenador: en un PC lento
+# (Webots a 0.22x en Windows) con el reloj del ordenador todo pasaba 4-5
+# veces mas deprisa DENTRO de la simulacion -- el brazo no llegaba a donde
+# se le mandaba, la pinza cerraba antes de asentarse y el dedo del Sorter se
+# dislocaba en 4 de 7 agarres. Si /clock no llega (mundos de prueba sin ese
+# supervisor), se sigue con el reloj del ordenador como antes.
+# Cuanto puede pasar sin recibir /clock antes de darlo por muerto al EMPEZAR
+# una espera (reloj del ordenador). Una espera ya empezada con el reloj de la
+# simulacion sigue con el aunque se pare: si Webots esta en pausa, el robot
+# tambien debe esperar.
+RELOJ_SIM_CADUCA_S = 2.0
 
 # Asentamiento antes de cerrar la pinza (sesion 2026-09-04, causa raiz real
 # encontrada con datos en vivo -- ver aviso del usuario: "el cubo verde ha
@@ -490,6 +506,11 @@ class CubeShuttleDemo(Node):
         self.locator = OverheadLocator(self)
         self.gripper_state = None
         self.create_subscription(Float64MultiArray, 'gripper_state', self._on_gripper_state, 10)
+        # Hora de la simulacion (ver RELOJ_SIM_CADUCA_S).
+        self._sim_t = None
+        self._sim_t_recibido = 0.0
+        self._rampa_objetivo = None
+        self.create_subscription(Clock, '/clock', self._on_clock, 10)
 
         # Posicion XYZ real de los 3 cubos, sesion 2026-08-30 -- ground
         # truth publicada por warehouse_supervisor_driver.py (Supervisor,
@@ -658,8 +679,45 @@ class CubeShuttleDemo(Node):
         self.get_logger().warn(f'Rearmado -- continuo "{label}".')
         return True
 
+    def _on_clock(self, msg):
+        self._sim_t = msg.clock.sec + msg.clock.nanosec * 1e-9
+        self._sim_t_recibido = time.monotonic()
+
+    def _reloj_sim_vivo(self):
+        return (self._sim_t is not None
+                and time.monotonic() - self._sim_t_recibido < RELOJ_SIM_CADUCA_S)
+
+    def _ahora(self):
+        """Hora de la simulacion si llega /clock, si no la del ordenador.
+        Para medir intervalos DENTRO de una misma espera, no para mezclar."""
+        return self._sim_t if self._reloj_sim_vivo() else time.time()
+
+    def _cronometro(self):
+        """Devuelve una funcion que da los segundos transcurridos desde ahora.
+        Bug real (2026-09-26, 4 cadenas en Windows): medir con
+        't0 = self._ahora()' y luego 'self._ahora() - t0' mezcla relojes si
+        la fuente cambia entre medias -- si el lote empieza antes de recibir
+        /clock, t0 es la hora del ordenador (~1.8e9 s); al llegar /clock,
+        _ahora() pasa a la de simulacion (~1e3 s), la resta sale negativa
+        para siempre y el Loader se quedo 'bailando' mas de 8 minutos en vez
+        de 5 s. Aqui, si la fuente cambia, se guarda lo ya medido y se sigue
+        contando con la nueva."""
+        m = {'sim': self._reloj_sim_vivo(), 'acum': 0.0}
+        m['t0'] = m['ultimo'] = self._ahora()
+
+        def transcurrido():
+            sim = self._reloj_sim_vivo()
+            ahora = self._ahora()
+            if sim != m['sim']:
+                m['acum'] += m['ultimo'] - m['t0']
+                m['sim'], m['t0'] = sim, ahora
+            m['ultimo'] = ahora
+            return m['acum'] + (ahora - m['t0'])
+        return transcurrido
+
     def spin_for(self, seconds):
-        """Espera de verdad 'seconds' (reloj de pared), procesando
+        """Espera 'seconds' de SIMULACION (o de reloj de pared si no llega
+        /clock, ver RELOJ_SIM_CADUCA_S), procesando
         callbacks mientras tanto. Bug real corregido en sesion 2026-08-28:
         `rclpy.spin_once(self, timeout_sec=seconds)` NO espera ese tiempo
         si ya hay mensajes en cola (p.ej. la camara publicando varias
@@ -668,6 +726,11 @@ class CubeShuttleDemo(Node):
         se vaciaba entero en poco mas de un segundo real (confirmado con
         timestamps de log), dejando al Sorter sin apenas margen real para
         esperar al Loader en trabajo concurrente."""
+        if self._reloj_sim_vivo():
+            t0 = self._sim_t
+            while rclpy.ok() and self._sim_t - t0 < seconds:
+                rclpy.spin_once(self, timeout_sec=0.05)
+            return
         t0 = time.time()
         while rclpy.ok() and time.time() - t0 < seconds:
             rclpy.spin_once(self, timeout_sec=max(0.0, seconds - (time.time() - t0)))
@@ -685,6 +748,19 @@ class CubeShuttleDemo(Node):
         self.real_theta = th
         self.pub_j.publish(Float64MultiArray(data=th.tolist()))
         rclpy.spin_once(self, timeout_sec=0.02)
+        if self._reloj_sim_vivo():
+            # Un paso de rampa cada step_sleep de SIMULACION. El objetivo se
+            # acumula (no "ahora + step_sleep") para que el ritmo medio sea
+            # exacto aunque /clock avance a saltos de un paso de Webots; si
+            # viene de una pausa larga, se reengancha a la hora actual.
+            if self._rampa_objetivo is None or self._rampa_objetivo < self._sim_t - 1.0:
+                self._rampa_objetivo = self._sim_t
+            self._rampa_objetivo += self.sleep
+            while rclpy.ok() and self._sim_t < self._rampa_objetivo:
+                rclpy.spin_once(self, timeout_sec=0.05)
+                if not self._reloj_sim_vivo():
+                    break
+            return
         time.sleep(self.sleep)
 
     def _gripper(self, pos, wait):
@@ -1230,9 +1306,9 @@ class CubeShuttleDemo(Node):
         # entrega, aquellos cubos se quedaban sin reciclar y paraban la
         # celda ("los cubos no vuelven de la rejilla a la caja de salida").
         if color is not None and color in self.cube_pos_real:
-            t0 = time.time()
+            transcurrido = self._cronometro()
             dist_destino = None
-            while time.time() - t0 < CARRIED_TIMEOUT_S:
+            while transcurrido() < CARRIED_TIMEOUT_S:
                 cx, cy = self.cube_pos_real[color][0], self.cube_pos_real[color][1]
                 dist_destino = ((cx - x_to) ** 2 + (cy - y_to) ** 2) ** 0.5
                 if dist_destino <= CARRIED_MAX_DIST:
@@ -1343,11 +1419,11 @@ class CubeShuttleDemo(Node):
         centro = self.real_theta.copy()
         amplitud = 0.35  # rad -- bien dentro del limite de panda_joint7, movimiento visible pero pequeño
         periodo = 0.6    # segundos por vaiven completo
-        t0 = time.time()
-        while rclpy.ok() and time.time() - t0 < duration:
+        transcurrido = self._cronometro()
+        while rclpy.ok() and transcurrido() < duration:
             if not self._wait_while_stopped('bailando (cambio de lote)'):
                 return False
-            fase = (time.time() - t0) / periodo * (2 * np.pi)
+            fase = transcurrido() / periodo * (2 * np.pi)
             th = centro.copy()
             th[6] += amplitud * np.sin(fase)
             self._publish(th)

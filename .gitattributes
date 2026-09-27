@@ -1,0 +1,7 @@
+# Los .bat de Windows necesitan saltos de linea CRLF (con LF, cmd se lia con
+# las etiquetas y los goto). Se convierten solos al sacarlos de git.
+*.bat text eol=crlf
+# Y al reves: los .sh se ejecutan en Linux (o dentro de los contenedores) y con
+# CRLF fallan ("bash\r: No such file or directory"). Git for Windows los
+# convertia a CRLF al clonar (visto con panel_web.sh, 2026-09-24).
+*.sh text eol=lf

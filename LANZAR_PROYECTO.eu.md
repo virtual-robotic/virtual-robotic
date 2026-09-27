@@ -1,6 +1,41 @@
-_Azken aldaketa: 2026-09-21 20:55_
+_Azken aldaketa: 2026-09-26 11:37_
 
-# Proiektua abiarazi
+# Proiektua abiarazi (Linux)
+
+**Linuxerako** gida. Windows-en, ikusi [INSTALAR_WINDOWS.eu.md](INSTALAR_WINDOWS.eu.md).
+
+## Lehenik eta behin: behar dena instalatu
+
+**Linux Mint / Ubuntu 24.04**-n probatua. Hau behar da:
+
+- **Eskaeren webgunea soilik:** Docker (Docker Compose v2-rekin) eta Git.
+- **Robotekin gelaxka:** aurrekoa, gehi mahaigain grafiko bat (SSH bidez
+  sartzea ez da nahikoa), 15 GB inguru disko, 8 GB RAM edo gehiago, eta
+  internet lehen aldian. Txartel grafikoarekin arin dabil; hura gabe
+  `docker-compose.yml`-ko lerro bat (`/dev/dri`) kendu behar da, beherago
+  azaltzen den bezala, eta motelago dabil.
+
+Gainerako guztia (Python, ROS 2, Webots…) Docker barruan doa, ez da
+instalatu behar. Raspberry Pi Pico plakak aukerakoak dira.
+
+```bash
+sudo apt update
+sudo apt install -y git docker.io docker-compose-v2
+sudo apt install -y x11-xserver-utils      # robotekin gelaxkarako bakarrik
+sudo usermod -aG docker $USER              # eta itxi saioa eta sartu berriro
+docker --version && docker compose version # badabilela egiaztatu
+
+git clone https://github.com/virtual-robotic/virtual-robotic.git
+```
+
+**Eskaeren webgunea soilik** ikusteko, nahikoa da:
+
+```bash
+cd virtual-robotic/Taller_Administracion
+docker compose up -d --build               # eta ireki http://localhost:8000
+```
+
+## Abiarazi
 
 Azpiko `cd` guztiak **proiektuaren karpetarekiko erlatiboak** dira
 (`virtual-robotic` klonatuta edo kopiatuta duzun tokia, edo `Robotica`
@@ -430,6 +465,11 @@ arte itxaron):
 ./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
 ```
 
+Lerroek ez dute zertan ordenagailu berean edo sistema berean egon: 2026-09-24an
+lerro bat Windows-en eta bi Linux makina birtual batean aritu ziren aldi berean,
+denak Windows-eko webgunearen kontra (ikusi
+[INSTALAR_WINDOWS.eu.md](INSTALAR_WINDOWS.eu.md), *Kateak beste ordenagailu batzuetan*).
+
 Urratsez urrateko gida osoa (zer egiten duen bakoitzak, gehienez zenbat
 lerro sartzen diren, beste ordenagailu fisiko batean nola abiarazi
 lerro bat)
@@ -439,6 +479,8 @@ dokumentuan.
 ---
 
 ## Zerbait trabatzen bada (kuboak pilatuta uhalean, bi robotak geldi)
+
+_Arazo ezagun gehiago eta haien konponbideak: [PROBLEMAS_CONOCIDOS.eu.md](PROBLEMAS_CONOCIDOS.eu.md)._
 
 Brazo bat kubo zail batekin hainbat saiakeraren ondoren amore ematen
 badu gerta daiteke: 2026-08-31ra arte bere kamera betirako tapatuta

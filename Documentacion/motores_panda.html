@@ -1,0 +1,522 @@
+<!-- Version: 2026-09-18 15:45 -- motores_panda.html (migrado a la paleta y tipografia de marca + migas de pan; quitadas las referencias al UR5e) -->
+<title>Motores del Panda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #eef0e8;
+    --surface: #ffffff;
+    --surface-2: #f4f5ef;
+    --ink: #16211f;
+    --ink-soft: #55655f;
+    --line: rgba(22,33,31,0.14);
+    --line-soft: rgba(22,33,31,0.08);
+    --accent: #a8461f;
+    --accent-ink: #ffffff;
+    --accent-wash: #f7e0d4;
+    --font-display: 'Big Shoulders Display', sans-serif;
+    --font-body: 'Archivo', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --surface: #182322;
+      --surface-2: #1c2827;
+      --ink: #eee7da;
+      --ink-soft: #9fb0ac;
+      --line: rgba(238,231,218,0.14);
+      --line-soft: rgba(238,231,218,0.08);
+      --accent: #c9683c;
+      --accent-ink: #17202b;
+      --accent-wash: #3a2415;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --surface: #182322;
+    --surface-2: #1c2827;
+    --ink: #eee7da;
+    --ink-soft: #9fb0ac;
+    --line: rgba(238,231,218,0.14);
+    --line-soft: rgba(238,231,218,0.08);
+    --accent: #c9683c;
+    --accent-ink: #17202b;
+    --accent-wash: #3a2415;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(40px, 6vw, 64px);
+    letter-spacing: 0.01em;
+    margin: 2px 0 4px;
+    text-wrap: balance;
+  }
+
+  .dek {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 16px;
+    margin: 0;
+  }
+
+  section { margin-top: 44px; }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 26px;
+    letter-spacing: 0.01em;
+    margin: 0 0 14px;
+  }
+
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--ink-soft); text-decoration: none; }
+  .migas a:hover { color: var(--ink); }
+  .migas-sep { color: var(--ink-soft); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent); font-weight: 600; }
+
+  p.lead {
+    max-width: 68ch;
+    font-size: 15.5px;
+    color: var(--ink);
+  }
+
+  code, .mono { font-family: var(--font-mono); }
+
+  /* ---- diagram ---- */
+
+  figure {
+    margin: 24px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 14px;
+  }
+
+  .diagram-scroll { overflow-x: auto; }
+
+  svg.schema {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 720px;
+  }
+
+  figcaption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    max-width: 70ch;
+  }
+
+  /* ---- table ---- */
+
+  .table-wrap { overflow-x: auto; margin-top: 24px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 760px;
+  }
+
+  thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  tbody td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  td.dev { font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+
+  .role { color: var(--ink-soft); font-size: 12.5px; display: block; margin-top: 1px; }
+
+  .flag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--accent-wash);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  tr.highlight td { background: var(--accent-wash); }
+
+  /* ---- notes ---- */
+
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+
+  .note strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  footer code { color: var(--ink); }
+</style>
+
+<main>
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Motores del Panda</span>
+  </nav>
+
+  <header>
+    <span class="eyebrow">Lab.Panda 2.3 · panda_controller · Webots</span>
+    <h1>Motores del Panda</h1>
+    <p class="dek">Los 9 actuadores del Franka Emika Panda tal y como los expone su PROTO en Webots: 7 motores rotativos en el brazo y 2 lineales en la pinza — con los nombres de device reales, no los que se habían asumido antes de verlo en el simulador.</p>
+  </header>
+
+  <section>
+    <h2>Esquema del brazo</h2>
+    <p class="lead">
+      Vista esquemática en la postura de reposo (<code>HOME_POSITIONS</code> en <code>my_robot_driver.py</code>). No representa la orientación real de cada eje — sirve para ubicar cada motor en la cadena, de la base a la pinza.
+    </p>
+
+    <figure>
+      <div class="diagram-scroll">
+        <svg class="schema" viewBox="0 0 1040 600" role="img" aria-label="Cadena cinemática del Panda desde la base hasta la pinza, con los 7 joints del brazo y los 2 motores de los dedos etiquetados por su nombre real de device en Webots, tipo de motor y rango de movimiento.">
+
+          <defs>
+            <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.06" />
+            </pattern>
+          </defs>
+
+          <rect x="0" y="0" width="560" height="600" fill="url(#grid)" />
+
+          <!-- base -->
+          <rect x="60" y="558" width="80" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55" />
+          <text x="100" y="591" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" opacity="0.6">mesa</text>
+
+          <!-- kinematic chain -->
+          <polyline points="100,558 100,490 100,390 155,300 245,250 350,290 440,350 490,400 505,440"
+                     fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+
+          <!-- gripper jaws -->
+          <polyline points="505,440 480,480" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.85" />
+          <polyline points="505,440 532,480" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.85" />
+          <rect x="465" y="478" width="26" height="10" rx="2" fill="currentColor" opacity="0.85" />
+          <rect x="519" y="478" width="26" height="10" rx="2" fill="currentColor" opacity="0.85" />
+
+          <!-- joints -->
+          <g font-family="IBM Plex Mono" font-size="13" font-weight="600">
+            <circle cx="100" cy="490" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="100" y="495" text-anchor="middle">1</text>
+
+            <circle cx="100" cy="390" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="100" y="395" text-anchor="middle">2</text>
+
+            <circle cx="155" cy="300" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="155" y="305" text-anchor="middle">3</text>
+
+            <!-- J4: elbow, highlighted (empirical limit found here) -->
+            <circle cx="245" cy="250" r="18" fill="var(--accent)" stroke="var(--accent)" stroke-width="3" />
+            <text x="245" y="255" text-anchor="middle" fill="var(--accent-ink)">4</text>
+
+            <circle cx="350" cy="290" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="350" y="295" text-anchor="middle">5</text>
+
+            <circle cx="440" cy="350" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="440" y="355" text-anchor="middle">6</text>
+
+            <circle cx="490" cy="400" r="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+            <text x="490" y="405" text-anchor="middle">7</text>
+          </g>
+
+          <!-- elbow callout -->
+          <line x1="263" y1="240" x2="330" y2="150" stroke="var(--accent)" stroke-width="1.5" />
+          <text x="335" y="147" font-family="IBM Plex Mono" font-size="12" fill="var(--accent)">rango sin el 0 →</text>
+          <text x="335" y="163" font-family="IBM Plex Mono" font-size="12" fill="var(--accent)">ver joint4 abajo</text>
+
+          <!-- legend column -->
+          <g font-family="IBM Plex Mono" font-size="12" fill="currentColor">
+            <!-- rows: id, x-line-start(joint), y row -->
+          </g>
+
+          <!-- leader lines + label rows (legend) -->
+          <g stroke="currentColor" stroke-width="1" opacity="0.35">
+            <line x1="115" y1="490" x2="620" y2="46" />
+            <line x1="115" y1="390" x2="620" y2="106" />
+            <line x1="170" y1="300" x2="620" y2="166" />
+            <line x1="263" y1="250" x2="620" y2="226" />
+            <line x1="365" y1="290" x2="620" y2="286" />
+            <line x1="455" y1="350" x2="620" y2="346" />
+            <line x1="505" y1="400" x2="620" y2="406" />
+            <line x1="480" y1="480" x2="620" y2="466" />
+            <line x1="532" y1="480" x2="620" y2="526" />
+          </g>
+
+          <g font-family="IBM Plex Mono">
+            <!-- J1 -->
+            <g transform="translate(620,26)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J1 · panda_joint1</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">cintura · rotativo · ±166°</text>
+            </g>
+            <!-- J2 -->
+            <g transform="translate(620,86)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J2 · panda_joint2</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">hombro · rotativo · ±101°</text>
+            </g>
+            <!-- J3 -->
+            <g transform="translate(620,146)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J3 · panda_joint3</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">brazo superior · rotativo · ±166°</text>
+            </g>
+            <!-- J4 highlighted -->
+            <g transform="translate(620,206)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1.5" />
+              <text x="12" y="19" font-size="13" font-weight="600" fill="var(--accent)">J4 · panda_joint4</text>
+              <text x="12" y="36" font-size="11" fill="var(--accent)">codo · rotativo · -176° a -4° (NO incluye 0)</text>
+            </g>
+            <!-- J5 -->
+            <g transform="translate(620,266)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J5 · panda_joint5</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">antebrazo · rotativo · ±166°</text>
+            </g>
+            <!-- J6 -->
+            <g transform="translate(620,326)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J6 · panda_joint6</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">muñeca · rotativo · -1° a 215°</text>
+            </g>
+            <!-- J7 -->
+            <g transform="translate(620,386)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">J7 · panda_joint7</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">brida · rotativo · ±166°</text>
+            </g>
+            <!-- finger R -->
+            <g transform="translate(620,446)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">panda_finger::right</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">dedo derecho · lineal · 0 – 40 mm</text>
+            </g>
+            <!-- finger L -->
+            <g transform="translate(620,506)">
+              <rect x="0" y="0" width="400" height="50" rx="4" fill="var(--surface-2)" />
+              <text x="12" y="19" font-size="13" font-weight="600">panda_finger::left</text>
+              <text x="12" y="36" font-size="11" opacity="0.65">dedo izquierdo · lineal · 0 – 40 mm</text>
+            </g>
+          </g>
+
+        </svg>
+      </div>
+      <figcaption>Figura 1. Cadena cinemática del Panda, de la base a la pinza. El joint 4 (codo) se destaca porque su rango real no incluye la posición 0 — el driver lo descubrió por un aviso de Webots al arrancar.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Tabla de motores</h2>
+    <p class="lead">Rango oficial de Franka Emika frente al que realmente reporta el PROTO de este proyecto en Webots (leído con <code>motor.getMinPosition()</code> / <code>getMaxPosition()</code>, que es la fuente de verdad, no la tabla del fabricante).</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Joint</th>
+            <th>Device en Webots</th>
+            <th>Tipo</th>
+            <th>Rango oficial Franka</th>
+            <th>Rango en este PROTO</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td class="dev">panda_joint1<span class="role">cintura</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−166° a 166°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="dev">panda_joint2<span class="role">hombro</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−101° a 101°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="dev">panda_joint3<span class="role">brazo superior</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−166° a 166°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr class="highlight">
+            <td class="num">4</td>
+            <td class="dev">panda_joint4<span class="role">codo</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−176° a −4°</td>
+            <td class="num">≈ −176° a −23°</td>
+            <td><span class="flag">confirmado en Webots</span></td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="dev">panda_joint5<span class="role">antebrazo</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−166° a 166°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td class="dev">panda_joint6<span class="role">muñeca</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−1° a 215°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="num">7</td>
+            <td class="dev">panda_joint7<span class="role">brida</span></td>
+            <td>RotationalMotor</td>
+            <td class="num">−166° a 166°</td>
+            <td class="num">— (sin avisos)</td>
+            <td></td>
+          </tr>
+          <tr class="highlight">
+            <td class="num">—</td>
+            <td class="dev">panda_finger::right<span class="role">dedo derecho</span></td>
+            <td>LinearMotor</td>
+            <td class="num">0 – 40 mm</td>
+            <td class="num">0 – 40 mm</td>
+            <td><span class="flag">nombre corregido</span></td>
+          </tr>
+          <tr class="highlight">
+            <td class="num">—</td>
+            <td class="dev">panda_finger::left<span class="role">dedo izquierdo</span></td>
+            <td>LinearMotor</td>
+            <td class="num">0 – 40 mm</td>
+            <td class="num">0 – 40 mm</td>
+            <td><span class="flag">nombre corregido</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Lo que descubrió el driver</h2>
+    <div class="notes">
+      <div class="note">
+        <strong>Codo sin el cero</strong>
+        <code>panda_joint4</code> no puede llegar a 0 rad — el codo del Panda viene "pre-doblado" de fábrica. Arrancar mandando <code>setPosition(0.0)</code> a ciegas disparaba el aviso <code>too big requested position: 0 &gt; -0.4</code>. Se corrigió arrancando en una postura de reposo real (<code>HOME_POSITIONS</code>).
+      </div>
+      <div class="note">
+        <strong>Nombres de los dedos</strong>
+        La convención Franka/MoveIt asume <code>panda_finger_joint1/2</code>, pero el PROTO real de Webots expone <code>panda_finger::right</code> y <code>panda_finger::left</code>. Se vio en el listado de devices que imprime <code>my_robot_driver.py</code> al arrancar — por eso ese listado se deja siempre encendido al arrancar, para no tener que adivinar nombres.
+      </div>
+      <div class="note">
+        <strong>La fuente de verdad es Webots</strong>
+        Los rangos "oficiales" de Franka son un punto de partida, no una garantía. Antes de fiarte de un ángulo, comprueba lo que <code>motor.getMinPosition()</code> / <code>getMaxPosition()</code> reportan realmente en este PROTO — ya se han visto diferencias.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Lab.Panda 2.3 · <code>panda_controller/my_robot_driver.py</code> · Webots R2025a · nombres de device confirmados por enumeración en tiempo de ejecución, no por documentación (GitHub y los docs de Cyberbotics no eran accesibles al construir el proyecto).
+  </footer>
+
+</main>

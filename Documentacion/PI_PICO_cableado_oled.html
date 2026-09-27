@@ -1,0 +1,316 @@
+<!-- Version: 2026-09-18 -- PI_PICO_cableado_oled.html (esquema OLED SSD1306 al Pico del Loader, mismo diseno de marca que PI_PICO_montaje.html) -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pantalla OLED SSD1306 al Pico del Loader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- Tokens (mismos que PI_PICO_montaje.html / landing.html) ---------- */
+  :root {
+    --bg: #eef0e8;
+    --bg-elevated: #ffffff;
+    --bg-elevated-2: #f4f5ef;
+    --fg: #16211f;
+    --fg-muted: #55655f;
+    --accent-brick: #a8461f;
+    --accent-brick-strong: #8c3717;
+    --accent-copper: #b97a34;
+    --accent-water: #2f645f;
+    --line: rgba(22,33,31,0.14);
+    --shadow: rgba(22,33,31,0.10);
+    --hazard: #c9450c;
+    --red: #c8433f;
+    --green: #2f8f5b;
+    --blue: #3572b8;
+    --ground: #6b7480;
+    /* alias que usan los <svg> embebidos, mismo convenio que PI_PICO_montaje.html */
+    --ink: var(--fg);
+    --ink-soft: var(--fg-muted);
+    --muted: var(--fg-muted);
+    --surface: var(--bg-elevated);
+    --surface-2: var(--bg-elevated-2);
+    --accent: var(--accent-brick);
+    --power: var(--accent-water);
+    --wire-a: var(--fg);
+    --wire-b: var(--accent-water);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817;
+      --bg-elevated: #182322;
+      --bg-elevated-2: #1c2827;
+      --fg: #eee7da;
+      --fg-muted: #9fb0ac;
+      --accent-brick: #c9683c;
+      --accent-brick-strong: #e08658;
+      --accent-copper: #d69a55;
+      --accent-water: #5b9a92;
+      --line: rgba(238,231,218,0.14);
+      --shadow: rgba(0,0,0,0.35);
+      --hazard: #ff7a4d;
+      --red: #ef6a66;
+      --green: #5cc98c;
+      --blue: #6fa8dd;
+      --ground: #9aa4b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817;
+    --bg-elevated: #182322;
+    --bg-elevated-2: #1c2827;
+    --fg: #eee7da;
+    --fg-muted: #9fb0ac;
+    --accent-brick: #c9683c;
+    --accent-brick-strong: #e08658;
+    --accent-copper: #d69a55;
+    --accent-water: #5b9a92;
+    --line: rgba(238,231,218,0.14);
+    --shadow: rgba(0,0,0,0.35);
+    --hazard: #ff7a4d;
+    --red: #ef6a66;
+    --green: #5cc98c;
+    --blue: #6fa8dd;
+    --ground: #9aa4b2;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-water); }
+  a:focus-visible { outline: 2px solid var(--accent-copper); outline-offset: 2px; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem) 5rem; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    margin: 0 0 0.9rem;
+  }
+
+  h1 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    text-wrap: balance;
+    line-height: 0.95;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 1rem;
+  }
+
+  .dek { max-width: 68ch; color: var(--fg-muted); font-size: 1.08rem; margin: 0 0 2rem; }
+
+  h2 {
+    font-family: 'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    color: var(--accent-brick);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    line-height: 1;
+    margin: 3rem 0 1rem;
+  }
+  section:first-of-type h2 { margin-top: 0; }
+
+  p { margin: 0 0 1.1rem; }
+  ul { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+  li + li { margin-top: 0.4rem; }
+  code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.1em 0.4em;
+  }
+  strong { font-weight: 700; }
+
+  .callout {
+    display: flex; gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--hazard);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 0 0 1.3rem;
+  }
+  .callout.info { border-left-color: var(--accent-water); }
+  .callout .mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--hazard);
+    color: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 15px;
+  }
+  .callout.info .mark { background: var(--accent-water); }
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  figure { margin: 1.5rem 0; background: var(--bg-elevated); border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; }
+  .diagram-scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 620px; font-family: 'IBM Plex Mono', monospace; }
+  figcaption { font-size: 0.85rem; color: var(--fg-muted); margin-top: 0.8rem; line-height: 1.55; }
+  figcaption code { font-size: 0.85em; }
+
+  .legend { display: flex; gap: 1.3rem; flex-wrap: wrap; margin-top: 0.8rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--fg-muted); }
+  .legend span.swatch { display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; }
+
+  .table-wrap { overflow-x: auto; margin-bottom: 1.3rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); font-weight: 600; }
+  td.mono { font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+
+  footer { margin-top: 3rem; padding-top: 1.3rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--fg-muted); }
+  footer a { color: var(--fg-muted); }
+
+  /* ---------- Migas de pan (mismo patron que manual.html: "Principal ->
+     Como arranca todo -> ...", a peticion del usuario: "respeta en todas
+     las paginas") ---------- */
+  .migas {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.02em;
+    margin: 0 0 1.6rem;
+  }
+  .migas a { color: var(--fg-muted); text-decoration: none; }
+  .migas a:hover { color: var(--fg); }
+  .migas-sep { color: var(--fg-muted); opacity: 0.6; margin: 0 0.35em; }
+  .migas-actual { color: var(--accent-brick); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="migas" aria-label="Ruta">
+    <a href="/">Principal</a>
+    <span class="migas-sep">→</span>
+    <a href="/manual/lanzar">Cómo arranca todo</a>
+    <span class="migas-sep">→</span>
+    <a href="PI_PICO_montaje.html">Montaje de las Pico</a>
+    <span class="migas-sep">→</span>
+    <span class="migas-actual" aria-current="page">Pantalla OLED</span>
+  </nav>
+
+  <p class="eyebrow">Documentación técnica · Lab.Panda 2.4 · Pico del Loader (USB)</p>
+  <h1>Pantalla OLED SSD1306 (128×64)</h1>
+  <p class="dek">Se añade para mostrar en vivo qué producto está procesando el Loader — solo hacen falta 4 cables. Va por <strong>I2C</strong> en <strong>GP4/GP5</strong>, pines libres de esa placa (GP13-21 ya están ocupados por el LED de agarre, el botón de parada, el LED de producto y el HC-SR04 — ver <a href="PI_PICO_montaje.html">montaje general</a>).</p>
+
+  <div class="callout info">
+    <div class="mark">i</div>
+    <p><strong>Sin resistencias.</strong> A diferencia del HC-SR04, el I2C de una SSD1306 ya es a 3,3V y casi todos los breakout traen las resistencias pull-up de SDA/SCL puestas de fábrica — enchufar y ya.</p>
+  </div>
+
+  <div class="callout">
+    <div class="mark">!</div>
+    <p><strong>Usa <code>SoftI2C</code>, no <code>I2C</code>.</strong> Con el I2C por hardware (<code>machine.I2C(0, ...)</code>) este montaje falla: el escaneo encuentra la pantalla en <code>0x3C</code> sin problema, pero cualquier escritura real revienta con <code>OSError: [Errno 5] EIO</code>, tanto a 400&nbsp;kHz como a 100&nbsp;kHz. Las pull-up del módulo se quedan cortas para el I2C por hardware del RP2040. Con <code>machine.SoftI2C</code> (por software, más lento y tolerante) funciona a la primera — y para refrescar un texto de vez en cuando sobra de largo. <strong>El escaneo engaña</strong>: que salga <code>0x3C</code> no significa que el cableado esté bien resuelto, solo que el chip reconoce su dirección.</p>
+  </div>
+
+  <figure>
+    <div class="diagram-scroll">
+      <svg viewBox="0 0 760 340" role="img" aria-label="Esquema: la Pico del Loader se alimenta con su salida de 3V3 hacia el pin VCC de la pantalla OLED, GND con GND, el pin GP4 (SDA) hacia el pin SDA de la OLED y el pin GP5 (SCL) hacia el pin SCL de la OLED. Conexion directa, sin ningun componente intermedio.">
+        <defs>
+          <marker id="arrow-oled" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="currentColor"></path>
+          </marker>
+        </defs>
+
+        <!-- Pico box -->
+        <rect x="40" y="40" width="170" height="260" rx="14" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"></rect>
+        <text x="125" y="68" text-anchor="middle" font-size="14" font-weight="700" fill="currentColor">Pico</text>
+        <text x="125" y="86" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">USB Loader</text>
+
+        <!-- Pico pins -->
+        <line x1="210" y1="100" x2="248" y2="100" stroke="var(--power)" stroke-width="2.4"></line>
+        <text x="205" y="93" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--power)">3V3 (OUT)</text>
+        <text x="205" y="112" text-anchor="end" font-size="10" fill="var(--ink-soft)">pin físico 36</text>
+
+        <line x1="210" y1="160" x2="248" y2="160" stroke="var(--wire-b)" stroke-width="2.4"></line>
+        <text x="205" y="153" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--wire-b)">GP4 · SDA</text>
+        <text x="205" y="172" text-anchor="end" font-size="10" fill="var(--ink-soft)">pin físico 6</text>
+
+        <line x1="210" y1="220" x2="248" y2="220" stroke="var(--accent-copper)" stroke-width="2.4"></line>
+        <text x="205" y="213" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--accent-copper)">GP5 · SCL</text>
+        <text x="205" y="232" text-anchor="end" font-size="10" fill="var(--ink-soft)">pin físico 7</text>
+
+        <line x1="210" y1="280" x2="248" y2="280" stroke="var(--ground)" stroke-width="2.4"></line>
+        <text x="205" y="273" text-anchor="end" font-size="11.5" font-weight="600" fill="var(--ground)">GND</text>
+        <text x="205" y="292" text-anchor="end" font-size="10" fill="var(--ink-soft)">pin físico 3</text>
+
+        <!-- 4 straight wires -->
+        <line x1="248" y1="100" x2="512" y2="100" stroke="var(--power)" stroke-width="2.4" marker-end="url(#arrow-oled)"></line>
+        <line x1="248" y1="160" x2="512" y2="160" stroke="var(--wire-b)" stroke-width="2.4" marker-end="url(#arrow-oled)"></line>
+        <line x1="248" y1="220" x2="512" y2="220" stroke="var(--accent-copper)" stroke-width="2.4" marker-end="url(#arrow-oled)"></line>
+        <line x1="248" y1="280" x2="512" y2="280" stroke="var(--ground)" stroke-width="2.4" marker-end="url(#arrow-oled)"></line>
+
+        <!-- OLED box -->
+        <rect x="512" y="40" width="180" height="260" rx="14" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"></rect>
+        <text x="602" y="68" text-anchor="middle" font-size="14" font-weight="700" fill="currentColor">OLED SSD1306</text>
+        <text x="602" y="86" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">128×64 · I2C</text>
+
+        <!-- OLED pin labels, right of the incoming wire -->
+        <circle cx="512" cy="100" r="3.5" fill="var(--power)"></circle>
+        <text x="522" y="96" font-size="12.5" font-weight="600" fill="var(--power)">VCC</text>
+
+        <circle cx="512" cy="160" r="3.5" fill="var(--wire-b)"></circle>
+        <text x="522" y="156" font-size="12.5" font-weight="600" fill="var(--wire-b)">SDA</text>
+
+        <circle cx="512" cy="220" r="3.5" fill="var(--accent-copper)"></circle>
+        <text x="522" y="216" font-size="12.5" font-weight="600" fill="var(--accent-copper)">SCL</text>
+
+        <circle cx="512" cy="280" r="3.5" fill="var(--ground)"></circle>
+        <text x="522" y="276" font-size="12.5" font-weight="600" fill="var(--ground)">GND</text>
+
+        <text x="602" y="240" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">pull-up de SDA/SCL</text>
+        <text x="602" y="254" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">ya en la placa (normal)</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--power)"></span>3V3 · alimentación</div>
+      <div><span class="swatch" style="background:var(--wire-b)"></span>SDA · datos</div>
+      <div><span class="swatch" style="background:var(--accent-copper)"></span>SCL · reloj</div>
+      <div><span class="swatch" style="background:var(--ground)"></span>GND</div>
+    </div>
+    <figcaption>Conexión directa, sin ningún componente intermedio — a diferencia del HC-SR04, aquí no hace falta divisor de tensión porque tanto la Pico como el módulo OLED trabajan a 3,3V.</figcaption>
+  </figure>
+
+  <section>
+    <h2>Referencia rápida</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pin OLED</th><th>Va a</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">VCC</td><td class="mono">3V3 (OUT) · pin físico 36</td><td>No uses VBUS (5V) — así te quedas en el mismo nivel lógico que los GPIO.</td></tr>
+          <tr><td class="mono">GND</td><td class="mono">GND · pin físico 3</td><td>Vale cualquier GND; el pin 8 queda justo al lado de GP4/GP5 si prefieres acortar cables.</td></tr>
+          <tr><td class="mono">SCL</td><td class="mono">GP5 · SCL · pin físico 7</td><td>Reloj del bus I2C.</td></tr>
+          <tr><td class="mono">SDA</td><td class="mono">GP4 · SDA · pin físico 6</td><td>Datos del bus I2C.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--fg-muted); font-size:0.92rem;">Dirección I2C típica de estos módulos 128×64: <code>0x3C</code> (algún modelo viene a <code>0x3D</code> — se ve con un escaneo I2C si no enciende a la primera).</p>
+  </section>
+
+  <section>
+    <h2>Material</h2>
+    <ul>
+      <li>1× pantalla OLED 0,96&nbsp;pulgadas, 128×64, controlador SSD1306, interfaz I2C (4 pines: VCC/GND/SCL/SDA).</li>
+      <li>4× cable puente macho-macho (o macho-hembra si va directo a los pines de la Pico sin protoboard).</li>
+      <li>Ninguna resistencia adicional — I2C ya viene con pull-ups en el módulo, y no hay diferencia de tensión que salvar.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Firmware: <code>Rasberry_Pi_Pico_USB_Loader/main.py</code> · pendiente de añadir el driver MicroPython
+    (<code>ssd1306.py</code> + inicialización <code>machine.SoftI2C(sda=Pin(4), scl=Pin(5), freq=50000)</code>)
+    para pintar el producto en curso. Ver también <a href="PI_PICO_montaje.html">el montaje completo de las dos Pico</a>.
+  </footer>
+
+</div>
+</body>
+</html>

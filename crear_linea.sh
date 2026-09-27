@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Version: 2026-09-19 18:54 -- genera la version (Ver. AAMM.NNNNN) antes de encender la linea
+# Version: 2026-09-26 11:57 -- Webots solo con la vista 3D (plantilla .wbproj, como en Windows)
 # Hace de un tiron los pasos 1 a 4 de Documentacion/anadir_cadena_produccion.html:
 # copia la plantilla .devcontainer2, le cambia los tres nombres (cajas, red,
 # ROS_DOMAIN_ID) para que no choque con ninguna otra linea, la enciende,
@@ -74,6 +74,7 @@ done
 
 DESTINO="$PANDA_DIR/.devcontainer$N"
 CONTENEDOR="ros2_panda_dev24_linea$N"
+WEBOTS_CONTENEDOR="webots_panda_sim24_linea$N"
 DOMINIO=$((30 + N))
 
 if [ -d "$DESTINO" ]; then
@@ -86,6 +87,9 @@ else
 
   echo "== 1/6 -- Copiando la plantilla a .devcontainer$N =="
   cp -r "$PLANTILLA" "$DESTINO"
+  # Es la prueba de la topologia de Windows solo para la cadena 2 (puerto 1235):
+  # copiada a otra cadena seria un fichero con datos que no le corresponden.
+  rm -f "$DESTINO/docker-compose.windows-sim.yml"
 
   echo "== 2/6 -- Renombrando cajas/red/dominio (linea2 -> linea$N, ROS_DOMAIN_ID 32 -> $DOMINIO) =="
   sed -i -e "s/linea2/linea$N/g" -e "s/ROS_DOMAIN_ID=32/ROS_DOMAIN_ID=$DOMINIO/g" "$DESTINO/docker-compose.yml"
@@ -97,6 +101,15 @@ fi
 "$DIR/generar_version.sh" >/dev/null 2>&1 || echo "(no se pudo generar la version -- el panel pondra 'sin-version')"
 
 echo "== 3/6 -- Encendiendo la linea $N =="
+# Webots solo con la vista 3D (sin arbol de escena, consola ni editor), igual
+# que en Windows (2026-09-26): Webots lee que paneles se ven de
+# worlds/.panda_industrial_cell.wbproj y lo reescribe al salir, asi que se pone
+# la plantilla cada vez. Para ver un panel durante la sesion: menu View.
+# rm antes del cp: Webots (root dentro de Docker) lo reescribe como root al
+# salir y un cp encima fallaba en silencio (visto en la VM, 2026-09-26); la
+# carpeta es nuestra, asi que borrarlo si se puede.
+rm -f "$DIR/Lab.Panda 2.4/worlds/.panda_industrial_cell.wbproj"
+cp "$DIR/Lab.Panda 2.4/worlds/vista_solo_3d.wbproj.plantilla" "$DIR/Lab.Panda 2.4/worlds/.panda_industrial_cell.wbproj" 2>/dev/null || true
 xhost +local:docker >/dev/null 2>&1 || echo "(xhost no disponible -- sigo igualmente, puede que Webots no dibuje si no hay sesion grafica)"
 (cd "$DESTINO" && docker compose up -d --build)
 
@@ -146,6 +159,9 @@ fi
 echo "== 5/6 -- Lanzando la celda completa en segundo plano =="
 
 lanzar_celda() {
+  # Reinicio del contenedor y no un pkill: mata tambien los hijos de un
+  # "ros2 launch" anterior (ver arrancar_todo.sh, 2026-09-24).
+  docker restart "$CONTENEDOR" >/dev/null
   docker exec "$CONTENEDOR" bash -c "rm -f /tmp/robot_launch.log"
   docker exec -d "$CONTENEDOR" bash -c "source /opt/ros/humble/setup.bash && source /workspace/install/setup.bash && cd /workspace && ros2 launch panda_controller robot_launch_industrial_cell.py > /tmp/robot_launch.log 2>&1"
 }
@@ -164,15 +180,36 @@ esperar_controladores() {
   return 1
 }
 
+# Webots escribe "extern controller: Waiting for ... connection" por cada robot
+# <extern> cuando termina de cargar el mundo (6 en la celda). Lanzar los
+# controladores antes les hacia reintentar, dejando una conexion de mas por
+# controlador (visto con crear_linea.sh 3, 2026-09-24). Se cuenta solo desde el
+# ultimo arranque del contenedor, para que no valgan avisos de uno anterior.
+esperar_webots() {
+  local segundos="$1" desde i n
+  desde=$(docker inspect -f '{{.State.StartedAt}}' "$WEBOTS_CONTENEDOR")
+  for i in $(seq 1 "$segundos"); do
+    n=$(docker logs --since "$desde" "$WEBOTS_CONTENEDOR" 2>&1 | grep -c "extern controller: Waiting for" || true)
+    if [ "${n:-0}" -ge 6 ] 2>/dev/null; then
+      echo "Webots ha cargado el mundo (tras ${i}s)."
+      return 0
+    fi
+    sleep 1
+  done
+  echo "AVISO: Webots no ha terminado de cargar en ${segundos}s -- lanzo igualmente."
+}
+
+echo "Esperando a que Webots cargue el mundo (hasta 120s)..."
+esperar_webots 120
 lanzar_celda
 echo "Esperando a que conecten los 6 controladores (hasta 60s)..."
 if ! esperar_controladores 60; then
   # Mismo arreglo conocido que arrancar_todo.sh: Webots a veces se queda
   # colgado cargando el mundo la primera vez que arranca en frio.
   echo "No han conectado en 60s -- probando el arreglo conocido: reiniciar Webots en frio."
-  docker restart "webots_panda_sim24_linea$N" >/dev/null
-  echo "Esperando a que Webots vuelva a arrancar (20s)..."
-  sleep 20
+  docker restart "$WEBOTS_CONTENEDOR" >/dev/null
+  echo "Esperando a que Webots vuelva a cargar el mundo (hasta 120s)..."
+  esperar_webots 120
   lanzar_celda
   echo "Reintentando la espera de los 6 controladores (hasta 60s mas)..."
   if ! esperar_controladores 60; then

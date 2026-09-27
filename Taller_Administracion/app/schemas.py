@@ -1,4 +1,4 @@
-# Version: 2026-09-21 18:22 -- esquemas: codigo de cliente, usuario opcional; precio propio de paquete
+# Version: 2026-09-26 18:40 -- esquemas: permisos por grupo de los empleados
 import datetime
 from typing import Literal, Optional
 
@@ -144,6 +144,8 @@ class UsuarioOut(BaseModel):
     cliente_id: Optional[int] = None
     sucursal: Optional[str] = None
     activo: bool
+    permiso_produccion: bool = False
+    permiso_contabilidad: bool = False
     creado_en: datetime.datetime
 
 
@@ -154,6 +156,8 @@ class UsuarioCreate(BaseModel):
     cliente_id: Optional[int] = None
     sucursal: Optional[str] = None
     password: Optional[str] = None
+    permiso_produccion: bool = False
+    permiso_contabilidad: bool = False
 
 
 class UsuarioUpdate(BaseModel):
@@ -162,6 +166,8 @@ class UsuarioUpdate(BaseModel):
     sucursal: Optional[str] = None
     activo: Optional[bool] = None
     password: Optional[str] = None
+    permiso_produccion: Optional[bool] = None
+    permiso_contabilidad: Optional[bool] = None
 
 
 class LoginRequest(BaseModel):

@@ -5,6 +5,11 @@
     <device reference="overhead_camera_sorter" type="Camera">
       <ros>
         <enabled>true</enabled>
+        <!-- 10 imagenes por segundo de simulacion en vez de una por paso (31): desde
+             Docker Desktop cada imagen viaja por TCP a Webots y frenaba la celda.
+             La vision pide un fotograma nuevo cuando lo necesita (overhead_vision.py
+             _esperar_frame), no usa todos. Prueba 2026-09-25 en Windows. -->
+        <updateRate>10</updateRate>
         <topicName>/overhead_camera_sorter</topicName>
       </ros>
     </device>
