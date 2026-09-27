@@ -15,6 +15,13 @@ a real workshop.
 [![Video: the Loader puts the cubes on the belt and the Sorter picks them up and sorts them by colour](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
 [![Video: both arms working at the same time in the simulation](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
+## Where do I start?
+
+- 👀 **I just want to see it:** open the [project website](https://virtual-robotic.github.io/virtual-robotic/). Nothing to install.
+- 🏭 **I'm interested in how a business works:** orders, warehouse, delivery notes and invoices → [try it in 3 steps](#try-it-in-3-steps-website-only).
+- 🤖 **I like robots:** two Panda arms in Webots + ROS 2, with computer vision → [how to set up the cell](LANZAR_PROYECTO.en.md).
+- 🔌 **I like tinkering with boards:** two Raspberry Pi Pico with LEDs, a sensor and a small screen → [assembly](Documentacion/PI_PICO_montaje.html) (in Spanish).
+
 ## What is here
 
 **1. The robot cell, simulated.** Two robot arms (the Franka Emika Panda

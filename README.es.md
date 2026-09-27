@@ -15,6 +15,13 @@ como si fuera un taller real.
 [![Vídeo: el Loader deja los cubos en la cinta y el Sorter los recoge y los clasifica por color](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
 [![Vídeo: los dos brazos trabajando a la vez en la simulación](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
+## ¿Por dónde empiezo?
+
+- 👀 **Solo quiero verlo:** abre la [web del proyecto](https://virtual-robotic.github.io/virtual-robotic/). No hay que instalar nada.
+- 🏭 **Me interesa cómo funciona una empresa:** pedidos, almacén, albaranes y facturas → [pruébalo en 3 pasos](#probarlo-en-3-pasos-solo-la-web).
+- 🤖 **Me gustan los robots:** dos brazos Panda en Webots + ROS 2, con visión artificial → [cómo se monta la celda](LANZAR_PROYECTO.md).
+- 🔌 **Me gusta cacharrear con placas:** dos Raspberry Pi Pico con LED, sensor y pantallita → [montaje](Documentacion/PI_PICO_montaje.html).
+
 ## Qué hay aquí
 
 **1. La celda de robots, simulada.** Dos brazos robóticos (el modelo

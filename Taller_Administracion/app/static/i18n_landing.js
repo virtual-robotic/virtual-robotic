@@ -102,7 +102,8 @@ window.VR_I18N = {
   "tvideo2": "Both arms working at the same time, recorded in the simulation (Webots).",
   "tplant1": "Word templates to write down your workshop's setup: production lines, computers, products, users and the step-by-step start-up.",
   "tplant2": "📄 Template with a filled-in example",
-  "tplant3": "📄 Blank template to fill in"
+  "tplant3": "📄 Blank template to fill in",
+  "tmenu": "Menu"
  },
  "eu": {
   "t22a830": "2 — Sartu panelean",
@@ -200,7 +201,8 @@ window.VR_I18N = {
   "tvideo2": "Bi besoak aldi berean lanean, simulazioan grabatua (Webots).",
   "tplant1": "Word txantiloiak zure tailerraren konfigurazioa idazteko: kateak, ordenagailuak, produktuak, erabiltzaileak eta abian jartzea urratsez urrats.",
   "tplant2": "📄 Adibide batekin betetako txantiloia",
-  "tplant3": "📄 Betetzeko txantiloi hutsa"
+  "tplant3": "📄 Betetzeko txantiloi hutsa",
+  "tmenu": "Menua"
  }
 };
 (function () {

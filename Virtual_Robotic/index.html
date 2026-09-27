@@ -194,6 +194,30 @@
     font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem;
   }
 
+  /* Menu en el movil (2026-09-27 20:44): los enlaces de secciones no cabian y
+     empujaban el selector de idioma y el boton de entrar fuera de la
+     pantalla. En estrecho se esconden tras un boton que los despliega. */
+  .menu-btn {
+    display: none;
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 0.3rem 0.6rem; font-size: 1.1rem; line-height: 1; cursor: pointer;
+  }
+  @media (max-width: 820px) {
+    .topbar .wrap { gap: 0.6rem; }
+    .menu-btn { display: inline-flex; margin-left: auto; }
+    nav.links {
+      display: none;
+      position: absolute; top: 100%; left: 0; right: 0;
+      flex-direction: column; align-items: flex-start; gap: 0;
+      background: var(--bg); border-bottom: 1px solid var(--line);
+      padding: 0.4rem clamp(1.25rem, 5vw, 3rem) 0.8rem;
+    }
+    .topbar.menu-abierto nav.links { display: flex; }
+    nav.links a { padding: 0.6rem 0; width: 100%; font-size: 0.95rem; }
+  }
+  @media (max-width: 420px) { .brand-word { display: none; } }
+
   /* ---------- Hero (fixed dusk scene, same in both themes) ---------- */
   .hero {
     position: relative;
@@ -413,7 +437,8 @@
       </svg>
       <span class="brand-word">Virtual Robotic</span>
     </a>
-    <nav class="links">
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navLinks" data-i18n-aria-label="tmenu" aria-label="Menú">☰</button>
+    <nav class="links" id="navLinks">
       <a data-i18n="tac6cb6" href="#origen">Origen</a>
       <a data-i18n="t36c58c" href="#servicios">Cómo funciona</a>
       <a data-i18n="t239bcb" href="#tecnico">Cómo está hecho</a>
@@ -747,6 +772,21 @@ docker compose up -d --build</div>
 
   renderAuth();
   window.VR_alCambiarIdioma = renderAuth;
+
+  // Menu del movil: abre/cierra los enlaces de secciones y los recoge al elegir uno.
+  (function () {
+    var bar = document.querySelector('.topbar');
+    var btn = document.getElementById('menuBtn');
+    if (!bar || !btn) return;
+    function poner(abierto) {
+      bar.classList.toggle('menu-abierto', abierto);
+      btn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    }
+    btn.addEventListener('click', function () { poner(!bar.classList.contains('menu-abierto')); });
+    document.querySelectorAll('#navLinks a').forEach(function (a) {
+      a.addEventListener('click', function () { poner(false); });
+    });
+  })();
 
   // Selector de idioma: guarda la preferencia y traduce la pagina (ES/EN/EU) con i18n_landing.js.
   (function inicializarIdioma() {
