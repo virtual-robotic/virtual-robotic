@@ -1,0 +1,52 @@
+# Version: 2026-09-27 20:28 -- publica la portada (Virtual_Robotic) en GitHub Pages
+# Solo lo usa GitHub: en la QNAP (Gitea) no hace nada.
+# Cada vez que se sube algo a main, monta una web con la portada suelta en la
+# raiz. Los enlaces que en el fichero apuntan a ../X.md (para abrirlo desde el
+# disco) o a /manual/... (la portada servida por la web del taller) se cambian
+# por la guia en GitHub, que alli se lee bien; las plantillas Word se copian.
+name: Portada en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Montar la web
+        run: |
+          set -eu
+          G="https://github.com/${GITHUB_REPOSITORY}/blob/main"
+          mkdir -p _site/plantillas
+          cp -r Virtual_Robotic/index.html Virtual_Robotic/i18n_landing.js Virtual_Robotic/img _site/
+          cp Documentacion/Plantillas/*.docx _site/plantillas/
+          for f in _site/index.html _site/i18n_landing.js; do
+            sed -i \
+              -e 's#\.\./Documentacion/Plantillas/#plantillas/#g' \
+              -e "s#\.\./#$G/#g" \
+              -e "s#/manual/lanzar#$G/LANZAR_PROYECTO.md#g" \
+              -e "s#/manual/taller#$G/Taller_Administracion/README.md#g" \
+              -e "s#/manual/panda#$G/Lab.Panda%202.4/resumen_proyecto_panda.md#g" \
+              "$f"
+          done
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: despliegue
+        uses: actions/deploy-pages@v4
