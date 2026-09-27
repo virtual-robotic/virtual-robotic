@@ -300,8 +300,16 @@
   }
   (function inicializarIdioma() {
     var sel = document.getElementById('idiomaSel');
-    var lang = 'es';
-    try { lang = localStorage.getItem('vr_idioma') || 'es'; } catch (e) {}
+    function idiomaNavegador() {
+      // Sin eleccion guardada, el del navegador (2026-09-27): quien llega
+      // de fuera lo ve en ingles sin buscar el selector.
+      var l = ((navigator.languages && navigator.languages[0]) || navigator.language || '').toLowerCase();
+      if (l.indexOf('eu') === 0) return 'eu';
+      if (/^(es|ca|gl)/.test(l)) return 'es';
+      return 'en';
+    }
+    var lang = idiomaNavegador();
+    try { lang = localStorage.getItem('vr_idioma') || lang; } catch (e) {}
     if (!{es: 1, en: 1, eu: 1}[lang]) lang = 'es';
     sel.value = lang;
     aplicarIdioma(lang);
