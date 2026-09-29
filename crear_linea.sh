@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Version: 2026-09-26 11:57 -- Webots solo con la vista 3D (plantilla .wbproj, como en Windows)
+# Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: Webots solo con la vista 3D (plantilla .wbproj, como en Windows)
 # Hace de un tiron los pasos 1 a 4 de Documentacion/anadir_cadena_produccion.html:
 # copia la plantilla .devcontainer2, le cambia los tres nombres (cajas, red,
 # ROS_DOMAIN_ID) para que no choque con ninguna otra linea, la enciende,
@@ -24,7 +24,7 @@
 #   url_taller_administracion   Opcional. Solo hace falta si esta linea vive en
 #                               OTRO ordenador distinto del que tiene Taller_Administracion
 #                               (ver "otro ordenador fisico" en anadir_cadena_produccion.html).
-#                               P.ej. http://192.168.1.XXX:8000
+#                               P.ej. http://IP_DEL_PRINCIPAL:8000
 #   grupo_cadena                Opcional, 0 a 99.
 #
 # Al final abre el panel de control (ventana interactiva, en primer plano) --
@@ -42,8 +42,8 @@ Uso: $(basename "$0") <N> [numero_maquina] [url_taller_administracion] [grupo_ca
 Ejemplos:
   $(basename "$0") 3
   $(basename "$0") 3 3
-  $(basename "$0") 3 3 http://192.168.1.XXX:8000
-  $(basename "$0") 3 3 http://192.168.1.XXX:8000 0
+  $(basename "$0") 3 3 http://IP_DEL_PRINCIPAL:8000
+  $(basename "$0") 3 3 http://IP_DEL_PRINCIPAL:8000 0
 EOF
 }
 

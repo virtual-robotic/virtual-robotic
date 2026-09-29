@@ -1,4 +1,4 @@
-<!-- Version: 2026-09-20 11:25 -- manual_tecnico.html (barrido periodico de stock parado) -->
+<!-- Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: manual_tecnico.html (quitadas de la tabla las demos antiguas de un robot) -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -379,12 +379,11 @@ networks:
 <tr><td><code>sorter_demo</code></td><td><code>/sorter</code></td><td>Producción real: recoge lo que llega a la cinta y lo clasifica por color, avisa a <code>Taller_Administracion</code>.</td></tr>
 <tr><td><code>cube_shuttle_demo</code></td><td>—</td><td>Demo de pick-and-place cíclico de un solo brazo (heredado de la fase de un robot).</td></tr>
 <tr><td><code>teleop_gui</code></td><td>—</td><td>Panel de control Tkinter completo: jog manual, selector Loader/Sorter, STOP/REARME, lanzar producción. Ver Manual de Usuario Avanzado.</td></tr>
-<tr><td><code>teleop_manual</code></td><td>—</td><td>Jog manual por teclado en terminal (raw termios) — herramienta de desarrollo, no forma parte del flujo normal.</td></tr>
 <tr><td><code>led_publisher</code></td><td>—</td><td>Puente <code>/comando_led</code> → Pico W del Sorter (TCP, puerto 5001).</td></tr>
 <tr><td><code>led_publisher_usb</code></td><td>—</td><td>Puente <code>/comando_led_loader</code> + <code>/comando_led_producto</code> → Pico USB del Loader (serie), y lee el aviso de botón de parada de esa Pico.</td></tr>
 <tr><td><code>button_listener</code></td><td>—</td><td>Servidor TCP puerto 5002: recibe "STOP" de la Pico W del Sorter y publica <code>/emergency_stop</code>.</td></tr>
 <tr><td><code>estop_panel</code></td><td>—</td><td>Ventana Tkinter reducida, solo STOP/REARME — redundante si se usa <code>teleop_gui</code>.</td></tr>
-<tr><td><code>vision_lift_cube</code>, <code>best_color_repeat_lift</code>, <code>pick_and_place</code>, <code>visit_balls</code>, <code>move_above_ball</code>, <code>lift_ball</code>, <code>stack_tower_demo</code>, <code>grasp_yaw_test</code>, <code>sorter_hover_test</code></td><td>—</td><td>Herramientas de desarrollo / demos del proyecto de un solo robot anterior a la celda de dos brazos. No forman parte del arranque normal (ver Apéndice de <code>LANZAR_PROYECTO.md</code>).</td></tr>
+<tr><td><code>stack_tower_demo</code>, <code>grasp_yaw_test</code>, <code>sorter_hover_test</code></td><td>—</td><td>Herramientas de desarrollo / demos del proyecto de un solo robot anterior a la celda de dos brazos. No forman parte del arranque normal (ver Apéndice de <code>LANZAR_PROYECTO.md</code>).</td></tr>
 </table>
 
 <h3>5.5 Cinemática: ikpy + URDF real exportado de Webots</h3>
@@ -793,7 +792,7 @@ docker compose up -d --build</pre>
 
   <rect x="30" y="50" width="150" height="60" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>
   <text x="105" y="70" text-anchor="middle" font-size="10.5" font-weight="700">Pico W · Sorter</text>
-  <text x="105" y="84" text-anchor="middle" font-size="9" fill="#5b6472">192.168.1.101</text>
+  <text x="105" y="84" text-anchor="middle" font-size="9" fill="#5b6472">IP_DE_LA_PICO</text>
   <text x="105" y="96" text-anchor="middle" font-size="9" fill="#5b6472">escucha :5001</text>
 
   <rect x="30" y="160" width="150" height="70" rx="6" fill="#fff" stroke="#5b6472" stroke-dasharray="3 2"/>

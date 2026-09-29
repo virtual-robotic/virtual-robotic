@@ -1,4 +1,4 @@
-# Version: 2026-09-26 20:32 -- URL de Taller_Administracion en el panel de cada cadena de otro ordenador. Antes: 2026-09-26 20:17 -- paso E: explica por que las cadenas de otro ordenador llevan la IP de la principal (nota del usuario). Antes: 2026-09-26 19:52 -- ejemplo = nuestra instalacion (cadenas 1-2 en VM principal, 3-4 en el clon) y como poner el nombre de la cadena en el panel. Antes: 2026-09-26 19:46 -- apartado 9 reordenado (descargar antes de arrancar) y el principal puede ser una VM. Antes: 2026-09-26 19:45 -- anade el apartado 9 "Puesta en marcha, paso a paso" (principal primero, VM clonada, errores vistos). Antes: 2026-09-26 19:04 -- anade Ordenadores y "Donde arranca cada cadena" (cadenas en otro PC/VM). Antes: 2026-09-26 18:50 -- genera las plantillas de configuracion del taller (ejemplo y vacia). Necesita python-docx: python3 generar_plantillas.py <carpeta>
+# Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: IP del clon .132 -> .133 (la real hoy). Antes: 2026-09-26 20:32 -- URL de Taller_Administracion en el panel de cada cadena de otro ordenador. Antes: 2026-09-26 20:17 -- paso E: explica por que las cadenas de otro ordenador llevan la IP de la principal (nota del usuario). Antes: 2026-09-26 19:52 -- ejemplo = nuestra instalacion (cadenas 1-2 en VM principal, 3-4 en el clon) y como poner el nombre de la cadena en el panel. Antes: 2026-09-26 19:46 -- apartado 9 reordenado (descargar antes de arrancar) y el principal puede ser una VM. Antes: 2026-09-26 19:45 -- anade el apartado 9 "Puesta en marcha, paso a paso" (principal primero, VM clonada, errores vistos). Antes: 2026-09-26 19:04 -- anade Ordenadores y "Donde arranca cada cadena" (cadenas en otro PC/VM). Antes: 2026-09-26 18:50 -- genera las plantillas de configuracion del taller (ejemplo y vacia). Necesita python-docx: python3 generar_plantillas.py <carpeta>
 """Genera las dos plantillas de configuracion del taller (ejemplo y vacia) con el mismo diseno."""
 import sys
 from pathlib import Path
@@ -205,20 +205,20 @@ def titulo_seccion(doc, numero, nombre, explicacion, donde):
 EJ = {
     "empresa": "Taller de ejemplo S.L.",
     "fecha": "26/09/2026",
-    "autor": "Persona responsable del taller",
+    "autor": "Jesús (responsable del taller)",
     "grupos": [
         ["60", "Tornillería", "Tornillos, Tuercas, Arandelas", "Cadenas 2, 3 y 4"],
         ["80", "Clavos", "Clavos", "Cadena 1"],
     ],
     "ordenadores": [
-        ["VM-Principal", "Linux en VirtualBox", "192.168.1.10", "Sí", "1 y 2"],
-        ["VM-Cadenas2 (vm-cadenas2)", "Linux en VirtualBox, clon de la principal", "192.168.1.11", "No", "3 y 4"],
+        ["VM-Principal", "Linux en VirtualBox", "IP_DEL_PRINCIPAL", "Sí", "1 y 2"],
+        ["VM-Cadenas2 (vm-cadenas2)", "Linux en VirtualBox, clon de la principal", "IP_DEL_CLON", "No", "3 y 4"],
     ],
     "donde": [
         ["Cadena 1", "VM-Principal", "1", "(la tiene al lado)", "./arrancar_todo.sh   (arranca también la web)"],
         ["Cadena 2", "VM-Principal", "3", "(la tiene al lado)", './crear_linea.sh 3 2 "" 60'],
-        ["Cadena 3", "VM-Cadenas2", "3", "http://192.168.1.10:8000", "./crear_linea.sh 3 3 http://192.168.1.10:8000 60"],
-        ["Cadena 4", "VM-Cadenas2", "4", "http://192.168.1.10:8000", "./crear_linea.sh 4 4 http://192.168.1.10:8000 60"],
+        ["Cadena 3", "VM-Cadenas2", "3", "http://IP_DEL_PRINCIPAL:8000", "./crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 60"],
+        ["Cadena 4", "VM-Cadenas2", "4", "http://IP_DEL_PRINCIPAL:8000", "./crear_linea.sh 4 4 http://IP_DEL_PRINCIPAL:8000 60"],
     ],
     "cadenas": [
         ["Cadena 1", "Clavos 1", "1", "80", "Solo clavos", "No", "En la VM principal"],
@@ -251,7 +251,7 @@ EJ = {
         ["jefe-taller", "Ana López", "Sí", "No", "Ve pedidos y producción"],
         ["operario1", "Mikel Etxebarria", "Sí", "No", ""],
         ["administracion", "Laura Gómez", "No", "Sí", "Albaranes, facturas y clientes"],
-        ["gerente", "Nombre Apellido", "Sí", "Sí", "Ve todo"],
+        ["gerente", "Jesús", "Sí", "Sí", "Ve todo"],
     ],
 }
 
@@ -398,7 +398,7 @@ def generar(ruta: Path, ejemplo: bool):
          (": elige el número en cada lista y pulsa su Guardar. Cada campo tiene el suyo.", False)),
         (("Justo debajo está ", False), ("«URL de Taller_Administracion»", True),
          (": si la cadena funciona en otro ordenador que la web, escribe la dirección de la web del principal "
-          f"(http://{'192.168.1.10' if d else 'IP_DEL_PRINCIPAL'}:8000) y pulsa su Guardar. Si está en el mismo "
+          f"(http://{'IP_DEL_PRINCIPAL' if d else 'IP_DEL_PRINCIPAL'}:8000) y pulsa su Guardar. Si está en el mismo "
           "ordenador que la web, déjalo vacío.", False)),
         (("Vuelve a bloquear la pestaña al terminar.", False),),
     ):
@@ -477,7 +477,7 @@ def generar(ruta: Path, ejemplo: bool):
     tabla(doc, ["Código", "Color", "Cubo en la simulación"], [2.4, 4.0, 5.0], COLORES, centrar=(0,))
 
     # 9. puesta en marcha
-    ip = "192.168.1.10" if d else "IP_DEL_PRINCIPAL"
+    ip = "IP_DEL_PRINCIPAL" if d else "IP_DEL_PRINCIPAL"
     titulo_seccion(doc, 9, "Puesta en marcha, paso a paso",
                    "El principal puede ser un PC o una máquina virtual: es el que lleva la web del taller. "
                    "El orden importa: primero se arranca el principal y después los demás, que se conectan a su web.",
@@ -495,6 +495,8 @@ def generar(ruta: Path, ejemplo: bool):
     codigo(doc, ["su - aladin"])
     paso(doc, "C", "En cada ordenador: descargar el proyecto (solo la primera vez)")
     codigo(doc, ["cd ~/Carga",
+                 "git clone http://IP_DE_LA_QNAP:3000/Virtual-Robotic/robotica.git robotica",
+                 "#   o, si la QNAP está apagada:",
                  "git clone https://github.com/virtual-robotic/virtual-robotic.git robotica",
                  "cd robotica"])
     paso(doc, "D", "En el principal: arrancar todo",

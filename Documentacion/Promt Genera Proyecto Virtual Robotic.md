@@ -1,4 +1,4 @@
-_Última modificación: 2026-09-27 18:13_
+_Última modificación: 2026-09-29 14:38_
 
 # Prompt para generar el proyecto Virtual Robotic desde cero
 
@@ -251,7 +251,7 @@ Flujo de producción:
 ```
                               ┌──────────────── PC anfitrión (Linux con X11) ───────────────────┐
  Pico W (Sorter) ── Wi-Fi ────┼──► :5002 button_listener (dentro de ros2_panda_dev24)          │
- 192.168.1.101:5001 ◄─────────┼─── led_publisher (TCP, una conexión por comando)               │
+ IP_DE_LA_PICO:5001 ◄─────────┼─── led_publisher (TCP, una conexión por comando)               │
  Pico (Loader) ──── USB ──────┼──► /dev/ttyACM_LOADER ◄─► led_publisher_usb (serie 115200)     │
                               │                                                                  │
                               │  ┌── red docker "panda_ros_net" (ROS_DOMAIN_ID=31) ─────────┐   │
@@ -425,7 +425,7 @@ aunque los modelos 3D del mundo vengan de la rama R2023b (ver sección B).
 | Web | `http://localhost:8000` | Desde el móvil: `http://<IP-del-PC>:8000` |
 | Web vista desde el contenedor ROS | `http://taller_host:8000` | `taller_host` = `host-gateway` |
 | Webots visto desde el contenedor ROS | `host.docker.internal` | En Linux es un **alias de red** del contenedor de Webots; en Windows apunta al propio Windows. **No confundir con `taller_host`** |
-| Pico W (Sorter) | `192.168.1.101:5001` (ejemplo, se cambia en el panel) | Servidor TCP de LED |
+| Pico W (Sorter) | `IP_DE_LA_PICO:5001` (ejemplo, se cambia en el panel) | Servidor TCP de LED |
 | Aviso del botón de la Pico W | puerto **5002** del PC | Lo escucha `button_listener`; publicado solo por la línea 1 |
 | Panel en el navegador (Windows) | `http://localhost:6080/vnc.html` (línea N: `6079+N`) | noVNC |
 
@@ -1927,7 +1927,7 @@ PICOS = {
                   'defecto': '/dev/ttyACM_LOADER'},
   'sorter_wifi': {'nombre': 'Pico W del Sorter (Wi-Fi: LED)', 'corto': 'Sorter Wi-Fi',
                   'ejecutable': 'led_publisher', 'param': 'pico_ip', 'etiqueta_param': 'IP de la Pico:',
-                  'defecto': '192.168.1.101'},
+                  'defecto': 'IP_DE_LA_PICO'},
 }
 ```
 
@@ -2301,7 +2301,7 @@ petición de reset de clave cada 300 ms. Cada clic se apunta en el log como
 ### C.15 Puentes con el hardware
 
 **`led_publisher.py`** (Pico W del Sorter). Nodo `led_publisher`. Parámetros
-`pico_ip` (`192.168.1.101`), `pico_port` (5001), `socket_timeout` (2.0).
+`pico_ip` (`IP_DE_LA_PICO`), `pico_port` (5001), `socket_timeout` (2.0).
 Escucha `/comando_led`. **Una conexión TCP por comando** (conectar, enviar,
 cerrar). Traducción (en minúsculas): `r|rojo|red → R`, `g|verde|green → G`,
 `b|azul|blue → B`, `0|apagar|off → 0`, `rearme|rearm → REARME`,

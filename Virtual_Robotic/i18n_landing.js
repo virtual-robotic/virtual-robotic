@@ -1,4 +1,4 @@
-// Version: 2026-09-27 18:41 -- textos de las plantillas Word en EN y EU
+// Version: 2026-09-29 11:50 -- el robot de madera de los 80 en Origen
 // Traducciones de la landing (ES es el texto de la propia pagina; aqui EN y EU). Generado el 2026-09-21.
 // Cada elemento marcado con data-i18n="clave" (o data-i18n-alt / -title / -aria-label) se cambia al elegir idioma.
 // El euskera esta escrito a mano y agradece revision de un hablante nativo.
@@ -7,6 +7,9 @@
 // Las dos copias (Taller_Administracion/app/static y Virtual_Robotic) deben ser iguales.
 window.VR_I18N = {
  "en": {
+  "t80rob": "And the hobby goes back a long way. In the mid-1980s, with no internet and the MicroHobby magazine as a manual, the same hobbyist built a <strong>wooden arm</strong> with motors taken from cassette players, moved by strings and pulleys and controlled by a <strong>ZX Spectrum 48K</strong> through the parallel port, programmed in FORTH. In 2016 came a second attempt with Arduino and servos. This project is the third round of that same hobby.",
+  "t80cap": "The first robot, mid-1980s: wood, cassette-player motors and a Spectrum 48K.",
+  "t80alt": "Wooden robotic arm from the 1980s, with strings, pulleys and wires in plain sight.",
   "t22a830": "2 — Sign in to the panel",
   "t225062": "If you are seeing this page it is because the orders panel is already running — press \"Sign in\" above with <strong>admin</strong> / <strong>admin</strong> and you go straight into the system. If you want to set it up yourself from scratch on your own computer:",
   "t60d2bc": "<strong>The cell with the robots</strong> (Webots + ROS&nbsp;2): in addition a graphical desktop with X11 and the <code>xhost</code> command, about <strong>15&nbsp;GB of free disk</strong>, <strong>8&nbsp;GB of RAM</strong> or more and internet the first time (it downloads Webots and its textures). With a graphics card it runs smoothly; without one you have to comment out a line in <code>docker-compose.yml</code> and it is slower.",
@@ -106,6 +109,9 @@ window.VR_I18N = {
   "tmenu": "Menu"
  },
  "eu": {
+  "t80rob": "Eta zaletasuna urrutitik dator. 80ko hamarkadaren erdialdean, internetik gabe eta MicroHobby aldizkaria eskuliburu gisa hartuta, zaletu berak <strong>egurrezko beso bat</strong> eraiki zuen, kasete-irratietako motorrekin, hari eta txirrikekin mugitua eta <strong>ZX Spectrum 48K</strong> batek portu paraleloaren bidez kontrolatua, FORTH lengoaian programatuta. 2016an bigarren saiakera etorri zen, Arduino eta serboekin. Proiektu hau zaletasun beraren hirugarren itzulia da.",
+  "t80cap": "Lehen robota, 80ko hamarkadaren erdialdekoa: egurra, kasete-irratietako motorrak eta Spectrum 48K bat.",
+  "t80alt": "80ko hamarkadako egurrezko beso robotikoa, hariak, txirrikak eta kableak agerian dituela.",
   "t22a830": "2 — Sartu panelean",
   "t225062": "Orri hau ikusten ari bazara, eskaeren panela martxan dagoelako da — sakatu goiko \"Sartu\" botoia <strong>admin</strong> / <strong>admin</strong> erabiliz eta zuzenean sisteman sartuko zara. Zeure ordenagailuan hutsetik jarri nahi baduzu:",
   "t60d2bc": "<strong>Robotekin gelaxka</strong> (Webots + ROS&nbsp;2): horrez gain, X11 duen mahaigain grafikoa eta <code>xhost</code> agindua, <strong>15&nbsp;GB disko</strong> libre inguru, <strong>8&nbsp;GB RAM</strong> edo gehiago eta internet lehen aldian (Webots eta bere testurak deskargatzen ditu). Txartel grafikoarekin arin dabil; gabe, <code>docker-compose.yml</code> fitxategiko lerro bat komentatu behar da eta motelago dabil.",

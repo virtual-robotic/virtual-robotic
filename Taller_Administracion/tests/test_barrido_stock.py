@@ -4,7 +4,7 @@
 from app.database import SessionLocal
 from app.main import barrer_stock
 
-from .conftest import auth
+from .conftest import sub_de_producto, sub_id, auth
 from .test_almacen import _preparar_pedido
 from .test_paquete_un_albaran import _albaranes, _cliente_con_todo, _paquete, _pedir, _piezas
 
@@ -28,7 +28,7 @@ def _config(client, admin_headers, **kw):
 def _stock_huerfano(client, admin_headers, producto_id, n):
     """Stock que entra SIN asignarse a ningun pedido (ajuste manual: no dispara la asignacion)."""
     assert client.post("/almacen/ajustar", headers=admin_headers,
-                       json={"producto_id": producto_id, "cantidad": n}).status_code == 200
+                       json={"subproducto_id": sub_de_producto(producto_id), "cantidad": n}).status_code == 200
 
 
 def test_el_caso_del_9_de_10_la_pieza_que_faltaba_esta_en_el_almacen(client, admin_headers):
@@ -48,7 +48,7 @@ def test_una_pieza_de_otra_maquina_no_completa_el_pedido_al_llegar_pero_el_barri
     """La regla del 2026-09-14 sigue valiendo AL LLEGAR la pieza; el barrido solo actua cuando el stock cubre el pedido entero."""
     ctx = _preparar_pedido(client, admin_headers, cantidad=1)
     client.post(f"/pedidos/{ctx['pedido']['id']}/reclamar", headers=admin_headers, json={"numero_maquina": 10, "forzar": True})
-    r = client.post("/taller/cubo_clasificado", json={"color": "R", "numero_maquina": 20})
+    r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "numero_maquina": 20})
     assert r.json()["pedido"] is None and r.json()["stock_actual"] == 1     # al llegar: al almacen
     assert _pedido(client, admin_headers, ctx["pedido"]["id"])["estado"] == "pendiente"
     assert _barrer() == [ctx["pedido"]["id"]]                                # el barrido, despues, lo cierra

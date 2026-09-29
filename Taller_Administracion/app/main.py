@@ -1,4 +1,4 @@
-# Version: 2026-09-27 18:35 -- descarga de las plantillas Word (/plantillas). Antes: Taller_Administracion API (empleados con permiso por grupo: Produccion/Contabilidad)
+# Version: 2026-09-28 20:40 -- stock, reparto y piezas por SUBPRODUCTO (10mm y 20mm son piezas distintas). Antes: descarga de las plantillas Word (/plantillas). Antes: Taller_Administracion API (empleados con permiso por grupo: Produccion/Contabilidad)
 import asyncio
 import datetime
 import logging
@@ -285,10 +285,19 @@ async def _sin_cache_en_static(request, call_next):
     return respuesta
 
 
+def _stock_variante(db: Session, subproducto_id: int, crear: bool = False):
+    """Fila de stock de una variante (pieza distinta, 2026-09-28). Con crear, la crea a 0 si falta."""
+    fila = db.query(models.StockSubproducto).filter_by(subproducto_id=subproducto_id).first()
+    if fila is None and crear:
+        fila = models.StockSubproducto(subproducto_id=subproducto_id, cantidad_actual=0)
+        db.add(fila)
+        db.flush()
+    return fila
+
+
 def _servir_desde_stock(db: Session, pedido: models.Pedido) -> None:
-    stock_row = (
-        db.query(models.Stock).filter(models.Stock.producto_id == pedido.producto_id).first()
-    )
+    """Asigna al pedido stock libre de SU variante; nunca de otra del mismo producto."""
+    stock_row = _stock_variante(db, pedido.subproducto_id)
     if stock_row is None or stock_row.cantidad_actual <= 0:
         return
     restante = pedido.cantidad_pedida - pedido.cantidad_completada
@@ -304,6 +313,7 @@ def _servir_desde_stock(db: Session, pedido: models.Pedido) -> None:
     db.add(
         models.MovimientoStock(
             producto_id=pedido.producto_id,
+            subproducto_id=pedido.subproducto_id,
             tipo="salida",
             cantidad=servir,
             motivo=MOTIVO_ASIGNACION,
@@ -317,17 +327,16 @@ def _servir_desde_stock(db: Session, pedido: models.Pedido) -> None:
 def _con_stock_disponible(
     db: Session, pedidos: list[models.Pedido]
 ) -> list[models.Pedido]:
-    """Rellena stock_disponible simulando el reparto FIFO real, sin tocar la base."""
-    productos_ids = {p.producto_id for p in pedidos}
+    """Rellena stock_disponible simulando el reparto FIFO real, sin tocar la base.
+    Por variante: el stock de una solo cubre pedidos de esa misma variante."""
+    subproductos_ids = {p.subproducto_id for p in pedidos}
     asignado_por_pedido: dict[int, int] = {}
-    for producto_id in productos_ids:
-        stock_row = (
-            db.query(models.Stock).filter(models.Stock.producto_id == producto_id).first()
-        )
+    for subproducto_id in subproductos_ids:
+        stock_row = _stock_variante(db, subproducto_id)
         disponible = stock_row.cantidad_actual if stock_row else 0
         activos = (
             db.query(models.Pedido)
-            .filter(models.Pedido.producto_id == producto_id)
+            .filter(models.Pedido.subproducto_id == subproducto_id)
             .filter(models.Pedido.estado.notin_(ESTADOS_NO_ASIGNABLES))
             .all()
         )
@@ -537,10 +546,10 @@ def barrer_stock(db: Session) -> list[models.Pedido]:
     if not (config and config.reparto_automatico):
         return []
     asignados: list[models.Pedido] = []
-    for stock_row in db.query(models.Stock).filter(models.Stock.cantidad_actual > 0).all():
+    for stock_row in db.query(models.StockSubproducto).filter(models.StockSubproducto.cantidad_actual > 0).all():
         pedidos = (
             db.query(models.Pedido)
-            .filter(models.Pedido.producto_id == stock_row.producto_id)
+            .filter(models.Pedido.subproducto_id == stock_row.subproducto_id)
             .filter(models.Pedido.estado.notin_(ESTADOS_NO_ASIGNABLES))
             .order_by(models.Pedido.urgente.desc(), models.Pedido.creado_en.asc(), models.Pedido.id.asc())
             .all()
@@ -703,6 +712,7 @@ def sembrar_datos() -> None:
                         paquete_id=paquete.id, subproducto_id=sub.id, cantidad=cantidad,
                     ))
             db.commit()
+        _pasar_stock_antiguo_de_una_variante(db)
         if db.query(models.Cliente).count() == 0:
             datos_arranque.cargar(db, _clientes_iniciales(), auth.hash_password(PASSWORD_INICIAL))
         # Clientes de bases anteriores a los codigos: se les da uno (sin renombrar a sus usuarios).
@@ -1648,9 +1658,9 @@ def _crear_pedido_de_subproducto(
     reprocesar_pedido el pedido nuevo tiene que seguir siendo del cliente
     y usuario ORIGINALES aunque lo reprocese un administrador.
     producto_id se guarda DESNORMALIZADO desde subproducto.producto_id a
-    proposito -- ver Pedido en models.py: el motor de reparto
-    (_servir_desde_stock, cubo_clasificado...) sigue trabajando por
-    producto_id sin cambios."""
+    proposito -- ver Pedido en models.py. El reparto (_servir_desde_stock,
+    cubo_clasificado...) trabaja por subproducto_id desde 2026-09-28: cada
+    variante es una pieza distinta."""
     producto = subproducto.producto
     precio, origen_precio = contabilidad.precio_para(db, cliente_id, subproducto)
     iva = subproducto.iva_porcentaje
@@ -2086,13 +2096,24 @@ def cubo_clasificado(payload: schemas.CuboClasificado, db: Session = Depends(get
     # Resolucion del producto (sesion 2026-09-15, peticion explicita del
     # usuario: el LED no puede ser un requisito para que esto funcione).
     # Prioridad: pedido_id (el pedido YA dice de que producto es) >
-    # producto_id (el llamante ya lo identifico) > color/LED (compatibilidad
-    # con llamadas que no conocen todavia el producto exacto).
+    # subproducto_id > producto_id (el llamante ya lo identifico) > color/LED
+    # (compatibilidad con llamadas que no conocen todavia el producto exacto).
+    # Y la VARIANTE (2026-09-28): cada subproducto es una pieza distinta, asi
+    # que la pieza entra en el stock de SU variante y solo va a pedidos de
+    # ella. Si no se puede saber (producto con varias, sin pedido ni
+    # subproducto), va al stock antiguo sin variante: nunca se adivina.
     producto = None
+    subproducto = None
     if payload.pedido_id is not None:
         pedido_ref = db.query(models.Pedido).filter(models.Pedido.id == payload.pedido_id).first()
         if pedido_ref is not None:
-            producto = db.query(models.Producto).filter(models.Producto.id == pedido_ref.producto_id).first()
+            subproducto = pedido_ref.subproducto
+            producto = subproducto.producto
+    if subproducto is None and payload.subproducto_id is not None:
+        subproducto = db.query(models.Subproducto).filter(models.Subproducto.id == payload.subproducto_id).first()
+        if subproducto is None:
+            raise HTTPException(404, f"No existe el subproducto {payload.subproducto_id}.")
+        producto = subproducto.producto
     if producto is None and payload.producto_id is not None:
         producto = db.query(models.Producto).filter(models.Producto.id == payload.producto_id).first()
     if producto is None:
@@ -2104,17 +2125,34 @@ def cubo_clasificado(payload: schemas.CuboClasificado, db: Session = Depends(get
         producto = db.query(models.Producto).filter(models.Producto.id_led == color_row.id).first()
     if producto is None:
         raise HTTPException(404, f"No hay producto para el color '{color}'.")
+    if subproducto is None:
+        activos = [sp for sp in producto.subproductos if sp.activo]
+        if len(activos) == 1:
+            subproducto = activos[0]
 
-    stock_row = db.query(models.Stock).filter_by(producto_id=producto.id).first()
-    if stock_row is None:
-        stock_row = models.Stock(producto_id=producto.id, cantidad_actual=0)
-        db.add(stock_row)
-        db.flush()
+    if subproducto is None:
+        antiguo = db.query(models.Stock).filter_by(producto_id=producto.id).first()
+        if antiguo is None:
+            antiguo = models.Stock(producto_id=producto.id, cantidad_actual=0)
+            db.add(antiguo)
+            db.flush()
+        antiguo.cantidad_actual += 1
+        antiguo.actualizado_en = datetime.datetime.utcnow()
+        db.add(models.MovimientoStock(
+            producto_id=producto.id, tipo="entrada", cantidad=1, motivo="produccion_sin_variante"))
+        db.commit()
+        log_barrido.warning(
+            "pieza de %s sin variante conocida: queda en el stock antiguo (Almacen > Pasar a variante)",
+            producto.nombre)
+        return schemas.CuboClasificadoResultado(color=color, stock_actual=0, pedido=None)
+
+    stock_row = _stock_variante(db, subproducto.id, crear=True)
     stock_row.cantidad_actual += 1
     stock_row.actualizado_en = datetime.datetime.utcnow()
     db.add(
         models.MovimientoStock(
-            producto_id=producto.id, tipo="entrada", cantidad=1, motivo="produccion"
+            producto_id=producto.id, subproducto_id=subproducto.id,
+            tipo="entrada", cantidad=1, motivo="produccion"
         )
     )
     db.commit()
@@ -2136,7 +2174,7 @@ def cubo_clasificado(payload: schemas.CuboClasificado, db: Session = Depends(get
             candidato = _pedidos_de_quien_fabrica(
                 db.query(models.Pedido)
                 .filter(models.Pedido.id == payload.pedido_id)
-                .filter(models.Pedido.producto_id == producto.id)
+                .filter(models.Pedido.subproducto_id == subproducto.id)
                 .filter(models.Pedido.estado.notin_(ESTADOS_NO_ASIGNABLES))
             ).first()
         if candidato is None:
@@ -2146,7 +2184,7 @@ def cubo_clasificado(payload: schemas.CuboClasificado, db: Session = Depends(get
                 orden.insert(0, (models.Pedido.numero_maquina == payload.numero_maquina).desc())
             candidato = _pedidos_de_quien_fabrica(
                 db.query(models.Pedido)
-                .filter(models.Pedido.producto_id == producto.id)
+                .filter(models.Pedido.subproducto_id == subproducto.id)
                 .filter(models.Pedido.estado.notin_(ESTADOS_NO_ASIGNABLES))
             ).order_by(*orden).first()
         if candidato is not None:
@@ -2160,6 +2198,7 @@ def cubo_clasificado(payload: schemas.CuboClasificado, db: Session = Depends(get
             db.add(
                 models.MovimientoStock(
                     producto_id=producto.id,
+                    subproducto_id=subproducto.id,
                     tipo="salida",
                     cantidad=1,
                     motivo=MOTIVO_ASIGNACION,
@@ -2271,7 +2310,30 @@ def listar_stock(
     usuario: models.Usuario = Depends(auth.get_current_usuario),
     db: Session = Depends(get_db),
 ):
-    return db.query(models.Stock).order_by(models.Stock.producto_id).all()
+    """Una fila por variante (2026-09-28): todas las activas, y las de baja solo si les queda stock.
+    Las que aun no tienen fila salen a 0 (sin crearla en la base: solo se muestra)."""
+    filas = {f.subproducto_id: f for f in db.query(models.StockSubproducto).all()}
+    salida = []
+    for sp in db.query(models.Subproducto).all():
+        fila = filas.get(sp.id)
+        if fila is None:
+            if not sp.activo:
+                continue
+            fila = models.StockSubproducto(subproducto_id=sp.id, cantidad_actual=0)
+            fila.subproducto = sp
+        elif not sp.activo and fila.cantidad_actual <= 0:
+            continue
+        salida.append(fila)
+    return salida
+
+
+@app.get("/stock/antiguo", response_model=list[schemas.StockAntiguoOut])
+def listar_stock_antiguo(
+    usuario: models.Usuario = Depends(auth.get_current_usuario),
+    db: Session = Depends(get_db),
+):
+    """Stock de antes de 2026-09-28, por producto y sin variante, que queda por pasar a su variante."""
+    return db.query(models.Stock).filter(models.Stock.cantidad_actual > 0).order_by(models.Stock.producto_id).all()
 
 
 @app.get("/movimientos_stock", response_model=list[schemas.MovimientoStockOut])
@@ -2315,6 +2377,13 @@ def repartir_stock(
     return {"repartidos": _con_stock_disponible(db, repartidos)}
 
 
+def _variante_o_404(db: Session, subproducto_id: int) -> models.Subproducto:
+    subproducto = db.query(models.Subproducto).filter(models.Subproducto.id == subproducto_id).first()
+    if subproducto is None:
+        raise HTTPException(404, "Subproducto no encontrado.")
+    return subproducto
+
+
 @app.post("/almacen/ajustar", response_model=schemas.StockOut)
 def ajustar_stock(
     payload: schemas.AjusteStock,
@@ -2323,19 +2392,14 @@ def ajustar_stock(
 ):
     if payload.cantidad <= 0:
         raise HTTPException(400, "La cantidad debe ser mayor que 0.")
-    producto = db.query(models.Producto).filter(models.Producto.id == payload.producto_id).first()
-    if producto is None:
-        raise HTTPException(404, "Producto no encontrado.")
-    stock_row = db.query(models.Stock).filter_by(producto_id=payload.producto_id).first()
-    if stock_row is None:
-        stock_row = models.Stock(producto_id=payload.producto_id, cantidad_actual=0)
-        db.add(stock_row)
-        db.flush()
+    subproducto = _variante_o_404(db, payload.subproducto_id)
+    stock_row = _stock_variante(db, subproducto.id, crear=True)
     stock_row.cantidad_actual += payload.cantidad
     stock_row.actualizado_en = datetime.datetime.utcnow()
     db.add(
         models.MovimientoStock(
-            producto_id=payload.producto_id,
+            producto_id=subproducto.producto_id,
+            subproducto_id=subproducto.id,
             tipo="entrada",
             cantidad=payload.cantidad,
             motivo="ajuste_manual",
@@ -2344,7 +2408,8 @@ def ajustar_stock(
     )
     db.commit()
     db.refresh(stock_row)
-    _audit(db, "stock", payload.producto_id, "modificacion", usuario.id, f"+{payload.cantidad}")
+    _audit(db, "stock", subproducto.id, "modificacion", usuario.id,
+           f"{subproducto.codigo_completo} +{payload.cantidad}")
     return stock_row
 
 
@@ -2356,7 +2421,8 @@ def quitar_stock(
 ):
     if payload.cantidad <= 0:
         raise HTTPException(400, "La cantidad debe ser mayor que 0.")
-    stock_row = db.query(models.Stock).filter_by(producto_id=payload.producto_id).first()
+    subproducto = _variante_o_404(db, payload.subproducto_id)
+    stock_row = _stock_variante(db, subproducto.id)
     disponible = stock_row.cantidad_actual if stock_row else 0
     if payload.cantidad > disponible:
         unidad = "unidad" if disponible == 1 else "unidades"
@@ -2365,7 +2431,8 @@ def quitar_stock(
     stock_row.actualizado_en = datetime.datetime.utcnow()
     db.add(
         models.MovimientoStock(
-            producto_id=payload.producto_id,
+            producto_id=subproducto.producto_id,
+            subproducto_id=subproducto.id,
             tipo="salida",
             cantidad=payload.cantidad,
             motivo="ajuste_manual",
@@ -2374,8 +2441,62 @@ def quitar_stock(
     )
     db.commit()
     db.refresh(stock_row)
-    _audit(db, "stock", payload.producto_id, "modificacion", usuario.id, f"-{payload.cantidad}")
+    _audit(db, "stock", subproducto.id, "modificacion", usuario.id,
+           f"{subproducto.codigo_completo} -{payload.cantidad}")
     return stock_row
+
+
+def _mover_antiguo_a_variante(db: Session, antiguo: models.Stock, subproducto: models.Subproducto,
+                              cantidad: int, usuario_id) -> None:
+    """Pasa piezas del stock antiguo (por producto) al de una de sus variantes, con su rastro."""
+    antiguo.cantidad_actual -= cantidad
+    antiguo.actualizado_en = datetime.datetime.utcnow()
+    fila = _stock_variante(db, subproducto.id, crear=True)
+    fila.cantidad_actual += cantidad
+    fila.actualizado_en = datetime.datetime.utcnow()
+    db.add(models.MovimientoStock(producto_id=antiguo.producto_id, tipo="salida", cantidad=cantidad,
+                                  motivo="paso_a_variante", usuario_id=usuario_id))
+    db.add(models.MovimientoStock(producto_id=antiguo.producto_id, subproducto_id=subproducto.id,
+                                  tipo="entrada", cantidad=cantidad, motivo="paso_a_variante",
+                                  usuario_id=usuario_id))
+
+
+@app.post("/almacen/pasar_a_variante", response_model=schemas.StockOut)
+def pasar_a_variante(
+    payload: schemas.PasarAVariante,
+    usuario: models.Usuario = Depends(auth.require_permiso(auth.PRODUCCION)),
+    db: Session = Depends(get_db),
+):
+    """Stock antiguo sin variante -> una variante de ese producto (lo decide el operario)."""
+    if payload.cantidad <= 0:
+        raise HTTPException(400, "La cantidad debe ser mayor que 0.")
+    subproducto = _variante_o_404(db, payload.subproducto_id)
+    if subproducto.producto_id != payload.producto_id:
+        raise HTTPException(400, "Ese subproducto no es de ese producto.")
+    antiguo = db.query(models.Stock).filter_by(producto_id=payload.producto_id).first()
+    disponible = antiguo.cantidad_actual if antiguo else 0
+    if payload.cantidad > disponible:
+        unidad = "unidad" if disponible == 1 else "unidades"
+        raise HTTPException(400, f"Solo hay {disponible} {unidad} sin variante.")
+    _mover_antiguo_a_variante(db, antiguo, subproducto, payload.cantidad, usuario.id)
+    db.commit()
+    _audit(db, "stock", subproducto.id, "modificacion", usuario.id,
+           f"{payload.cantidad} sin variante -> {subproducto.codigo_completo}")
+    return _stock_variante(db, subproducto.id)
+
+
+def _pasar_stock_antiguo_de_una_variante(db: Session) -> None:
+    """Al arrancar (2026-09-28): el stock antiguo de un producto con UNA sola variante es, sin
+    duda, de esa variante, y se pasa solo. El de productos con varias se deja para el operario."""
+    for antiguo in db.query(models.Stock).filter(models.Stock.cantidad_actual > 0).all():
+        variantes = db.query(models.Subproducto).filter_by(producto_id=antiguo.producto_id).all()
+        if len(variantes) != 1:
+            continue
+        cantidad = antiguo.cantidad_actual
+        _mover_antiguo_a_variante(db, antiguo, variantes[0], cantidad, None)
+        db.commit()
+        _audit(db, "stock", variantes[0].id, "modificacion", None,
+               f"{cantidad} sin variante -> {variantes[0].codigo_completo} (unica variante, al arrancar)")
 
 
 @app.get("/almacen/configuracion", response_model=schemas.ConfiguracionAlmacenOut)

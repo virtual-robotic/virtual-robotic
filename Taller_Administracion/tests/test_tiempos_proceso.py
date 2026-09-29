@@ -13,6 +13,7 @@ from app.database import SessionLocal
 from app import models
 
 from .conftest import (
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -102,7 +103,7 @@ def test_pedido_servido_de_golpe_desde_almacen_da_proceso_cero(client, admin_hea
     produccion real) no debe aparentar que tardo nada -- 0s es lo
     correcto, no un numero inventado."""
     for _ in range(2):
-        client.post("/taller/cubo_clasificado", json={"color": "R"})
+        client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     pedido, tok = _crear_pedido_pendiente(client, admin_headers, cantidad=2)
 
     r = client.get(f"/pedidos/{pedido['id']}", headers=auth(tok))

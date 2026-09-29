@@ -1,6 +1,6 @@
 # Cómo añadir una nueva línea de producción
 
-_Última modificación: 2026-09-26 09:18_
+_Última modificación: 2026-09-29 14:38_
 
 Guía pensada para poder seguirla sin ser programador, paso a paso, para
 montar una línea de producción más (la 2ª, la 3ª..., se explica el
@@ -58,6 +58,48 @@ de máquina de esa línea, que no debe repetirse).
 
 _Todo lo que viene a partir de aquí es para quien quiera saber qué hacen
 esos ficheros por dentro, o hacerlo a mano._
+
+## La forma rápida: un solo comando
+
+Todo lo que explican los pasos 1 a 4 de aquí abajo —copiar la plantilla,
+cambiarle los tres nombres, encenderla, lanzar la celda y esperar a que
+conecten los robots— lo hace de un tirón el script `crear_linea.sh`, en la
+raíz del proyecto:
+
+```bash
+./crear_linea.sh 3
+```
+
+Si se ejecuta sin ningún número, enseña esta misma ayuda en vez de arrancar
+nada:
+
+```text
+Uso: crear_linea.sh <N> [numero_maquina] [url_taller_administracion] [grupo_cadena]
+
+Ejemplos:
+  crear_linea.sh 3
+  crear_linea.sh 3 3
+  crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000
+  crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 0
+```
+
+Cada parámetro, en el orden en que hay que escribirlos:
+
+| Parámetro | Obligatorio | Qué es |
+|---|---|---|
+| `N` | Sí | El número de la línea nueva (3, 4... nunca 1 ni 2, esas ya existen). Fija también su `ROS_DOMAIN_ID` (30+N). |
+| `numero_maquina` | No | 0 a 99. El Nº Máquina de esa línea en el panel — si no se pasa, no se toca (se rellena luego a mano en la pestaña Configuración). |
+| `url_taller_administracion` | No | Solo hace falta si esa línea vive en **otro ordenador** distinto del que tiene Taller_Administracion. P. ej. `http://IP_DEL_PRINCIPAL:8000`. |
+| `grupo_cadena` | No | 0 a 99. El Grupo Cadena de esa línea — igual que el Nº Máquina, si no se pasa se deja para rellenar luego a mano. |
+
+Al terminar, abre él solo el panel de control. Y si la línea ya existía —la
+creaste otro día y solo quieres volver a encenderla— el script se da cuenta
+solo: no toca la plantilla ni los nombres, simplemente la enciende y la lanza
+tal cual estaba.
+
+Los pasos 1 a 4 de aquí abajo explican, uno por uno, qué hace el script por
+dentro — léelos si prefieres hacerlo a mano, o si quieres entender cada pieza
+antes de usarlo.
 
 ## 1. Copiar la plantilla ya hecha
 
@@ -120,6 +162,16 @@ Esto tarda un rato la primera vez (está preparando las cajas). Cuando
 termina, la línea ya está funcionando por dentro, aunque todavía no se
 ve ninguna ventana en pantalla — eso es el siguiente paso.
 
+> **El código de ROS2 (`ros2_ws`) es el mismo para todas las líneas de esta
+> máquina**, así que solo hay que compilarlo una vez, no una por línea. Si
+> esta es la **primera** línea que se enciende en este ordenador (nunca se
+> pasó antes por `arrancar_todo.sh`), hay que compilarlo a mano antes del
+> siguiente paso — si no, falla con `setup.bash: No such file or directory`:
+>
+> ```bash
+> docker exec ros2_panda_dev24_lineaN bash -c "source /opt/ros/humble/setup.bash && cd /workspace && colcon build --packages-select panda_controller --symlink-install"
+> ```
+
 ## 4. Poner en marcha los robots de esa línea
 
 Encender las cajas no mueve todavía nada: hay que arrancar dentro el
@@ -168,6 +220,13 @@ pestaña, en el recuadro *Cambiar clave de configuración* que hay debajo de *Id
   este número y las demás dejan de verlo, así que nunca se duplica el
   mismo trabajo por accidente. No uses 0: significa "pedido libre" y con
   él la línea no podrá coger pedidos.
+- **Raspberry Pi Pico**: márcalas solo en la línea que las tenga
+  conectadas (normalmente la 1). Cada Pico solo puede obedecer a una
+  línea a la vez; el panel se encarga de que no se crucen.
+- **"URL de Taller_Administracion"**: déjalo vacío si esta línea vive en el
+  mismo ordenador que la web de pedidos (el caso normal). Solo hace falta
+  rellenarlo si esta línea se lanza en **otro ordenador** de la red — ver el
+  apartado siguiente.
 
 > **Buena práctica: reserva los números.** El grupo y el número de máquina
 > **comparten el mismo campo del pedido** (0 a 99), así que **no deben
@@ -177,11 +236,38 @@ pestaña, en el recuadro *Cambiar clave de configuración* que hay debajo de *Id
 > mezclarla, por ejemplo **máquinas del 1 al 49 y grupos del 50 al 99**
 > (clavos = grupo 80). Nada lo obliga por sistema: es una costumbre que
 > conviene tener antes de tener muchas líneas.
-- **Raspberry Pi Pico**: márcalas solo en la línea que las tenga
-  conectadas (normalmente la 1). Cada Pico solo puede obedecer a una
-  línea a la vez; el panel se encarga de que no se crucen.
 
 Cada apartado tiene su botón *Guardar* (o *Aplicar*, en las Pico).
+
+## ¿Se puede lanzar una línea en otro ordenador físico?
+
+Sí. Cada línea (su Webots y sus robots) es totalmente independiente y no
+necesita nada de otro ordenador. Lo único que sí es compartido es la web de
+pedidos (Taller_Administracion) — normalmente vive en el mismo PC que la
+línea 1, y las demás líneas la encuentran solas por un nombre interno que solo
+funciona dentro de esa misma máquina. Para que una línea en **otro** ordenador
+la encuentre, hay que decirle la dirección de red real:
+
+1. En el ordenador donde vive la web, mira su IP en la red local (por
+   ejemplo con `hostname -I` o `ip addr`) — algo como `IP_DEL_PRINCIPAL`.
+2. En el panel de la línea nueva, pestaña **Configuración**, campo **"URL de
+   Taller_Administracion"**: escribe `http://IP_DEL_PRINCIPAL:8000` (esa IP,
+   puerto 8000) y pulsa *Guardar*. El panel se reconecta solo, sin reiniciar
+   nada.
+3. Comprueba que el cortafuegos del ordenador de la web deja pasar ese
+   puerto 8000 desde la red local (el contenedor ya lo publica en todas las
+   interfaces).
+
+![Recuadro «Identidad de la cadena» del panel de control](identidad_cadena.png)
+
+_Ejemplo real: una línea que vive en otro ordenador (una máquina virtual
+llamada «Cadena 4 VM», Nº Máquina 11) apuntando con la URL de
+Taller_Administracion a la web de pedidos, que está en otro PC de la red._
+
+> La Raspberry Pi Pico de esa línea (si tiene) tiene que estar conectada
+> físicamente al ordenador donde corre **esa** línea, no al de la web de
+> pedidos. El resto — Grupo Cadena, Nº Máquina, arrancar/apagar — funciona
+> exactamente igual que si estuviera en el mismo ordenador.
 
 ## 6. Apagar una línea cuando no se necesite
 
@@ -206,3 +292,7 @@ el trabajo de la máquina. Si algún día hiciera falta ampliar los
 números, están en `MAX_MAQUINA` / `MAX_GRUPO_CADENA` (`teleop_gui.py`) y
 `GRUPO_CADENA_MAX` (`Taller_Administracion/app/main.py`); el resto de
 este proceso (los pasos 1 a 6) sería exactamente igual.
+
+Ver también cómo están montadas las Raspberry Pi Pico y el porqué de este
+diseño (una réplica de contenedores aislada, no una segunda celda en el mismo
+Webots) en [analisis_ampliacion_taller.md](analisis_ampliacion_taller.md).

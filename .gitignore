@@ -43,3 +43,6 @@ claude_memoria/
 # Grabaciones originales de Webots (decenas de MB): van por MEGA, no a git.
 # Los clips comprimidos para la web estan en Virtual_Robotic/img/.
 img/webots_video_*.mp4
+
+# Direccion de la QNAP para backup_nas.sh (usuario@IP): de esta red, no se sube.
+backup_nas.conf

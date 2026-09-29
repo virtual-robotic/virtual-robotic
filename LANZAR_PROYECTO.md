@@ -1,4 +1,4 @@
-_Última modificación: 2026-09-27 18:13_
+_Última modificación: 2026-09-29 14:38_
 
 # Arrancar el proyecto (Linux)
 
@@ -201,7 +201,7 @@ Hay una Pico por robot, cada una con su propio LED:
 
 - **Sorter → Pico W de siempre** (`Rasberry_Pi_Pico/`, por Wi-Fi). Dale
   corriente; `main.py` arranca solo y se conecta al Wi-Fi, quedando a la
-  escucha en `192.168.1.101:5001`. Es también la que lleva el **botón
+  escucha en `IP_DE_LA_PICO:5001`. Es también la que lleva el **botón
   físico de parada de emergencia** (ver más abajo).
 - **Loader → Pico nueva sin Wi-Fi** (`Rasberry_Pi_Pico_USB_Loader/`).
   Conéctala por USB a este ordenador (el `docker-compose.yml` ya sabe
@@ -431,7 +431,7 @@ enciende, lanza la celda y espera a que conecten los 6 controladores):
 ./crear_linea.sh 3
 # o ya con Nº Máquina, URL de Taller_Administracion (si esta línea vive
 # en OTRO ordenador) y Grupo Cadena:
-./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
+./crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 0
 ```
 
 Las líneas no tienen por qué estar en el mismo ordenador ni en el mismo
@@ -596,9 +596,7 @@ parte del arranque normal:
 
 - Mundos: `panda_un_cubo.wbt`, `panda_bolas.wbt`
 - Launch: `robot_launch.py` (un solo robot, sin namespaces)
-- Demos: `stack_tower_demo`, `move_above_ball`, `pick_and_place`,
-  `visit_balls`, `lift_ball`, `vision_lift_cube`,
-  `best_color_repeat_lift`, `teleop_manual`
+- Demos: `stack_tower_demo` (las demos de un solo robot con la cinemática antigua se retiraron el 2026-09-29; siguen en el historial de git)
 - Herramientas de desarrollo de la celda actual (tampoco parte del
   arranque normal, se usaron para construirla): `panda_two_arms_smoke_test.wbt`,
   `panda_sorter_grasp_test.wbt`, `grasp_yaw_test`, `sorter_hover_test`,

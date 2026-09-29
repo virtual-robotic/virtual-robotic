@@ -1,4 +1,4 @@
-# Version: 2026-09-24 20:22 -- publica la hora de la simulacion en /clock
+# Version: 2026-09-29 12:00 -- la cinta se para tambien con un cubo encajado en la bandeja (/warehouse/belt_hold) y mientras el Loader suelta (/warehouse/belt_hold_loader). Antes: publica la hora de la simulacion en /clock
 """Plugin de Webots (sesion 2026-08-28) para el robot sin cuerpo fisico
 DEF WAREHOUSE_SUPERVISOR (worlds/panda_industrial_cell.wbt, supervisor TRUE).
 
@@ -172,6 +172,20 @@ class WarehouseSupervisorDriver:
         self.__node.create_subscription(
             Bool, '/warehouse/belt_pause', self.__on_belt_pause, 10
         )
+        # Cinta RETENIDA por la bandeja del Sorter (2026-09-29): ver
+        # sorter_shuttle_supervisor_driver.py. Aparte de belt_pause a
+        # proposito: el Loader escucha belt_pause para no cargar, y la
+        # retencion no tiene por que frenarle.
+        self.__pausa_sorter = False
+        self.__retenida = False
+        self.__retenida_loader = False
+        self.__node.create_subscription(
+            Bool, '/warehouse/belt_hold', self.__on_belt_hold, 10
+        )
+        # Y el Loader mientras suelta un cubo en la cinta (ver LoaderDemo._retener_cinta_al_soltar).
+        self.__node.create_subscription(
+            Bool, '/warehouse/belt_hold_loader', self.__on_belt_hold_loader, 10
+        )
         # Reubicar un cubo a mano (sesion 2026-09-04, peticion real del
         # usuario: parada de emergencia activa impedia mover los brazos, y
         # tenia un cubo verde mal colocado desde el principio que queria
@@ -268,10 +282,24 @@ class WarehouseSupervisorDriver:
             f'Cubo {color} movido a mano a ({x:.3f},{y:.3f}) via /warehouse/mover_cubo_manual.')
 
     def __on_belt_pause(self, msg):
+        self.__pausa_sorter = bool(msg.data)
+        self.__aplicar_velocidad_cinta()
+
+    def __on_belt_hold(self, msg):
+        self.__retenida = bool(msg.data)
+        self.__aplicar_velocidad_cinta()
+
+    def __on_belt_hold_loader(self, msg):
+        self.__retenida_loader = bool(msg.data)
+        self.__aplicar_velocidad_cinta()
+
+    def __aplicar_velocidad_cinta(self):
+        """Parada si el Sorter la ha pausado (va a agarrar) O si la bandeja la retiene
+        (tiene un cubo encajado esperando al Sorter); en marcha solo si ninguno de los dos."""
         if self.__belt_speed_field is None:
             return
-        new_speed = 0.0 if msg.data else self.__belt_normal_speed
-        self.__belt_speed_field.setSFFloat(new_speed)
+        parada = self.__pausa_sorter or self.__retenida or self.__retenida_loader
+        self.__belt_speed_field.setSFFloat(0.0 if parada else self.__belt_normal_speed)
 
     def __on_cube_delivered(self, msg):
         color = msg.data.strip().upper()

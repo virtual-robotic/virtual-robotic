@@ -3,6 +3,8 @@
 UNICO gate, ajustar/quitar stock a mano, y el reparto FIFO de
 stock_disponible entre varios pedidos del mismo color."""
 from .conftest import (
+    sub_de_producto,
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -14,7 +16,7 @@ from .conftest import (
 
 
 def test_cubo_clasificado_sin_pedidos_solo_suma_stock(client, admin_headers):
-    r = client.post("/taller/cubo_clasificado", json={"color": "R"})
+    r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     assert r.status_code == 200
     body = r.json()
     assert body["stock_actual"] == 1
@@ -45,6 +47,10 @@ class TestCuboClasificadoSinLed:
 
     def test_producto_id_resuelve_sin_color_valido(self, client, admin_headers):
         producto = self._producto_sin_led(client, admin_headers)
+        sub = client.post(
+            "/subproductos", headers=admin_headers,
+            json={"producto_id": producto["id"], "nombre": "Unica", "codigo": "0001"},
+        ).json()
         r = client.post(
             "/taller/cubo_clasificado",
             json={"color": "NOEXISTE", "producto_id": producto["id"]},
@@ -52,8 +58,17 @@ class TestCuboClasificadoSinLed:
         assert r.status_code == 200, r.text
         assert r.json()["stock_actual"] == 1
         stock = client.get("/stock", headers=admin_headers).json()
-        fila = next(s for s in stock if s["producto_id"] == producto["id"])
+        fila = next(s for s in stock if s["subproducto_id"] == sub["id"])  # su unica variante
         assert fila["cantidad_actual"] == 1
+
+    def test_sin_saber_la_variante_va_al_stock_antiguo_y_no_a_un_pedido(self, client, admin_headers):
+        """2026-09-28: cada variante es una pieza distinta; si no se sabe cual es, no se adivina."""
+        producto = self._producto_sin_led(client, admin_headers, codigo="CL3")
+        r = client.post("/taller/cubo_clasificado", json={"color": "NOEXISTE", "producto_id": producto["id"]})
+        assert r.status_code == 200, r.text
+        assert r.json()["pedido"] is None
+        antiguo = client.get("/stock/antiguo", headers=admin_headers).json()
+        assert [(s["producto_id"], s["cantidad_actual"]) for s in antiguo] == [(producto["id"], 1)]
 
     def test_pedido_id_resuelve_producto_sin_led_y_completa_el_pedido(self, client, admin_headers):
         producto = self._producto_sin_led(client, admin_headers, codigo="CL2")
@@ -96,7 +111,7 @@ class TestCuboClasificadoSinLed:
 
         r = client.post(
             "/taller/cubo_clasificado",
-            json={"color": "R", "pedido_id": pedido["id"], "producto_id": otro["id"]},
+            json={"color": "R", "subproducto_id": sub_id("R"), "pedido_id": pedido["id"], "producto_id": otro["id"]},
         )
         assert r.status_code == 200, r.text
         assert r.json()["pedido"]["id"] == pedido["id"]
@@ -144,7 +159,7 @@ def test_reparto_automatico_activo_aplica_la_pieza_al_pedido_mas_antiguo(
     client, admin_headers
 ):
     ctx = _preparar_pedido(client, admin_headers, cantidad=2)
-    r = client.post("/taller/cubo_clasificado", json={"color": "R"})
+    r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     assert r.status_code == 200
     assert r.json()["pedido"]["id"] == ctx["pedido"]["id"]
     assert r.json()["pedido"]["cantidad_completada"] == 1
@@ -155,8 +170,8 @@ def test_reparto_automatico_activo_aplica_la_pieza_al_pedido_mas_antiguo(
 
 def test_pedido_se_completa_al_llegar_a_la_cantidad_pedida(client, admin_headers):
     ctx = _preparar_pedido(client, admin_headers, cantidad=2)
-    client.post("/taller/cubo_clasificado", json={"color": "R"})
-    r2 = client.post("/taller/cubo_clasificado", json={"color": "R"})
+    client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
+    r2 = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     assert r2.json()["pedido"]["estado"] == "completado"
     assert r2.json()["pedido"]["cantidad_completada"] == 2
 
@@ -172,7 +187,7 @@ def test_reparto_automatico_desactivado_la_pieza_se_queda_en_stock(client, admin
         "/almacen/configuracion", headers=admin_headers, json={"reparto_automatico": False}
     )
     r = client.post(
-        "/taller/cubo_clasificado", json={"color": "R", "pedido_id": ctx["pedido"]["id"]}
+        "/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "pedido_id": ctx["pedido"]["id"]}
     )
     assert r.status_code == 200
     assert r.json()["pedido"] is None
@@ -190,7 +205,7 @@ def test_pedido_nuevo_se_sirve_al_instante_si_hay_stock_y_reparto_activo(
 ):
     # stock de sobra ANTES de que exista el pedido (sobreproduccion)
     for _ in range(3):
-        client.post("/taller/cubo_clasificado", json={"color": "R"})
+        client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     ctx = _preparar_pedido(client, admin_headers, cantidad=2)
     # _servir_desde_stock se dispara solo, sin ningun cubo_clasificado extra
     pedido_tras = client.get(
@@ -205,7 +220,7 @@ def test_pedido_nuevo_no_se_sirve_solo_si_reparto_desactivado(client, admin_head
         "/almacen/configuracion", headers=admin_headers, json={"reparto_automatico": False}
     )
     for _ in range(3):
-        client.post("/taller/cubo_clasificado", json={"color": "R"})
+        client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     ctx = _preparar_pedido(client, admin_headers, cantidad=2)
     pedido_tras = client.get(
         f"/pedidos/{ctx['pedido']['id']}", headers=auth(ctx["tok_admin_cliente"])
@@ -225,7 +240,7 @@ class TestPiezaSegunMaquina:
     def test_pieza_de_otra_maquina_no_completa_mi_pedido(self, client, admin_headers):
         ctx = _preparar_pedido(client, admin_headers, cantidad=1)
         self._reclamar(client, admin_headers, ctx["pedido"]["id"], 10)
-        r = client.post("/taller/cubo_clasificado", json={"color": "R", "numero_maquina": 20})
+        r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "numero_maquina": 20})
         assert r.json()["pedido"] is None
         assert r.json()["stock_actual"] == 1
 
@@ -234,14 +249,14 @@ class TestPiezaSegunMaquina:
         mio = _preparar_pedido(client, admin_headers, cantidad=1)
         self._reclamar(client, admin_headers, viejo["pedido"]["id"], 10)
         self._reclamar(client, admin_headers, mio["pedido"]["id"], 20)
-        r = client.post("/taller/cubo_clasificado", json={"color": "R", "numero_maquina": 20})
+        r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "numero_maquina": 20})
         assert r.json()["pedido"]["id"] == mio["pedido"]["id"]
 
     def test_pieza_puede_ir_a_pedido_de_su_grupo_y_lo_pasa_a_su_numero(self, client, admin_headers):
         ctx = _preparar_pedido(client, admin_headers, cantidad=2)
         self._reclamar(client, admin_headers, ctx["pedido"]["id"], 2)  # a nombre del grupo 2
         r = client.post("/taller/cubo_clasificado",
-                        json={"color": "R", "numero_maquina": 20, "grupo_cadena": 2})
+                        json={"color": "R", "subproducto_id": sub_id("R"), "numero_maquina": 20, "grupo_cadena": 2})
         assert r.json()["pedido"]["id"] == ctx["pedido"]["id"]
         assert r.json()["pedido"]["numero_maquina"] == 20
 
@@ -249,13 +264,13 @@ class TestPiezaSegunMaquina:
         ctx = _preparar_pedido(client, admin_headers, cantidad=1)
         self._reclamar(client, admin_headers, ctx["pedido"]["id"], 10)
         r = client.post("/taller/cubo_clasificado",
-                        json={"color": "R", "pedido_id": ctx["pedido"]["id"], "numero_maquina": 20})
+                        json={"color": "R", "subproducto_id": sub_id("R"), "pedido_id": ctx["pedido"]["id"], "numero_maquina": 20})
         assert r.json()["pedido"] is None
 
     def test_sin_numero_maquina_se_comporta_como_siempre(self, client, admin_headers):
         ctx = _preparar_pedido(client, admin_headers, cantidad=1)
         self._reclamar(client, admin_headers, ctx["pedido"]["id"], 10)
-        r = client.post("/taller/cubo_clasificado", json={"color": "R"})
+        r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
         assert r.json()["pedido"]["id"] == ctx["pedido"]["id"]
 
 
@@ -265,7 +280,7 @@ def test_urgente_se_sirve_antes_que_el_mas_antiguo(client, admin_headers):
     client.patch(
         f"/pedidos/{nuevo['pedido']['id']}", headers=admin_headers, json={"urgente": True}
     )
-    r = client.post("/taller/cubo_clasificado", json={"color": "R"})
+    r = client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R")})
     assert r.json()["pedido"]["id"] == nuevo["pedido"]["id"]
 
     viejo_tras = client.get(
@@ -280,7 +295,7 @@ class TestAjustarQuitarStock:
         r = client.post(
             "/almacen/ajustar",
             headers=admin_headers,
-            json={"producto_id": r_val["id"], "cantidad": 10},
+            json={"subproducto_id": sub_de_producto(r_val["id"]), "cantidad": 10},
         )
         assert r.status_code == 200
         assert r.json()["cantidad_actual"] == 10
@@ -290,20 +305,20 @@ class TestAjustarQuitarStock:
     def test_quitar_no_deja_bajar_de_cero(self, client, admin_headers):
         producto = producto_por_color(client, admin_headers, "G")
         client.post(
-            "/almacen/ajustar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 3}
+            "/almacen/ajustar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 3}
         )
         r = client.post(
-            "/almacen/quitar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 10}
+            "/almacen/quitar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 10}
         )
         assert r.status_code == 400
 
     def test_quitar_cantidad_valida_ok(self, client, admin_headers):
         producto = producto_por_color(client, admin_headers, "G")
         client.post(
-            "/almacen/ajustar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 5}
+            "/almacen/ajustar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 5}
         )
         r = client.post(
-            "/almacen/quitar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 3}
+            "/almacen/quitar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 3}
         )
         assert r.status_code == 200
         assert r.json()["cantidad_actual"] == 2
@@ -314,7 +329,7 @@ class TestAjustarQuitarStock:
         r = client.post(
             "/almacen/ajustar",
             headers=auth(tok),
-            json={"producto_id": producto["id"], "cantidad": 1},
+            json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 1},
         )
         assert r.status_code == 403
 
@@ -341,7 +356,7 @@ class TestStockDisponibleFIFO:
             json={"subproducto_id": subproducto["id"], "cantidad_pedida": 5},
         ).json()
 
-        client.post("/almacen/ajustar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 7})
+        client.post("/almacen/ajustar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 7})
 
         pedidos = client.get("/pedidos", headers=admin_headers).json()
         d = {p["id"]: p["stock_disponible"] for p in pedidos if p["id"] in (p1["pedido"]["id"], pedido2["id"])}
@@ -360,7 +375,7 @@ class TestStockDisponibleFIFO:
             "/almacen/configuracion", headers=admin_headers, json={"reparto_automatico": False}
         )
         producto = ctx["producto"]
-        client.post("/almacen/ajustar", headers=admin_headers, json={"producto_id": producto["id"], "cantidad": 4})
+        client.post("/almacen/ajustar", headers=admin_headers, json={"subproducto_id": sub_de_producto(producto["id"]), "cantidad": 4})
 
         pedido_antes = client.get(f"/pedidos/{ctx['pedido']['id']}", headers=admin_headers).json()
         assert pedido_antes["stock_disponible"] == 4

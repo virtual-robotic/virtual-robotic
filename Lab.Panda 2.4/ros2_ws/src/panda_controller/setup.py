@@ -1,3 +1,4 @@
+# Version: 2026-09-29 13:41 -- quitadas las 7 demos antiguas de un robot (cinematica DH vieja)
 from setuptools import setup
 import os
 from glob import glob
@@ -24,13 +25,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'move_above_ball = panda_controller.move_above_ball:main',
-            'pick_and_place = panda_controller.pick_and_place:main',
-            'visit_balls = panda_controller.visit_balls:main',
-            'lift_ball = panda_controller.lift_ball:main',
-            'vision_lift_cube = panda_controller.vision_lift_cube:main',
-            'best_color_repeat_lift = panda_controller.best_color_repeat_lift:main',
-            'teleop_manual = panda_controller.teleop_manual:main',
             'teleop_gui = panda_controller.teleop_gui:main',
             'led_publisher = panda_controller.led_publisher:main',
             'led_publisher_usb = panda_controller.led_publisher_usb:main',

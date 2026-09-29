@@ -1,4 +1,4 @@
-<!-- Version: 2026-09-26 10:50 -- Windows: cerrar_windows.bat cierra Webots; arrancar_windows.bat N [maquina] -->
+<!-- Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: Windows: cerrar_windows.bat cierra Webots; arrancar_windows.bat N [maquina] -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -284,8 +284,8 @@
 Ejemplos:
   crear_linea.sh 3
   crear_linea.sh 3 3
-  crear_linea.sh 3 3 http://192.168.1.XXX:8000
-  crear_linea.sh 3 3 http://192.168.1.XXX:8000 0</code></pre>
+  crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000
+  crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 0</code></pre>
     <p>Cada parámetro, en el orden en que hay que escribirlos:</p>
     <div class="table-wrap">
       <table>
@@ -293,7 +293,7 @@ Ejemplos:
         <tbody>
           <tr><td class="mono">N</td><td>Sí</td><td>El número de la línea nueva (3, 4... nunca 1 ni 2, esas ya existen). Fija también su <code>ROS_DOMAIN_ID</code> (30+N).</td></tr>
           <tr><td class="mono">numero_maquina</td><td>No</td><td>0 a 99. El Nº Máquina de esa línea en el panel — si no se pasa, no se toca (se rellena luego a mano en la pestaña Configuración).</td></tr>
-          <tr><td class="mono">url_taller_administracion</td><td>No</td><td>Solo hace falta si esa línea vive en <a href="#se-puede-lanzar-una-linea-en-otro-ordenador-fisico">otro ordenador</a> distinto del que tiene Taller_Administracion. P.ej. <code>http://192.168.1.XXX:8000</code>.</td></tr>
+          <tr><td class="mono">url_taller_administracion</td><td>No</td><td>Solo hace falta si esa línea vive en <a href="#se-puede-lanzar-una-linea-en-otro-ordenador-fisico">otro ordenador</a> distinto del que tiene Taller_Administracion. P.ej. <code>http://IP_DEL_PRINCIPAL:8000</code>.</td></tr>
           <tr><td class="mono">grupo_cadena</td><td>No</td><td>0 a 99. El Grupo Cadena de esa línea — igual que el Nº Máquina, si no se pasa se deja para rellenar luego a mano.</td></tr>
         </tbody>
       </table>
@@ -429,13 +429,13 @@ ros2 run panda_controller teleop_gui</code></pre>
     <h2>¿Se puede lanzar una línea en otro ordenador físico?</h2>
     <p>Sí. Cada línea (su Webots y sus robots) es totalmente independiente y no necesita nada de otro ordenador. Lo único que sí es compartido es la web de pedidos (<strong>Taller_Administracion</strong>) — normalmente vive en el mismo PC que la línea 1, y las demás líneas la encuentran solas por un nombre interno que solo funciona dentro de esa misma máquina. Para que una línea en otro ordenador la encuentre, hay que decirle la dirección de red real:</p>
     <ul>
-      <li>En el ordenador donde vive la web, mira su IP en la red local (por ejemplo con <code>hostname -I</code> o <code>ip addr</code>) — algo como <code>192.168.1.50</code>.</li>
-      <li>En el panel de la línea nueva, pestaña Configuración, campo <a href="#url-taller">"URL de Taller_Administracion"</a>: escribe <code>http://192.168.1.50:8000</code> (esa IP, puerto <code>8000</code>) y pulsa Guardar. El panel se reconecta solo, sin reiniciar nada.</li>
+      <li>En el ordenador donde vive la web, mira su IP en la red local (por ejemplo con <code>hostname -I</code> o <code>ip addr</code>) — algo como <code>IP_DEL_PRINCIPAL</code>.</li>
+      <li>En el panel de la línea nueva, pestaña Configuración, campo <a href="#url-taller">"URL de Taller_Administracion"</a>: escribe <code>http://IP_DEL_PRINCIPAL:8000</code> (esa IP, puerto <code>8000</code>) y pulsa Guardar. El panel se reconecta solo, sin reiniciar nada.</li>
       <li>Comprueba que el firewall del ordenador de la web deja pasar ese puerto 8000 desde la red local (el contenedor ya lo publica en todas las interfaces).</li>
     </ul>
     <figure>
-      <img src="identidad_cadena.png" alt="Recuadro «Identidad de la cadena» del panel de control, pestaña Configuración: Nombre de la cadena «Cadena 4 VM», Grupo Cadena 0, Nº Máquina 11 y URL de Taller_Administracion http://192.168.1.XXX:8000, cada uno con su botón Guardar" style="max-width:100%;height:auto;display:block;margin:0 auto">
-      <figcaption>El recuadro «Identidad de la cadena» (panel de control → pestaña Configuración). Ejemplo real: una línea que vive en otro ordenador (una máquina virtual llamada «Cadena 4 VM», Nº Máquina 11) apuntando con la <strong>URL de Taller_Administracion</strong> a la web de pedidos, que está en otro PC de la red (<code>http://192.168.1.XXX:8000</code>). Cada campo tiene su botón <em>Guardar</em>.</figcaption>
+      <img src="identidad_cadena.png" alt="Recuadro «Identidad de la cadena» del panel de control, pestaña Configuración: Nombre de la cadena «Cadena 4 VM», Grupo Cadena 0, Nº Máquina 11 y URL de Taller_Administracion http://IP_DEL_PRINCIPAL:8000, cada uno con su botón Guardar" style="max-width:100%;height:auto;display:block;margin:0 auto">
+      <figcaption>El recuadro «Identidad de la cadena» (panel de control → pestaña Configuración). Ejemplo real: una línea que vive en otro ordenador (una máquina virtual llamada «Cadena 4 VM», Nº Máquina 11) apuntando con la <strong>URL de Taller_Administracion</strong> a la web de pedidos, que está en otro PC de la red (<code>http://IP_DEL_PRINCIPAL:8000</code>). Cada campo tiene su botón <em>Guardar</em>.</figcaption>
     </figure>
     <div class="callout info">
       <div class="mark">i</div>

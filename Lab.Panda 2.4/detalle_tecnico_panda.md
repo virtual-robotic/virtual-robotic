@@ -50,12 +50,7 @@ Lab.Panda 2.4/
 │           └── panda_controller/
 │               ├── __init__.py
 │               ├── my_robot_driver.py
-│               ├── move_above_ball.py
-│               ├── pick_and_place.py
-│               ├── visit_balls.py
-│               ├── lift_ball.py
-│               ├── vision_lift_cube.py
-│               ├── best_color_repeat_lift.py
+│               ├── (6 demos de un robot: retiradas el 2026-09-29, ver git)
 │               └── led_publisher.py
 ├── .gitignore
 └── resumen_proyecto_panda.md   (este archivo)
@@ -137,7 +132,7 @@ Lab.Panda 2.4/
   integro en `pick_and_place.py` (LED
   del color de la bola mientras la lleva agarrada) ademas de en
   `visit_balls.py` (que ya lo tenia). **Probado end-to-end: la Pico W en
-  `192.168.1.101:5001` respondio de verdad a la conexion TCP** (no es
+  `IP_DE_LA_PICO:5001` respondio de verdad a la conexion TCP** (no es
   solo un topic de ROS2 sin efecto), confirmado con `pick_and_place.py`
   encendiendo verde al agarrar y apagando al soltar.
 - **Bugs encontrados y corregidos durante las pruebas en Webots:**
@@ -949,7 +944,7 @@ antes de tocar nada mas -- confirmado, mismo GPIO16 con pull-up que ya usa
 
 **Cambios para que sea un boton de parada del PROYECTO, no solo del LED:**
 - `Rasberry_Pi_Pico/wifi_config.py`: `PC_IP` estaba vacia, rellenada con
-  `192.168.1.XXX` (IP de este PC en la red Wi-Fi de la Pico en el momento de
+  `IP_DEL_PC` (IP de este PC en la red Wi-Fi de la Pico en el momento de
   la sesion -- si la IP no es estatica puede cambiar tras un reinicio del
   router, revisar con `hostname -I` si el aviso deja de llegar).
 - `cube_shuttle_demo.py` (y por herencia `stack_tower_demo.py`): suscritos
@@ -991,7 +986,7 @@ del mismo contenedor* funciono -- no pasaba por la misma ruta de red que
 la Pico real usa de verdad). **Corregido** anadiendo el mapeo de puerto en
 `docker-compose.yml` y reconstruyendo los contenedores
 (`docker compose up -d --build`). Confirmado con una conexion de prueba
-desde la IP real de la red del host (`192.168.1.XXX:5002`, no `127.0.0.1`)
+desde la IP real de la red del host (`IP_DEL_PC:5002`, no `127.0.0.1`)
 -- llego correctamente y `button_listener` publico `/emergency_stop`.
 Pendiente confirmar con la Pico fisica de verdad (esta sesion solo pudo
 simular el nivel de red, no probar el boton fisico en si).

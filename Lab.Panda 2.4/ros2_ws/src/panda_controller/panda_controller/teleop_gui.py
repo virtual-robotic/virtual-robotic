@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-# Version: 2026-09-26 11:38 -- panel de control: traducciones EN/EU de restablecer la clave
+# Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: panel de control: se cierra con una senal normal (pkill/docker stop). Antes: lotes por VARIANTE, Automatico uno nuevo por variante, cinematica ikpy
 """
 Teleoperacion manual del Panda con botones (Tkinter), en vez de teclado
-(`teleop_manual.py`). Mismo motor por debajo (misma cinematica DH
-modificada duplicada, mismo filtro de salto articular grande para no
-"escapar" de golpe -- ver teleop_manual.py para el porque de cada uno de
-estos detalles), pero controlado con clicks de raton sobre una ventana.
+(`teleop_manual.py`). Mismo filtro de salto articular grande para no
+"escapar" de golpe que teleop_manual.py, pero controlado con clicks de
+raton sobre una ventana. La cinematica es la MISMA que usan el Loader y el
+Sorter (panda_ikpy_kinematics.py, validada contra Webots) -- hasta el
+2026-09-28 era una tabla DH del Franka real que situaba la pinza 14-24 cm
+lejos de donde estaba de verdad.
 
 Necesita que el DISPLAY este reenviado al contenedor (ya lo esta: es el
 mismo mecanismo con el que se ve la ventana de Webots, ver
@@ -22,6 +24,7 @@ import hmac
 import json
 import math
 import os
+import signal
 import socket
 import subprocess
 import time
@@ -35,6 +38,8 @@ from std_msgs.msg import Float64MultiArray, Float64, String, Bool
 
 from panda_controller import config_cadena
 from panda_controller.overhead_vision import OverheadLocator, COLOR_NAMES
+from panda_controller.cube_shuttle_demo import SAFE_Z, YAW, VISION_GROUND_TRUTH_MAX_DESVIO
+from panda_controller.panda_ikpy_kinematics import PandaIkpyKinematics, CORRECTION_Z
 from panda_controller.sorter_demo import LOTE_COLOR_QOS
 try:
     # Generado por generar_version.sh (raiz del repo) a partir de git --
@@ -756,7 +761,7 @@ PICOS = {
         'ejecutable': 'led_publisher',
         'param': 'pico_ip',
         'etiqueta_param': 'IP de la Pico:',
-        'defecto': '192.168.1.101',
+        'defecto': 'IP_DE_LA_PICO',
     },
 }
 # Fichero COMPARTIDO por todas las lineas (a diferencia de
@@ -856,17 +861,10 @@ def _parar_puente(ejecutable: str) -> None:
     except (OSError, subprocess.SubprocessError):
         pass
 
-PANDA_MDH = [
-    (0.0,     0.0,        0.333),
-    (0.0,    -math.pi/2,  0.0),
-    (0.0,     math.pi/2,  0.316),
-    (0.0825,  math.pi/2,  0.0),
-    (-0.0825, -math.pi/2, 0.384),
-    (0.0,     math.pi/2,  0.0),
-    (0.088,   math.pi/2,  0.0),
-]
-
-FLANGE_TO_TCP_Z = 0.107 + 0.1034  # brida (0.107) + mano/dedos (~0.1034)
+# Tolerancia de posicion (m) para dar por buena una solucion de la IK en el
+# panel. La de los robots (CONVERGENCE_TOL_M, 2 cm) es demasiado holgada para
+# pasos de jog de 1 cm; el solver de ikpy llega a <1 mm en puntos alcanzables.
+PANEL_IK_TOL_M = 0.005
 
 HOME_POSITIONS = [0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785]
 
@@ -939,77 +937,6 @@ SORTER_PRESET = {
     'table_y': (0.95, 1.35),
 }
 
-def mdh_transform(a_prev, alpha_prev, d, theta):
-    ca, sa = math.cos(alpha_prev), math.sin(alpha_prev)
-    ct, st = math.cos(theta), math.sin(theta)
-    return np.array([
-        [ct, -st, 0.0, a_prev],
-        [st * ca, ct * ca, -sa, -sa * d],
-        [st * sa, ct * sa, ca, ca * d],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
-
-
-def forward_kinematics(thetas):
-    T = np.eye(4)
-    for theta, (a_prev, alpha_prev, d) in zip(thetas, PANDA_MDH):
-        T = T @ mdh_transform(a_prev, alpha_prev, d, theta)
-    T_flange = np.eye(4)
-    T_flange[2, 3] = FLANGE_TO_TCP_Z
-    return T @ T_flange
-
-
-def rotation_error(r_current, r_target):
-    r_err = r_target @ r_current.T
-    cos_theta = np.clip((np.trace(r_err) - 1.0) / 2.0, -1.0, 1.0)
-    theta = math.acos(cos_theta)
-    if abs(theta) < 1e-8:
-        return np.zeros(3)
-    axis = np.array([
-        r_err[2, 1] - r_err[1, 2],
-        r_err[0, 2] - r_err[2, 0],
-        r_err[1, 0] - r_err[0, 1],
-    ]) / (2.0 * math.sin(theta))
-    return axis * theta
-
-
-def numeric_jacobian(thetas, eps=1e-6):
-    n = len(thetas)
-    T0 = forward_kinematics(thetas)
-    p0, r0 = T0[:3, 3], T0[:3, :3]
-    J = np.zeros((6, n))
-    for i in range(n):
-        dthetas = thetas.copy()
-        dthetas[i] += eps
-        Ti = forward_kinematics(dthetas)
-        J[:3, i] = (Ti[:3, 3] - p0) / eps
-        dR = Ti[:3, :3] @ r0.T
-        J[3:, i] = np.array([
-            dR[2, 1] - dR[1, 2],
-            dR[0, 2] - dR[2, 0],
-            dR[1, 0] - dR[0, 1],
-        ]) / (2.0 * eps)
-    return J
-
-
-def inverse_kinematics(target_pos, target_r, theta_init, max_iters=300,
-                        tol=1e-4, damping=0.05):
-    thetas = np.array(theta_init, dtype=float)
-    err = np.zeros(6)
-    for iteration in range(max_iters):
-        T = forward_kinematics(thetas)
-        pos_err = target_pos - T[:3, 3]
-        rot_err = rotation_error(T[:3, :3], target_r)
-        err = np.concatenate([pos_err, rot_err])
-        if np.linalg.norm(err) < tol:
-            return thetas, True, iteration, float(np.linalg.norm(err))
-        J = numeric_jacobian(thetas)
-        JJt = J @ J.T + (damping ** 2) * np.eye(6)
-        dtheta = J.T @ np.linalg.solve(JJt, err)
-        thetas = thetas + dtheta
-    return thetas, False, max_iters, float(np.linalg.norm(err))
-
-
 def _pendiente_de_fabricar(pedido) -> int:
     """Piezas que hay que FABRICAR de verdad para un pedido: lo que le
     falta menos lo que ya hay en el almacen reservado para el
@@ -1020,6 +947,15 @@ def _pendiente_de_fabricar(pedido) -> int:
     "Repartir stock", pero el almacen queda justo con lo pedido."""
     falta = pedido.get('cantidad_pedida', 0) - pedido.get('cantidad_completada', 0)
     return max(0, falta - pedido.get('stock_disponible', 0))
+
+
+def _variante_unica(subproductos):
+    """subproducto_id de un grupo de _agrupar_pedidos_por_producto: desde 2026-09-28
+    cada grupo es UNA variante, asi que hay una sola entrada."""
+    if len(subproductos) != 1:
+        return None
+    (sub,) = subproductos.values()
+    return sub.get('subproducto_id')
 
 
 def _demo_vivo(nombre):
@@ -1232,7 +1168,17 @@ class TeleopGuiNode(Node):
         self.pub_gripper = None
         self.pub_led = None
         self.locator = None
+        self.kin = None
         self.apply_preset(str(self.get_parameter('robot').value))
+
+        # Posicion REAL de cada cubo (la publica warehouse_supervisor_driver),
+        # para "Centrar sobre cubo" -- misma regla que los robots (ver
+        # VISION_GROUND_TRUTH_MAX_DESVIO en cube_shuttle_demo.py): si la
+        # camara se desvia mucho de la real, ha cogido otra mancha (las
+        # baldosas granates del suelo dan un rojo fantasma a ~27 cm del cubo).
+        self.cube_pos_real = {}
+        self.create_subscription(Float64MultiArray, '/warehouse/cube_positions',
+                                 self._on_cube_positions, 10)
 
         # STOP/REARME integrados en el mismo panel (sesion 2026-08-27, antes
         # solo existian en estop_panel.py): mismo topic /emergency_stop de
@@ -1318,10 +1264,10 @@ class TeleopGuiNode(Node):
         self.pub_gripper = self.create_publisher(Float64, preset['gripper_topic'], 10)
         self.pub_led = self.create_publisher(String, preset['led_topic'], 10)
         self.base = np.array(preset['base'])
-        # La cinematica del panel (forward_kinematics/inverse_kinematics) trabaja
-        # en el marco de la BASE del robot; el mundo se obtiene girando base_yaw
-        # en Z (ver SORTER_PRESET). Con 0.0 (Loader) todo queda igual que antes.
+        # Giro de la base en el mundo (ver SORTER_PRESET); 0.0 en el Loader.
+        # PandaIkpyKinematics ya pasa del mundo al marco de la base con el.
         self.base_yaw = float(preset.get('base_yaw', 0.0))
+        self.kin = PandaIkpyKinematics(base=self.base, base_yaw=self.base_yaw)
         self.locator = OverheadLocator(
             self, topic=preset['camera_topic'],
             cam_x=preset['camera'][0], cam_y=preset['camera'][1], cam_z=preset['camera'][2],
@@ -1402,8 +1348,31 @@ class TeleopGuiNode(Node):
         self.thetas = clamped - self.offsets_rad
         return clamped
 
+    def _tcp_of(self, thetas):
+        """Posicion de la pinza EN EL MUNDO para unos angulos del panel
+        (self.thetas = comandados - offsets). Misma cadena ikpy y misma
+        CORRECTION_Z que PandaIkpyKinematics.solve(), deshechas al reves."""
+        fk = self.kin.chain.forward_kinematics(self.kin.seed_from_real(thetas + self.offsets_rad))
+        p = rz(self.base_yaw) @ fk[:3, 3] + self.base
+        p[2] -= CORRECTION_Z
+        return p
+
     def tcp_world(self):
-        return rz(self.base_yaw) @ forward_kinematics(self.thetas)[:3, 3] + self.base
+        return self._tcp_of(self.thetas)
+
+    def _ik(self, target_world, yaw):
+        """IK con la cinematica de los robots, sembrada desde la pose actual
+        (solucion continua, sin saltar de configuracion). 'yaw' es el giro
+        del panel: 0 = agarre por caras de los robots (YAW, 45 grados); con
+        giro 0 de verdad la pinza abierta no cabe alrededor del cubo.
+        Devuelve (thetas_panel, convergio, error_m)."""
+        commanded = self.thetas + self.offsets_rad
+        real, _result, _ok = self.kin.solve(
+            float(target_world[0]), float(target_world[1]), float(target_world[2]),
+            GRASP_R @ rz(yaw + YAW), self.kin.seed_from_real(commanded))
+        thetas = np.asarray(real) - self.offsets_rad
+        err = float(np.linalg.norm(self._tcp_of(thetas) - np.asarray(target_world)))
+        return thetas, err <= PANEL_IK_TOL_M, err
 
     def _clamp_excess_deg(self, thetas):
         commanded = thetas + self.offsets_rad
@@ -1446,11 +1415,7 @@ class TeleopGuiNode(Node):
         estaba, en vez de continuar suave desde donde lo dejaste. No hay
         proteccion automatica contra eso todavia."""
         target_world = self.tcp_world() + np.array([dx, dy, dz])
-        # Mundo -> marco de la base (giro -base_yaw), en posicion Y en
-        # orientacion: el giro 'yaw' de la pinza es respecto al MUNDO.
-        target_base = rz(-self.base_yaw) @ (target_world - self.base)
-        target_r = rz(-self.base_yaw) @ GRASP_R @ rz(self.yaw)
-        thetas, converged, iters, err = inverse_kinematics(target_base, target_r, self.thetas)
+        thetas, converged, err = self._ik(target_world, self.yaw)
         if not converged:
             return False, f'No puedo llegar ahi (IK no convergio, error={err:.4f}).'
         jump_deg = float(np.degrees(np.max(np.abs(thetas - self.thetas))))
@@ -1491,10 +1456,14 @@ class TeleopGuiNode(Node):
         desde HOME es una reconfiguracion grande pero deliberada. Si mantiene
         el filtro de limites reales de articulacion. Ya no bloquea con la
         parada activa -- ver move_delta() para el porque completo
-        (sesion 2026-09-10)."""
-        current_pos = forward_kinematics(self.thetas)[:3, 3]
-        thetas, converged, iters, err = inverse_kinematics(
-            current_pos, rz(-self.base_yaw) @ GRASP_R, self.thetas)
+        (sesion 2026-09-10).
+
+        En HOME la pinza del Panda de Webots esta alta (z ~1.68) y de lado;
+        con la pinza hacia abajo ese punto no se alcanza, asi que se baja
+        como mucho a SAFE_Z (1.30), la misma referencia que usan los robots
+        al salir de HOME."""
+        x, y, z = self.tcp_world()
+        thetas, converged, err = self._ik([x, y, min(z, SAFE_Z)], 0.0)
         if not converged:
             return False, f'No he podido orientar la pinza (error={err:.4f}).'
         excess_deg = self._clamp_excess_deg(thetas)
@@ -1513,10 +1482,8 @@ class TeleopGuiNode(Node):
         de limites reales que move_delta, para que un click nunca "salte" a
         otra configuracion del brazo. Ya no bloquea con la parada activa --
         ver move_delta() para el porque completo (sesion 2026-09-10)."""
-        current_pos = forward_kinematics(self.thetas)[:3, 3]
         new_yaw = self.yaw + dyaw
-        target_r = rz(-self.base_yaw) @ GRASP_R @ rz(new_yaw)
-        thetas, converged, iters, err = inverse_kinematics(current_pos, target_r, self.thetas)
+        thetas, converged, err = self._ik(self.tcp_world(), new_yaw)
         if not converged:
             return False, f'No puedo girar ahi (IK no convergio, error={err:.4f}).'
         jump_deg = float(np.degrees(np.max(np.abs(thetas - self.thetas))))
@@ -1546,6 +1513,18 @@ class TeleopGuiNode(Node):
         if located is None:
             return False, 'Cubo detectado pero no se pudo localizar con precision.'
         x, y, _yaw_offset = located
+        name = COLOR_NAMES.get(color, color)
+        aviso = ''
+        real = self.cube_pos_real.get(color)
+        if real is not None:
+            desvio = float(np.hypot(real[0] - x, real[1] - y))
+            if desvio > VISION_GROUND_TRUTH_MAX_DESVIO:
+                self.get_logger().warn(
+                    f'[centrar] la camara dice ({x:.3f},{y:.3f}) pero la posicion real del cubo '
+                    f'{color} es ({real[0]:.3f},{real[1]:.3f}), a {desvio:.2f}m -- me fio de la '
+                    'posicion real (la camara ha cogido otra mancha).')
+                aviso = f' (la camara lo veia a {desvio * 100:.0f} cm: uso la posicion real)'
+                x, y = float(real[0]), float(real[1])
         current = self.tcp_world()
         # Salvaguarda (sesion 2026-08-27, aviso real del usuario: un
         # centrado hecho demasiado bajo golpeo el cubo de lado y salio
@@ -1558,9 +1537,8 @@ class TeleopGuiNode(Node):
                             f'hace falta al menos {min_safe_z:.3f}) -- sube primero con Z+.')
         dx, dy = float(x - current[0]), float(y - current[1])
         ok, msg = self.move_delta(dx, dy, 0.0)
-        name = COLOR_NAMES.get(color, color)
         if ok:
-            return True, f'Centrado sobre cubo {name} en ({x:.3f},{y:.3f}).'
+            return True, f'Centrado sobre cubo {name} en ({x:.3f},{y:.3f}){aviso}.'
         return False, f'Cubo {name} visto en ({x:.3f},{y:.3f}) pero el movimiento fue rechazado: {msg}'
 
     def set_gripper(self, position):
@@ -1598,6 +1576,13 @@ class TeleopGuiNode(Node):
             self.stopped = bool(msg.data)
             if self._on_stop_change is not None:
                 self._on_stop_change(self.stopped)
+
+    def _on_cube_positions(self, msg):
+        """9 floats en orden fijo R,G,B (x,y,z cada uno), igual que en
+        CubeShuttleDemo._on_cube_positions."""
+        d = msg.data
+        if len(d) >= 9:
+            self.cube_pos_real = {'R': tuple(d[0:3]), 'G': tuple(d[3:6]), 'B': tuple(d[6:9])}
 
     def _on_cube_delivered(self, msg):
         color = msg.data.strip().upper()
@@ -2278,6 +2263,7 @@ class TeleopApp:
         self.pedido_id_en_curso = None  # id del pedido lanzado con "Lanzar este pedido", None si no hay uno en curso
         self.producto_en_curso = None  # color lanzado con "Lanzar todo" (resumen por producto), None si no hay uno en curso
         self.cola_lotes = []  # [(color, cantidad, nombre), ...] pendientes de "Lanzar todo el resumen", uno detras de otro
+        self.cola_uno_nuevo = False  # la cola la lleno Automatico: ver _agrupar_pedidos_por_producto(uno_nuevo_por_variante)
         # Vigilancia del modo Automatico (ver _vigilar_progreso_auto).
         self._auto_previo = {}          # codigo -> (restante, completada) al lanzar la ultima tanda automatica
         self._auto_lanzados = set()     # codigos de los que _lanzar_siguiente_de_cola ha lanzado un lote desde entonces
@@ -3127,7 +3113,7 @@ class TeleopApp:
         self._lanzar_produccion(color, cantidad, nombre, pedido_id=pedido_id, codigo=codigo, texto_oled=texto_oled)
 
     def _lanzar_produccion(self, color, cantidad, etiqueta, pedido_id=None, forzar_reparto=False,
-                            codigo=None, producto_id=None, texto_oled=None):
+                            codigo=None, producto_id=None, texto_oled=None, subproducto_id=None):
         """Arranca sorter_demo (si no esta ya vivo, persiste entre lotes) y
         un loader_demo nuevo. 'color'=None hace que loader_demo cicle los
         TRES colores a la vez (comportamiento de por defecto de
@@ -3170,7 +3156,7 @@ class TeleopApp:
         self._ultimo_lote_args = dict(
             color=color, cantidad=cantidad, etiqueta=etiqueta,
             pedido_id=pedido_id, forzar_reparto=forzar_reparto, codigo=codigo, producto_id=producto_id,
-            texto_oled=texto_oled,
+            texto_oled=texto_oled, subproducto_id=subproducto_id,
         )
         self.repetir_lote_btn.config(state='normal')
         # Salida a fichero, NO a DEVNULL (bug real, sesion 2026-08-30: con
@@ -3264,18 +3250,35 @@ class TeleopApp:
         # CuboClasificado en el backend). Necesario aqui porque este es el
         # caso ("Lanzar todo el resumen"/forzar_reparto) que NO lleva
         # pedido_id unico -- sin esto, un producto sin LED no podria
-        # completar sus pedidos con este boton.
+        # completar sus pedidos con este boton. 'subproducto_id' (2026-09-28,
+        # sexto campo): la VARIANTE del lote -- cada variante es una pieza
+        # distinta y el Taller solo asigna la pieza a pedidos de ella.
         total_piezas = cantidad if color is not None else cantidad * 3
         mensaje_lote = (
             f'{color or ""}:{total_piezas}:{pedido_id or ""}:'
-            f'{"1" if forzar_reparto else ""}:{producto_id or ""}'
+            f'{"1" if forzar_reparto else ""}:{producto_id or ""}:{subproducto_id or ""}'
         )
         self.node.pub_lote_color_objetivo.publish(String(data=mensaje_lote))
         self.lote_status_var.set(self.t(
             'Fabricando {etiqueta} (Loader lanzado, Sorter activo). '
             'Logs en /tmp/lote_loader.log y /tmp/lote_sorter.log.', etiqueta=etiqueta))
 
-    def _agrupar_pedidos_por_producto(self, pedidos):
+    def _uno_nuevo_por_variante(self, pedidos):
+        """Ver _agrupar_pedidos_por_producto(uno_nuevo_por_variante=True).
+        Mismo orden que el reparto del Taller: urgentes primero, luego por
+        antiguedad."""
+        mios, libre = [], {}
+        for p in sorted(pedidos, key=lambda p: (not p.get('urgente'), p.get('creado_en', ''), p['id'])):
+            if _pendiente_de_fabricar(p) <= 0:
+                continue
+            if p.get('numero_maquina') == self.node.numero_maquina:
+                mios.append(p)
+            else:
+                libre.setdefault(p['subproducto']['codigo_completo'], p)
+        con_mios = {p['subproducto']['codigo_completo'] for p in mios}
+        return mios + [p for codigo, p in libre.items() if codigo not in con_mios]
+
+    def _agrupar_pedidos_por_producto(self, pedidos, uno_nuevo_por_variante=False):
         """Agrupa pedidos activos por producto (CODIGO -- sesion 2026-09-15,
         corregido en la misma sesion: agrupar por color/led_codigo mezclaba
         productos DISTINTOS que no tuvieran LED, todos bajo el mismo
@@ -3303,12 +3306,27 @@ class TeleopApp:
         del producto -- la celda fabrica igual sea cual sea (mismo
         color/producto, no distingue subproducto), pero el operario tiene
         que poder ver el desglose completo, con los mismos numeros que ya
-        ve por producto entero."""
+        ve por producto entero.
+
+        'uno_nuevo_por_variante' (2026-09-28, modo Automatico): de cada
+        variante solo entran los pedidos que esta maquina YA tiene
+        reclamados y, si no tiene ninguno, UNO libre (el mas urgente y
+        antiguo). Antes el lote reclamaba todos los pedidos del producto de
+        golpe: con varias cadenas en el mismo grupo, una se quedaba con los
+        3 pedidos de tornillos y las otras pasaban 6 minutos paradas (medido
+        con 4 cadenas en dos VM). Asi los demas quedan libres para ellas."""
+        if uno_nuevo_por_variante:
+            pedidos = self._uno_nuevo_por_variante(pedidos)
         por_producto = {}
         for p in pedidos:
             producto = p['producto']
             subproducto = p['subproducto']
-            codigo = producto['codigo']
+            # Clave = VARIANTE (2026-09-28, decision del usuario: "las de 10mm
+            # con las de 10mm y las de 20mm con las de 20mm"). Cada subproducto
+            # es una pieza distinta: su propio lote, nunca sumado a otra
+            # variante del mismo producto. 'nombre' sigue siendo el del
+            # producto y la variante va en 'subproductos' (una sola entrada).
+            codigo = subproducto['codigo_completo']
             color = producto['led_codigo'] or SIN_COLOR
             restante = _pendiente_de_fabricar(p)
             if restante <= 0:
@@ -3324,7 +3342,7 @@ class TeleopApp:
             fila['ids'].append(p['id'])
             sub = fila['subproductos'].setdefault(
                 subproducto['nombre'],
-                {'codigo_completo': subproducto['codigo_completo'],
+                {'codigo_completo': subproducto['codigo_completo'], 'subproducto_id': subproducto['id'],
                  'restante': 0, 'completada': 0, 'pedida': 0, 'n_pedidos': 0})
             sub['restante'] += restante
             sub['completada'] += p['cantidad_completada']
@@ -3406,12 +3424,14 @@ class TeleopApp:
             return
         self._encolar_resumen(items, resumen, 'Lanzar todo el resumen (uno detrás de otro)')
 
-    def _encolar_resumen(self, items, resumen, motivo):
+    def _encolar_resumen(self, items, resumen, motivo, uno_nuevo=False):
         """Parte comun de lanzar_todo_resumen() (boton, con dialogo de
         confirmacion) y el modo Automatico en refresh_pedidos() (sin
-        dialogo -- no hay nadie para pulsar "Si" cada 4s)."""
+        dialogo -- no hay nadie para pulsar "Si" cada 4s). 'uno_nuevo': la
+        cola se recalcula entre lotes con uno_nuevo_por_variante (Automatico)."""
         self._audit(f'{motivo}: {resumen}')
         self.cola_lotes = items
+        self.cola_uno_nuevo = uno_nuevo
         self._lanzar_siguiente_de_cola()
 
     def _auto_lanzar_si_toca(self, pedidos):
@@ -3429,7 +3449,14 @@ class TeleopApp:
             return
         if self.cola_lotes:
             return
-        por_producto = self._vigilar_progreso_auto(self._agrupar_pedidos_por_producto(pedidos))
+        # El freno mira TODOS los pedidos visibles del producto (si mirase solo
+        # el lote, al pasar de un pedido al siguiente pareceria que no avanza);
+        # el lote en si lleva uno nuevo por producto, el resto queda libre para
+        # las otras cadenas del grupo.
+        disponibles = self._vigilar_progreso_auto(self._agrupar_pedidos_por_producto(pedidos))
+        por_producto = {codigo: info for codigo, info
+                        in self._agrupar_pedidos_por_producto(pedidos, uno_nuevo_por_variante=True).items()
+                        if codigo in disponibles}
         if not por_producto:
             return
         # El producto que se estaba fabricando va primero (mismo criterio que
@@ -3440,7 +3467,7 @@ class TeleopApp:
                  for codigo, info in sorted(por_producto.items(), key=lambda kv: (kv[0] != ultimo, kv[0]))]
         resumen = ', '.join(
             f'{nombre} ({color}) x{cantidad}' for _codigo, color, cantidad, nombre, _ids, _pid, _subs in items)
-        self._encolar_resumen(items, resumen, 'Automático (sin confirmar)')
+        self._encolar_resumen(items, resumen, 'Automático (sin confirmar)', uno_nuevo=True)
 
     def _vigilar_progreso_auto(self, por_producto):
         """Freno del modo Automatico (2026-09-19). Automatico relanza lo que
@@ -3657,7 +3684,7 @@ class TeleopApp:
         #    haber stock nuevo o pedidos cancelados desde entonces).
         pedidos = self.node.fetch_pedidos_pendientes()
         if pedidos is not None:
-            por_producto = self._agrupar_pedidos_por_producto(pedidos)
+            por_producto = self._agrupar_pedidos_por_producto(pedidos, uno_nuevo_por_variante=self.cola_uno_nuevo)
             # Por CODIGO, no por color -- ver lote_producto_objetivo (sesion
             # 2026-09-15, corregido: dos productos sin LED compartian el
             # mismo centinela SIN_COLOR, se pisaban entre si aqui).
@@ -3691,7 +3718,8 @@ class TeleopApp:
         self.producto_en_curso = codigo
         self._auto_lanzados.add(codigo)
         self._lanzar_produccion(color, cantidad, nombre, forzar_reparto=True, codigo=codigo, producto_id=producto_id,
-                                 texto_oled=self._texto_oled_producto(nombre, subproductos))
+                                 texto_oled=self._texto_oled_producto(nombre, subproductos),
+                                 subproducto_id=_variante_unica(subproductos))
 
     def _progreso_lote(self):
         """(hechas, objetivo) del lote actual, contadas por las entregas
@@ -3853,7 +3881,7 @@ class TeleopApp:
             color_mostrado = self.t('sin LED') if info['color'] == SIN_COLOR else info['color']
             texto = self.t(
                 '{nombre} ({codigo} · {color}): {completada}/{pedida} hechas -- {restante} por fabricar ({n} {plural})',
-                nombre=info['nombre'], codigo=codigo, color=color_mostrado,
+                nombre=' · '.join([info['nombre']] + list(info['subproductos'])), codigo=codigo, color=color_mostrado,
                 completada=info['completada'], pedida=info['pedida'],
                 restante=info['restante'], n=info['n_pedidos'], plural=plural)
             tk.Label(self.resumen_producto_frame, text=texto, font=self.mono_font,
@@ -3917,7 +3945,8 @@ class TeleopApp:
         self._audit(f'Lanzar todo el producto: {nombre} x{cantidad}')
         self.producto_en_curso = codigo  # para pintar el boton en verde, ver _refrescar_resumen_productos()
         self._lanzar_produccion(color, cantidad, nombre, forzar_reparto=True, codigo=codigo, producto_id=producto_id,
-                                 texto_oled=self._texto_oled_producto(nombre, subproductos))
+                                 texto_oled=self._texto_oled_producto(nombre, subproductos),
+                                 subproducto_id=_variante_unica(subproductos))
 
     def refresh_pedidos(self):
         for child in self.pedidos_frame.winfo_children():
@@ -4252,7 +4281,27 @@ class TeleopApp:
         self.log(self.t('LED -> {nombre}', nombre=self.t(names[letter])))
 
     def run(self):
+        # Cierre con una senal normal (2026-09-29): rclpy.init() pone sus propios manejadores de
+        # SIGTERM/SIGINT, que apagan ROS pero dejan la ventana abierta -- el panel no se cerraba con
+        # pkill ni con docker stop, habia que matarlo con kill -9. La senal solo marca que hay que
+        # salir; la ventana lo comprueba cada 250 ms y se cierra en su propio hilo (Tk no admite que
+        # se le toque desde el manejador de una senal).
+        self._salir_pedido = False
+
+        def _pedir_salida(_signum, _frame):
+            self._salir_pedido = True
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            signal.signal(sig, _pedir_salida)
+        self._vigilar_salida()
         self.root.mainloop()
+
+    def _vigilar_salida(self):
+        if self._salir_pedido:
+            self.node.get_logger().info('Senal de cierre recibida: cierro el panel.')
+            self.root.quit()
+            return
+        self.root.after(250, self._vigilar_salida)
 
 
 def main(args=None):

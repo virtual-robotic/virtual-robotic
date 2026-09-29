@@ -1,15 +1,14 @@
+# Version: 2026-09-29 14:39 -- la IP de la Pico se pasa siempre como argumento (no se guarda la de la red en git)
 # Cliente de prueba para el servidor TCP de main.py.
 # EJECUTAR EN EL PC (no en la Pico), con la Pico ya encendida y conectada al Wi-Fi.
 #
 # Uso:
 #   python3 test_cliente_pc.py <ip_de_la_pico>
-#   python3 test_cliente_pc.py            (usa la IP por defecto de abajo)
 
 import socket
 import sys
 import time
 
-PICO_IP_POR_DEFECTO = "192.168.1.101"
 PICO_PORT = 5001
 
 
@@ -20,7 +19,10 @@ def enviar(ip, comando):
 
 
 def main():
-    ip = sys.argv[1] if len(sys.argv) > 1 else PICO_IP_POR_DEFECTO
+    if len(sys.argv) < 2:
+        print('Uso: python3 test_cliente_pc.py <ip_de_la_pico>   (la IP la ensena la Pico al conectarse al Wi-Fi)')
+        sys.exit(1)
+    ip = sys.argv[1]
     print(f"Probando la Pico en {ip}:{PICO_PORT} ...")
 
     secuencia = [

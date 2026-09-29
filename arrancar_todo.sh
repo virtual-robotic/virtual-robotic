@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Version: 2026-09-26 11:57 -- Webots solo con la vista 3D (plantilla .wbproj, como en Windows)
+# Version: 2026-09-29 13:40 -- arranca aunque la Pico del Loader del .env no este enchufada. Antes: Webots solo con la vista 3D
 # 2026-09-12: arranca todo el proyecto de un tiron -- Taller_Administracion,
 # la simulacion (Webots+ROS2), compila si hace falta, lanza la celda
 # completa en segundo plano y al final abre el panel de control manual
@@ -28,6 +28,14 @@ echo "== 2/5 -- Simulacion (Webots + ROS2) =="
 rm -f "$DIR/Lab.Panda 2.4/worlds/.panda_industrial_cell.wbproj"
 cp "$DIR/Lab.Panda 2.4/worlds/vista_solo_3d.wbproj.plantilla" "$DIR/Lab.Panda 2.4/worlds/.panda_industrial_cell.wbproj" 2>/dev/null || true
 xhost +local:docker >/dev/null 2>&1 || echo "(xhost no disponible -- sigo igualmente, puede que Webots no dibuje si no hay sesion grafica)"
+# Pico del Loader (2026-09-29): si el .env apunta a una Pico que ahora no esta enchufada, Docker
+# no encuentra el dispositivo y NO arranca el contenedor ("error gathering device information").
+# En ese caso se arranca sin ella (lo mismo que sin .env) y se avisa; al enchufarla vuelve a usarse.
+PICO_LOADER=${LOADER_PICO_DEVICE:-$(grep -E '^LOADER_PICO_DEVICE=' "$DIR/Lab.Panda 2.4/.devcontainer/.env" 2>/dev/null | cut -d= -f2-)}
+if [ -n "$PICO_LOADER" ] && [ ! -e "$PICO_LOADER" ]; then
+  echo "AVISO: la Pico del Loader ($PICO_LOADER) no esta enchufada -- arranco sin ella."
+  export LOADER_PICO_DEVICE=/dev/null
+fi
 (cd "$DIR/Lab.Panda 2.4/.devcontainer" && docker compose up -d --build)
 
 echo "== 3/5 -- Compilando el paquete ROS2 (necesario la primera vez) =="

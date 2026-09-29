@@ -1,4 +1,4 @@
-<!-- Version: 2026-09-19 10:34 -- manual_usuario_avanzado.html (Lanzar todos los pedidos pendientes solo fabrica lo que falta; reparto aparte) -->
+<!-- Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: manual_usuario_avanzado.html (Lanzar todos los pedidos pendientes solo fabrica lo que falta; reparto aparte) -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -166,7 +166,7 @@ footer.pagefoot{font-size:9.5px;color:var(--muted);text-align:center;margin-top:
     <h3>Enciende las dos Raspberry Pi Pico</h3>
     <p>Hay una Pico por robot, cada una con su propio LED:</p>
     <ul>
-      <li><b>Sorter → Pico W de siempre</b> (Wi-Fi). Dale corriente; <code>main.py</code> arranca solo y se conecta al Wi-Fi, quedando a la escucha en <code>192.168.1.101:5001</code>. Es también la que lleva el <b>botón físico de parada de emergencia</b>.</li>
+      <li><b>Sorter → Pico W de siempre</b> (Wi-Fi). Dale corriente; <code>main.py</code> arranca solo y se conecta al Wi-Fi, quedando a la escucha en <code>IP_DE_LA_PICO:5001</code>. Es también la que lleva el <b>botón físico de parada de emergencia</b>.</li>
       <li><b>Loader → Pico nueva sin Wi-Fi</b> (USB). Conéctala por USB a este ordenador — el <code>docker-compose.yml</code> ya sabe encontrarla sola por su ruta estable, no hace falta tocar nada salvo que la sustituyas por otra Pico distinta.</li>
     </ul>
   </div>

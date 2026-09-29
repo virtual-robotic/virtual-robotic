@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Version: 2026-09-29 15:23 -- cierre de pinza 0.024 (el cubo ya no flota en la pinza). Antes: Loader: retiene la cinta mientras suelta el cubo y se retira (/warehouse/belt_hold_loader)
 """Robot "Loader" de la celda industrial (sesion 2026-08-27): vacia la caja
 de la mesa 1 (3 cubos de pie, posiciones fijas y conocidas -- no hace falta
 vision) dejando cada uno en el mismo punto de la cinta transportadora.
@@ -153,7 +154,14 @@ class LoaderDemo(CubeShuttleDemo):
         # Se copia aqui como atributo de INSTANCIA, nunca tocando la
         # constante global GRIPPER_CLOSED: hacerlo global ya rompio una vez
         # al robot que no tocaba (ver [[robotica_shared_code_por_robot]]).
-        self.grasp_close = 0.014
+        # 0.024 y no 0.014 (2026-09-29, medido con 4 cadenas y grabadora): cada dedo empuja a
+        # fuerza maxima MIENTRAS no llega a su objetivo. Con el objetivo a 16mm del cubo (0.014)
+        # los dos saturaban, se anulaban y el cubo "flotaba" hasta pegarse a un dedo (14mm de
+        # descentrado en todas las sueltas). Con 0.024 (6mm) la fuerza es la misma con el cubo
+        # centrado, pero si se desplaza el otro dedo deja de empujar y lo recentra: 4-5mm.
+        # Prueba de 320 piezas: 0 resbalones, 0 agarres fallidos, 0 dislocaciones, mismo ritmo.
+        # _verify_grasp sigue valiendo: los dedos paran en 0.030 > 0.024 + GRASP_VERIFY_MARGIN.
+        self.grasp_close = 0.024
         # Suscrito a /warehouse/belt_pause (sesion 2026-09-08, peticion
         # directa del usuario: "si la cinta esta parada, para el Loader
         # tambien"). Revisa la decision original de arriba (DROP_CLEAR_
@@ -165,9 +173,17 @@ class LoaderDemo(CubeShuttleDemo):
         # Sorter/WarehouseSupervisor) -- ver _esperar_hueco_en_cinta.
         self.belt_paused = False
         self.create_subscription(Bool, '/warehouse/belt_pause', self._on_belt_pause, 10)
+        self.pub_belt_hold_loader = self.create_publisher(Bool, '/warehouse/belt_hold_loader', 10)
 
     def _on_belt_pause(self, msg):
         self.belt_paused = bool(msg.data)
+
+    def _retener_cinta_al_soltar(self, retenida):
+        """Ver CubeShuttleDemo.lift_shift_place: la cinta quieta mientras el Loader suelta y se
+        retira, para que no arrastre el cubo contra el dedo que aun lo toca (2026-09-29)."""
+        self.pub_belt_hold_loader.publish(Bool(data=bool(retenida)))
+        if retenida:
+            self.spin_for(0.1)  # que el almacen pare la cinta antes de abrir
 
     def _esperar_reciclado(self, color, x, y):
         """Espera INDEFINIDAMENTE a que la camara vea de nuevo un cubo de

@@ -24,7 +24,7 @@ servidor TCP no bloqueante en el puerto 5001 que espera un caracter
 Si la Pico tiene otra IP, otro puerto, o los pines cambiaron, se ajusta con
 los parametros ROS2 `pico_ip` / `pico_port` (no hace falta tocar codigo):
 
-    ros2 run panda_controller led_publisher --ros-args -p pico_ip:=192.168.1.101
+    ros2 run panda_controller led_publisher --ros-args -p pico_ip:=IP_DE_LA_PICO
 
 Como lanzarlo (en cualquier momento, no depende de Webots ni del driver del
 Panda -- solo necesita ver la Pico W por la red):
@@ -43,7 +43,7 @@ class LedPublisherNode(Node):
     def __init__(self):
         super().__init__('led_publisher')
 
-        self.declare_parameter('pico_ip', '192.168.1.101')
+        self.declare_parameter('pico_ip', 'IP_DE_LA_PICO')
         self.declare_parameter('pico_port', 5001)
         self.declare_parameter('socket_timeout', 2.0)
 

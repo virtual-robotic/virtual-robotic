@@ -149,3 +149,39 @@ def crear_usuario_normal(client, admin_headers, cliente_id, username, sucursal=N
     )
     assert r.status_code == 200, r.text
     return r.json()
+
+
+def sub_id(color):
+    """Variante con la que las piezas de prueba llegan a la web (2026-09-28): la misma que
+    usa subproducto_por_color (la primera del producto de ese LED), leida de la base de
+    pruebas. Cada variante es una pieza distinta y el Sorter manda siempre la suya; una
+    pieza solo con el color, de un producto con varias variantes, no se asigna a nada."""
+    from app.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        color_row = db.query(models.Color).filter_by(codigo=color).first()
+        if color_row is None:
+            return None
+        producto = db.query(models.Producto).filter_by(id_led=color_row.id).first()
+        if producto is None:
+            return None
+        sub = (db.query(models.Subproducto).filter_by(producto_id=producto.id)
+               .order_by(models.Subproducto.id).first())
+        return sub.id if sub else None
+    finally:
+        db.close()
+
+
+def sub_de_producto(producto_id):
+    """Primera variante de un producto (la que usan los pedidos de prueba), para ajustar/quitar
+    stock, que desde 2026-09-28 van por variante."""
+    from app.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        sub = (db.query(models.Subproducto).filter_by(producto_id=producto_id)
+               .order_by(models.Subproducto.id).first())
+        return sub.id if sub else None
+    finally:
+        db.close()

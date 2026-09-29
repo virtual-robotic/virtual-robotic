@@ -1,4 +1,4 @@
-<!-- Version: 2026-09-27 18:36 -- enlaces a las plantillas Word en Administracion > Empresas. Antes: empleados de la empresa con permiso por grupo (Produccion/Contabilidad) -->
+<!-- Version: 2026-09-28 21:10 -- Almacen por VARIANTE (stock propio de cada subproducto) y stock antiguo "Pasar a variante". Antes: enlaces a las plantillas Word en Administracion > Empresas. Antes: empleados de la empresa con permiso por grupo (Produccion/Contabilidad) -->
 <!doctype html>
 <!-- 2026-09-12: cabecera de marca (Virtual Robotic) anadida para que el
      panel comparta anagrama/tipografia con la web de aterrizaje ("/"). -->
@@ -2351,68 +2351,74 @@
   // --------------------------------------------------------------- almacen
 
   async function renderAlmacen() {
-    const [config, stock, movimientos, productos, pedidos] = await Promise.all([
-      api("/almacen/configuracion"), api("/stock"), api("/movimientos_stock"), api("/productos"),
-      api("/pedidos"),
+    const [stock, antiguo, movimientos, productos, subproductos, pedidos] = await Promise.all([
+      api("/stock"), api("/stock/antiguo"), api("/movimientos_stock"), api("/productos"),
+      api("/subproductos"), api("/pedidos"),
     ]);
     const productosPorId = {};
     productos.forEach((p) => { productosPorId[p.id] = p; });
-    // Desglose por subproducto (sesion 2026-09-15, a peticion del usuario:
-    // "almacen tambien tiene que estar desglosado en subproductos") -- el
-    // stock fisico sigue siendo por producto (no se puede distinguir un
-    // Clavo de 10 de uno de 20 una vez en el almacen), pero se puede
-    // mostrar cuanto de ese stock hace falta para cada variante pendiente,
-    // igual que en el resumen del panel de control.
+    const subPorId = {};
+    subproductos.forEach((s) => { subPorId[s.id] = s; });
+    // Stock por VARIANTE (2026-09-28, decision del usuario: "las de 10mm con
+    // las de 10mm y las de 20mm con las de 20mm") -- cada subproducto es una
+    // pieza distinta con su propio stock; ya no hay una cifra por producto.
     const ACTIVOS = ["pendiente", "en_proceso"];
-    const pendientePorProducto = {};
+    const pendientePorSub = {};
     pedidos.filter((p) => ACTIVOS.includes(p.estado)).forEach((p) => {
       const restante = p.cantidad_pedida - p.cantidad_completada;
-      if (restante <= 0) return;
-      const porSub = pendientePorProducto[p.producto_id] || (pendientePorProducto[p.producto_id] = {});
-      porSub[p.subproducto.nombre] = (porSub[p.subproducto.nombre] || 0) + restante;
+      if (restante > 0) pendientePorSub[p.subproducto_id] = (pendientePorSub[p.subproducto_id] || 0) + restante;
     });
-    // Orden logico: por codigo de producto, no por orden de alta en la BBDD.
-    const stockOrdenado = [...stock].sort((a, b) => a.producto.codigo.localeCompare(b.producto.codigo));
+    // Orden logico: por codigo completo (producto + variante), no por orden de alta.
+    const stockOrdenado = [...stock].sort((a, b) => a.subproducto.codigo_completo.localeCompare(b.subproducto.codigo_completo));
+    const variantesDe = (productoId) => subproductos.filter((s) => s.producto_id === productoId && s.activo);
     const cont = document.getElementById("contenido");
     cont.innerHTML = `
       <h2>${t("tab_almacen", "Almacén")}</h2>
       <p class="ayuda">${t("ayuda_almacen", "El stock de piezas ya fabricadas y guardadas, listas para servir sin esperar a que la celda las haga de nuevo. Aquí se ve y se ajusta a mano lo que hay guardado. Repartir ese stock entre los pedidos (asignarlo y entregarlo, con su albarán) se hace en la pestaña <b>Reparto</b>, donde están también los interruptores automáticos. Los \"Movimientos\" de más abajo son el histórico de cada entrada y salida, por si algún día hay que rastrear de dónde salió o a dónde fue una pieza.")}</p>
-      <h3>${t("stock", "Stock")}</h3>
+      <p class="ayuda">${t("ayuda_almacen_variantes", "Cada variante es una pieza distinta (por ejemplo, Tornillo 10mm y Tornillo 20mm): tiene su propio stock y solo sirve para pedidos de esa misma variante.")}</p>
+      ${antiguo.length ? `
+      <h3>${t("stock_antiguo", "Stock antiguo sin variante")}</h3>
+      <p class="ayuda">${t("ayuda_stock_antiguo", "Piezas guardadas antes de que cada variante tuviera su propio stock. Mientras estén aquí no sirven para ningún pedido: indica de qué variante son y pásalas.")}</p>
       <table>
-        <thead><tr><th>${t("th_producto", "Producto")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_actualizado", "Actualizado")}</th><th></th></tr></thead>
-        <tbody>${stockOrdenado.map((s) => {
-          const porSub = pendientePorProducto[s.producto_id] || {};
-          // Una fila propia por variante pendiente (sesion 2026-09-15, a
-          // peticion del usuario: "en almacen me gustaria ver como en
-          // panel de control en resumen por producto, en varias lineas")
-          // -- mismo estilo que el resumen de teleop_gui.py, no todo en
-          // una linea con comas.
-          const filasSub = Object.entries(porSub).sort(([a], [b]) => a.localeCompare(b))
-            .map(([nombre, cantidad]) => `
-              <tr>
-                <td colspan="5" style="color:#9a8f7d;padding-left:2em">· ${t("pendientes_n", "{nombre}: {n} pendiente(s)", { nombre: escapeHtml(nombre), n: cantidad })}</td>
-              </tr>`).join("");
-          return `
+        <thead><tr><th>${t("th_producto", "Producto")}</th><th>${t("th_cantidad", "Cantidad")}</th><th></th></tr></thead>
+        <tbody>${antiguo.map((s) => `
           <tr>
             <td>${escapeHtml(s.producto.nombre)}</td>
-            <td>${escapeHtml(s.producto.codigo)}</td>
             <td>${s.cantidad_actual}</td>
-            <td>${fechaLocal(s.actualizado_en)}</td>
             <td>
-              <input type="number" min="1" value="1" style="width:60px" data-cant="${s.producto_id}" />
-              <button data-anadir="${s.producto_id}">${t("anadir_a_stock", "Añadir a stock")}</button>
-              <button data-quitar="${s.producto_id}">${t("quitar_de_stock", "Quitar de stock")}</button>
+              <input type="number" min="1" max="${s.cantidad_actual}" value="${s.cantidad_actual}" style="width:60px" data-cant-antiguo="${s.producto_id}" />
+              <select data-var-antiguo="${s.producto_id}">${variantesDe(s.producto_id).map((v) =>
+                `<option value="${v.id}">${escapeHtml(v.nombre)} (${escapeHtml(v.codigo_completo)})</option>`).join("")}</select>
+              <button data-pasar="${s.producto_id}">${t("pasar_a_variante", "Pasar a variante")}</button>
             </td>
-          </tr>${filasSub}`;
-        }).join("")}</tbody>
+          </tr>`).join("")}</tbody>
+      </table>` : ""}
+      <h3>${t("stock", "Stock")}</h3>
+      <table>
+        <thead><tr><th>${t("th_producto", "Producto")}</th><th>${t("th_variante", "Variante")}</th><th>${t("th_codigo", "Código")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_pendiente", "Pendiente")}</th><th>${t("th_actualizado", "Actualizado")}</th><th></th></tr></thead>
+        <tbody>${stockOrdenado.map((s) => `
+          <tr>
+            <td>${escapeHtml(s.producto.nombre)}</td>
+            <td>${escapeHtml(s.subproducto.nombre)}</td>
+            <td>${escapeHtml(s.subproducto.codigo_completo)}</td>
+            <td>${s.cantidad_actual}</td>
+            <td>${pendientePorSub[s.subproducto_id] || "—"}</td>
+            <td>${s.actualizado_en ? fechaLocal(s.actualizado_en) : "—"}</td>
+            <td>
+              <input type="number" min="1" value="1" style="width:60px" data-cant="${s.subproducto_id}" />
+              <button data-anadir="${s.subproducto_id}">${t("anadir_a_stock", "Añadir a stock")}</button>
+              <button data-quitar="${s.subproducto_id}">${t("quitar_de_stock", "Quitar de stock")}</button>
+            </td>
+          </tr>`).join("")}</tbody>
       </table>
       <h3>${t("movimientos", "Movimientos")}</h3>
       <table>
-        <thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_tipo", "Tipo")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_motivo", "Motivo")}</th><th>${t("th_pedido", "Pedido")}</th></tr></thead>
+        <thead><tr><th>${t("th_fecha", "Fecha")}</th><th>${t("th_producto", "Producto")}</th><th>${t("th_variante", "Variante")}</th><th>${t("th_tipo", "Tipo")}</th><th>${t("th_cantidad", "Cantidad")}</th><th>${t("th_motivo", "Motivo")}</th><th>${t("th_pedido", "Pedido")}</th></tr></thead>
         <tbody>${movimientos.map((m) => `
           <tr>
             <td>${fechaLocal(m.fecha)}</td>
             <td>${escapeHtml((productosPorId[m.producto_id] || {}).nombre || m.producto_id)}</td>
+            <td>${m.subproducto_id ? escapeHtml((subPorId[m.subproducto_id] || {}).nombre || m.subproducto_id) : "—"}</td>
             <td>${escapeHtml(m.tipo)}</td>
             <td>${m.cantidad}</td>
             <td>${escapeHtml(m.motivo)}</td>
@@ -2424,7 +2430,7 @@
       btn.onclick = async () => {
         const cantidad = Number(cont.querySelector(`[data-cant="${btn.dataset.anadir}"]`).value);
         try {
-          await api("/almacen/ajustar", { method: "POST", body: JSON.stringify({ producto_id: Number(btn.dataset.anadir), cantidad }) });
+          await api("/almacen/ajustar", { method: "POST", body: JSON.stringify({ subproducto_id: Number(btn.dataset.anadir), cantidad }) });
           renderAlmacen();
         } catch (e) { avisar(e.message); }
       };
@@ -2433,7 +2439,18 @@
       btn.onclick = async () => {
         const cantidad = Number(cont.querySelector(`[data-cant="${btn.dataset.quitar}"]`).value);
         try {
-          await api("/almacen/quitar", { method: "POST", body: JSON.stringify({ producto_id: Number(btn.dataset.quitar), cantidad }) });
+          await api("/almacen/quitar", { method: "POST", body: JSON.stringify({ subproducto_id: Number(btn.dataset.quitar), cantidad }) });
+          renderAlmacen();
+        } catch (e) { avisar(e.message); }
+      };
+    });
+    cont.querySelectorAll("[data-pasar]").forEach((btn) => {
+      btn.onclick = async () => {
+        const productoId = btn.dataset.pasar;
+        const cantidad = Number(cont.querySelector(`[data-cant-antiguo="${productoId}"]`).value);
+        const subproductoId = Number(cont.querySelector(`[data-var-antiguo="${productoId}"]`).value);
+        try {
+          await api("/almacen/pasar_a_variante", { method: "POST", body: JSON.stringify({ producto_id: Number(productoId), subproducto_id: subproductoId, cantidad }) });
           renderAlmacen();
         } catch (e) { avisar(e.message); }
       };

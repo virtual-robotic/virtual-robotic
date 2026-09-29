@@ -1,4 +1,4 @@
-_Azken aldaketa: 2026-09-26 11:37_
+_Azken aldaketa: 2026-09-29 14:38_
 
 # Proiektua abiarazi (Linux)
 
@@ -213,7 +213,7 @@ Robot bakoitzeko Pico bat dago, bakoitzak bere LEDarekin:
 
 - **Sorter → beti bezalako Pico W** (`Rasberry_Pi_Pico/`, Wi-Fi
   bidez). Eman korrontea; `main.py` bakarrik abiarazten da eta
-  Wi-Fira konektatzen da, `192.168.1.101:5001`n entzuten geratuz.
+  Wi-Fira konektatzen da, `IP_DE_LA_PICO:5001`n entzuten geratuz.
   **Larrialdiko geldialdi botoi fisikoa** ere daramana da (ikusi
   beherago).
 - **Loader → Wi-Firik gabeko Pico berria** (`Rasberry_Pi_Pico_USB_Loader/`).
@@ -462,7 +462,7 @@ arte itxaron):
 ./crear_linea.sh 3
 # edo jada Makina Zk., Taller_Administracion-en URLa (lerro hau BESTE
 # ordenagailu batean bizi bada) eta Kate taldearekin:
-./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
+./crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 0
 ```
 
 Lerroek ez dute zertan ordenagailu berean edo sistema berean egon: 2026-09-24an
@@ -622,9 +622,7 @@ normalaren zati dela pentsatuz:
 
 - Munduak: `panda_un_cubo.wbt`, `panda_bolas.wbt`
 - Launch: `robot_launch.py` (robot bakarra, namespace gabe)
-- Demoak: `stack_tower_demo`, `move_above_ball`, `pick_and_place`,
-  `visit_balls`, `lift_ball`, `vision_lift_cube`,
-  `best_color_repeat_lift`, `teleop_manual`
+- Demoak: `stack_tower_demo` (zinematika zaharreko robot bakarreko demoak 2026-09-29an kendu ziren; git-en historian daude)
 - Uneko gelaxkaren garapen tresnak (ez dira hasiera normalaren zati
   ere, eraikitzeko erabili ziren): `panda_two_arms_smoke_test.wbt`,
   `panda_sorter_grasp_test.wbt`, `grasp_yaw_test`, `sorter_hover_test`,

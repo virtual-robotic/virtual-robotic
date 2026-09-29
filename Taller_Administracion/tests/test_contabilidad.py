@@ -5,6 +5,7 @@ facturar, factura con datos fiscales copiados y rectificativa que libera albaran
 import datetime
 
 from .conftest import (
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -17,7 +18,7 @@ ANIO = datetime.datetime.utcnow().year
 
 
 def _pieza(client, color="R"):
-    r = client.post("/taller/cubo_clasificado", json={"color": color})
+    r = client.post("/taller/cubo_clasificado", json={"color": color, "subproducto_id": sub_id(color)})
     assert r.status_code == 200, r.text
     return r.json()
 

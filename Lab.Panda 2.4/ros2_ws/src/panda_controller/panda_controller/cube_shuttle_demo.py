@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Version: 2026-09-26 10:21 -- base Loader/Sorter: _cronometro no mezcla reloj de simulacion y del ordenador (baile infinito)
+# Version: 2026-09-29 12:00 -- base Loader/Sorter: aviso _retener_cinta_al_soltar (no-op; lo usa el Loader). Antes: _cronometro no mezcla relojes
 """Demo de pick-and-place repetido, usando la cinematica ikpy validada
 (panda_ikpy_kinematics.py) en vez de la tabla DH manual de los demas nodos.
 
@@ -781,6 +781,10 @@ class CubeShuttleDemo(Node):
         self.pub_g.publish(Float64(data=pos))
         self.spin_for(wait)
 
+    def _retener_cinta_al_soltar(self, retenida):
+        """No-op por defecto (el Sorter suelta en sus cajas, no en la cinta). LoaderDemo lo
+        sobreescribe: ver lift_shift_place y /warehouse/belt_hold_loader."""
+
     def _pause_conveyor(self, paused):
         """No-op por defecto -- el Loader coge de una mesa/caja FIJA, la
         cinta no le afecta para nada. SorterDemo lo sobreescribe (sesion
@@ -1247,129 +1251,136 @@ class CubeShuttleDemo(Node):
                     self._gripper(GRIPPER_OPEN, 0.5)
                     self._set_led('0')
                     return False
-        descent_steps = 8 if place_z is None else max(8, int(round((z_lift - target_z) / 0.005)))
-        if not self.ramp(x_to, y_to, z_lift, target_z, yaw_place, yaw_place, descent_steps,
-                          'bajar a depositar (reverso de levantar)'):
-            # Soltar AQUI de todas formas (sesion 2026-09-09, bug real). El
-            # desplazamiento a destino ya termino bien, asi que el brazo esta
-            # justo ENCIMA del sitio correcto y como mucho unos cm alto: abrir
-            # la pinza deja caer el cubo en su destino. Abortar con el cubo
-            # todavia en la mano era mucho peor -- el reintento de leg() abre
-            # la pinza nada mas empezar, soltandolo en cualquier punto del
-            # recorrido. Visto en vivo: el freno de salto IK corto el descenso
-            # del Loader en el paso 3/8 y el cubo acabo tirado a medio camino
-            # (y=0.304), desde donde la cinta se lo llevo.
-            #
-            # Y la entrega CUENTA como buena (arreglo del mismo dia, horas
-            # despues): al principio esto devolvia False y el resultado fue
-            # peor todavia -- el cubo verde quedo fisicamente en su caja pero
-            # nadie publico la entrega, asi que el WarehouseSupervisor no lo
-            # reciclo nunca y el Loader se quedo 200s esperandolo ("el verde
-            # se ha quedado en sorter y no vuelve a la caja... y ahora esta
-            # todo parado"). Devolver False era mentir sobre el resultado: el
-            # cubo ESTA en su destino, solo que soltado desde unos cm mas
-            # alto. Asi que no se corta aqui -- se sigue por el camino normal
-            # de "soltar, apagar LED, retirarse y aparcar", que es lo unico
-            # que faltaba por hacer de todas formas.
-            self.get_logger().error(
-                'no se pudo completar el descenso al destino -- suelto el cubo '
-                'aqui mismo, sobre el destino, en vez de llevarmelo puesto.')
-        self._gripper(GRIPPER_OPEN, 1.2)
-        self._set_led('0')
-        self.get_logger().info('pinza abierta (soltado), LED apagado')
-        # ¿Llego el cubo de verdad al destino? (sesion 2026-09-09). Detecta el
-        # unico hueco que quedaba: un cubo que se suelta DURANTE el traslado.
-        # Las otras dos verificaciones miran antes de moverse (ground truth
-        # tras levantar) o en el sitio de origen (la camara, mas arriba), asi
-        # que el brazo podia llegar con la pinza vacia, abrirla y darse por
-        # entregado -- el aviso del usuario "deja el cubo gran parte en la
-        # cinta y otra parte en el marco y luego se va por la cinta" era
-        # exactamente eso, con el cubo caido en el arranque de la cinta.
-        #
-        # VA AQUI, DESPUES DE DEPOSITAR, y no antes del descenso (donde
-        # estuvo un rato el mismo dia): comprobar antes obligaba a abortar
-        # con el cubo aun en la pinza, y el aborto la abria a la altura de
-        # traslado -- 15cm por encima del destino. Si la comprobacion se
-        # equivocaba (y se equivocaba: el brazo tarda en llegar de verdad,
-        # ver mas abajo), el cubo caia desde ahi en vez de posarse. Aviso
-        # real: "ahora lo sueltas de mas arriba... antes tiraba el brazo
-        # para delante y lo dejaba como mas suave". Depositando SIEMPRE y
-        # comprobando despues, el movimiento es el suave de siempre y la
-        # comprobacion sale gratis: si el cubo venia en la pinza, ya esta
-        # en su sitio; si no, no habia nada que posar.
-        #
-        # Se ESPERA a que llegue, no se mide de golpe: el ultimo paso de la
-        # rampa esta PUBLICADO pero el brazo real sigue viajando (el desfase
-        # comandado/real de siempre), asi que una medida inmediata daba por
-        # perdidos cubos bien agarrados -- vistos a 0.16m y 0.20m en el
-        # Sorter, cuyo traslado es de 53cm. Y como un aborto no publica la
-        # entrega, aquellos cubos se quedaban sin reciclar y paraban la
-        # celda ("los cubos no vuelven de la rejilla a la caja de salida").
-        if color is not None and color in self.cube_pos_real:
-            transcurrido = self._cronometro()
-            dist_destino = None
-            while transcurrido() < CARRIED_TIMEOUT_S:
-                cx, cy = self.cube_pos_real[color][0], self.cube_pos_real[color][1]
-                dist_destino = ((cx - x_to) ** 2 + (cy - y_to) ** 2) ** 0.5
-                if dist_destino <= CARRIED_MAX_DIST:
-                    break
-                self.spin_for(0.1)
-            if dist_destino is not None and dist_destino > CARRIED_MAX_DIST:
-                cx, cy = self.cube_pos_real[color][0], self.cube_pos_real[color][1]
+        # Cinta retenida mientras suelta y se retira (2026-09-29, grabado en vivo): el cubo viaja
+        # pegado a un dedo y, al abrir, ese dedo sigue tocandolo; si la cinta arranca el cubo lo
+        # arrastra contra el dedo y lo dobla hacia fuera. No-op salvo en el Loader.
+        self._retener_cinta_al_soltar(True)
+        try:
+            descent_steps = 8 if place_z is None else max(8, int(round((z_lift - target_z) / 0.005)))
+            if not self.ramp(x_to, y_to, z_lift, target_z, yaw_place, yaw_place, descent_steps,
+                              'bajar a depositar (reverso de levantar)'):
+                # Soltar AQUI de todas formas (sesion 2026-09-09, bug real). El
+                # desplazamiento a destino ya termino bien, asi que el brazo esta
+                # justo ENCIMA del sitio correcto y como mucho unos cm alto: abrir
+                # la pinza deja caer el cubo en su destino. Abortar con el cubo
+                # todavia en la mano era mucho peor -- el reintento de leg() abre
+                # la pinza nada mas empezar, soltandolo en cualquier punto del
+                # recorrido. Visto en vivo: el freno de salto IK corto el descenso
+                # del Loader en el paso 3/8 y el cubo acabo tirado a medio camino
+                # (y=0.304), desde donde la cinta se lo llevo.
+                #
+                # Y la entrega CUENTA como buena (arreglo del mismo dia, horas
+                # despues): al principio esto devolvia False y el resultado fue
+                # peor todavia -- el cubo verde quedo fisicamente en su caja pero
+                # nadie publico la entrega, asi que el WarehouseSupervisor no lo
+                # reciclo nunca y el Loader se quedo 200s esperandolo ("el verde
+                # se ha quedado en sorter y no vuelve a la caja... y ahora esta
+                # todo parado"). Devolver False era mentir sobre el resultado: el
+                # cubo ESTA en su destino, solo que soltado desde unos cm mas
+                # alto. Asi que no se corta aqui -- se sigue por el camino normal
+                # de "soltar, apagar LED, retirarse y aparcar", que es lo unico
+                # que faltaba por hacer de todas formas.
                 self.get_logger().error(
-                    f'[verificacion transporte] deposite en ({x_to:.3f},{y_to:.3f}) '
-                    f'pero el cubo {color} esta en ({cx:.3f},{cy:.3f}), a '
-                    f'{dist_destino:.2f}m -- se solto durante el traslado, no ha '
-                    'llegado nada al destino. Reintento.')
-                self._notificar_evento_produccion('agarre_falso', color)
-                return False
-        # Bug real (sesion 2026-08-26): este ramp arrancaba siempre desde
-        # HOVER_GRASP en vez de desde target_z (donde el brazo esta de
-        # verdad tras depositar). Cuando target_z != HOVER_GRASP (apilar,
-        # target_z > HOVER_GRASP), el primer paso ordenaba una z POR DEBAJO
-        # de la posicion real -- se vio como un bajon brusco justo al abrir
-        # la pinza. Arrancar desde target_z (no HOVER_GRASP a secas)
-        # arregla el salto.
-        #
-        # Segundo bug real (mismo dia): este mismo ramp giraba la muneca
-        # (des-giro YAW->0) A LA VEZ que subia, justo encima del cubo recien
-        # soltado -- se veia como un giro brusco al alejarse en vez de una
-        # subida limpia. Ahora sube en linea recta manteniendo YAW constante
-        # (sin girar) en los dos tramos de retirada; el des-giro se deja
-        # para park_at_home(), que interpola en espacio de articulaciones
-        # ya en SAFE_Z, lejos del cubo, donde girar no arriesga nada.
-        #
-        # Tercer bug real (mismo dia): HOVER_HIGH (0.97) es una altura FIJA
-        # pensada para depositar sobre la mesa. Al apilar sobre 2 niveles
-        # (target_z=0.99 > HOVER_HIGH), este ramp ordenaba BAJAR de 0.99 a
-        # 0.97 antes de subir de verdad -- bajon con presion justo sobre la
-        # torre recien construida. retreat_high nunca puede quedar por
-        # debajo de target_z: si target_z ya supera HOVER_HIGH, este primer
-        # tramo no baja nada (se queda a la misma altura) y toda la subida
-        # ocurre en el segundo tramo.
-        # A PARTIR DE AQUI LA ENTREGA YA ESTA HECHA (sesion 2026-09-09, bug
-        # real que paro la produccion dos veces). La pinza ya se abrio y el
-        # cubo esta en su destino: lo que queda es apartar el brazo. Un fallo
-        # en esos tramos es un problema de MOVIMIENTO, no de entrega, y no
-        # puede convertir en fracaso algo que ya salio bien -- devolver False
-        # aqui hacia que leg() lo contara como "agarre falso", asi que nunca
-        # se publicaba /warehouse/cube_delivered, el WarehouseSupervisor no
-        # reciclaba el cubo y el Loader se quedaba esperandolo para siempre.
-        # Capturado literal: "bajar a depositar: OK" -> "pinza abierta
-        # (soltado)" -> "LIMITE en retirada (paso 2/12)" -> "agarre falso".
-        # El cubo verde estaba perfectamente puesto en su caja.
-        # Si la retirada falla, se va directo a park_at_home(), que interpola
-        # en espacio de ARTICULACIONES (sin IK, ver su docstring) y por tanto
-        # es la via de escape que mas probabilidades tiene de funcionar
-        # justo cuando el solver acaba de fallar.
-        retreat_high = max(HOVER_HIGH, target_z)
-        if not self.ramp(x_to, y_to, target_z, retreat_high, yaw_place, yaw_place, 12,
-                          'retirada (sube recto, sin girar)'):
-            self.get_logger().error(
-                'fallo al retirarme, pero el cubo YA esta entregado en su destino -- '
-                'aparco en espacio de articulaciones y cuento la entrega como buena.')
-            self.park_at_home()
-            return True
+                    'no se pudo completar el descenso al destino -- suelto el cubo '
+                    'aqui mismo, sobre el destino, en vez de llevarmelo puesto.')
+            self._gripper(GRIPPER_OPEN, 1.2)
+            self._set_led('0')
+            self.get_logger().info('pinza abierta (soltado), LED apagado')
+            # ¿Llego el cubo de verdad al destino? (sesion 2026-09-09). Detecta el
+            # unico hueco que quedaba: un cubo que se suelta DURANTE el traslado.
+            # Las otras dos verificaciones miran antes de moverse (ground truth
+            # tras levantar) o en el sitio de origen (la camara, mas arriba), asi
+            # que el brazo podia llegar con la pinza vacia, abrirla y darse por
+            # entregado -- el aviso del usuario "deja el cubo gran parte en la
+            # cinta y otra parte en el marco y luego se va por la cinta" era
+            # exactamente eso, con el cubo caido en el arranque de la cinta.
+            #
+            # VA AQUI, DESPUES DE DEPOSITAR, y no antes del descenso (donde
+            # estuvo un rato el mismo dia): comprobar antes obligaba a abortar
+            # con el cubo aun en la pinza, y el aborto la abria a la altura de
+            # traslado -- 15cm por encima del destino. Si la comprobacion se
+            # equivocaba (y se equivocaba: el brazo tarda en llegar de verdad,
+            # ver mas abajo), el cubo caia desde ahi en vez de posarse. Aviso
+            # real: "ahora lo sueltas de mas arriba... antes tiraba el brazo
+            # para delante y lo dejaba como mas suave". Depositando SIEMPRE y
+            # comprobando despues, el movimiento es el suave de siempre y la
+            # comprobacion sale gratis: si el cubo venia en la pinza, ya esta
+            # en su sitio; si no, no habia nada que posar.
+            #
+            # Se ESPERA a que llegue, no se mide de golpe: el ultimo paso de la
+            # rampa esta PUBLICADO pero el brazo real sigue viajando (el desfase
+            # comandado/real de siempre), asi que una medida inmediata daba por
+            # perdidos cubos bien agarrados -- vistos a 0.16m y 0.20m en el
+            # Sorter, cuyo traslado es de 53cm. Y como un aborto no publica la
+            # entrega, aquellos cubos se quedaban sin reciclar y paraban la
+            # celda ("los cubos no vuelven de la rejilla a la caja de salida").
+            if color is not None and color in self.cube_pos_real:
+                transcurrido = self._cronometro()
+                dist_destino = None
+                while transcurrido() < CARRIED_TIMEOUT_S:
+                    cx, cy = self.cube_pos_real[color][0], self.cube_pos_real[color][1]
+                    dist_destino = ((cx - x_to) ** 2 + (cy - y_to) ** 2) ** 0.5
+                    if dist_destino <= CARRIED_MAX_DIST:
+                        break
+                    self.spin_for(0.1)
+                if dist_destino is not None and dist_destino > CARRIED_MAX_DIST:
+                    cx, cy = self.cube_pos_real[color][0], self.cube_pos_real[color][1]
+                    self.get_logger().error(
+                        f'[verificacion transporte] deposite en ({x_to:.3f},{y_to:.3f}) '
+                        f'pero el cubo {color} esta en ({cx:.3f},{cy:.3f}), a '
+                        f'{dist_destino:.2f}m -- se solto durante el traslado, no ha '
+                        'llegado nada al destino. Reintento.')
+                    self._notificar_evento_produccion('agarre_falso', color)
+                    return False
+            # Bug real (sesion 2026-08-26): este ramp arrancaba siempre desde
+            # HOVER_GRASP en vez de desde target_z (donde el brazo esta de
+            # verdad tras depositar). Cuando target_z != HOVER_GRASP (apilar,
+            # target_z > HOVER_GRASP), el primer paso ordenaba una z POR DEBAJO
+            # de la posicion real -- se vio como un bajon brusco justo al abrir
+            # la pinza. Arrancar desde target_z (no HOVER_GRASP a secas)
+            # arregla el salto.
+            #
+            # Segundo bug real (mismo dia): este mismo ramp giraba la muneca
+            # (des-giro YAW->0) A LA VEZ que subia, justo encima del cubo recien
+            # soltado -- se veia como un giro brusco al alejarse en vez de una
+            # subida limpia. Ahora sube en linea recta manteniendo YAW constante
+            # (sin girar) en los dos tramos de retirada; el des-giro se deja
+            # para park_at_home(), que interpola en espacio de articulaciones
+            # ya en SAFE_Z, lejos del cubo, donde girar no arriesga nada.
+            #
+            # Tercer bug real (mismo dia): HOVER_HIGH (0.97) es una altura FIJA
+            # pensada para depositar sobre la mesa. Al apilar sobre 2 niveles
+            # (target_z=0.99 > HOVER_HIGH), este ramp ordenaba BAJAR de 0.99 a
+            # 0.97 antes de subir de verdad -- bajon con presion justo sobre la
+            # torre recien construida. retreat_high nunca puede quedar por
+            # debajo de target_z: si target_z ya supera HOVER_HIGH, este primer
+            # tramo no baja nada (se queda a la misma altura) y toda la subida
+            # ocurre en el segundo tramo.
+            # A PARTIR DE AQUI LA ENTREGA YA ESTA HECHA (sesion 2026-09-09, bug
+            # real que paro la produccion dos veces). La pinza ya se abrio y el
+            # cubo esta en su destino: lo que queda es apartar el brazo. Un fallo
+            # en esos tramos es un problema de MOVIMIENTO, no de entrega, y no
+            # puede convertir en fracaso algo que ya salio bien -- devolver False
+            # aqui hacia que leg() lo contara como "agarre falso", asi que nunca
+            # se publicaba /warehouse/cube_delivered, el WarehouseSupervisor no
+            # reciclaba el cubo y el Loader se quedaba esperandolo para siempre.
+            # Capturado literal: "bajar a depositar: OK" -> "pinza abierta
+            # (soltado)" -> "LIMITE en retirada (paso 2/12)" -> "agarre falso".
+            # El cubo verde estaba perfectamente puesto en su caja.
+            # Si la retirada falla, se va directo a park_at_home(), que interpola
+            # en espacio de ARTICULACIONES (sin IK, ver su docstring) y por tanto
+            # es la via de escape que mas probabilidades tiene de funcionar
+            # justo cuando el solver acaba de fallar.
+            retreat_high = max(HOVER_HIGH, target_z)
+            if not self.ramp(x_to, y_to, target_z, retreat_high, yaw_place, yaw_place, 12,
+                              'retirada (sube recto, sin girar)'):
+                self.get_logger().error(
+                    'fallo al retirarme, pero el cubo YA esta entregado en su destino -- '
+                    'aparco en espacio de articulaciones y cuento la entrega como buena.')
+                self.park_at_home()
+                return True
+        finally:
+            self._retener_cinta_al_soltar(False)
         if not self.ramp(x_to, y_to, retreat_high, SAFE_Z, yaw_place, yaw_place, 10,
                           'subir a home (sigue recto, sin girar)'):
             self.get_logger().error(

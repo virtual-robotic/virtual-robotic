@@ -1,3 +1,4 @@
+# Version: 2026-09-29 11:35 -- retiene la cinta (/warehouse/belt_hold) mientras hay un cubo encajado
 """Plugin de Webots para el robot sin cuerpo fisico
 DEF SORTER_SHUTTLE_SUPERVISOR (worlds/panda_industrial_cell_shuttle.wbt y
 worlds/panda_shuttle_test.wbt, supervisor TRUE).
@@ -41,6 +42,16 @@ aviso que SorterDemo._pause_conveyor ya publica justo antes de la bajada
 final, escuchado tambien por warehouse_supervisor_driver.py para la
 cinta) -- mientras este a True, el brazo ya se ha comprometido con ESTE
 cubo, y la bandeja no debe tocar nada hasta que se libere.
+
+SEGUNDO BUG REAL (2026-09-29, grabado en vivo con 4 cadenas): tras encajar
+el cubo (y=1.2642, girado 10 grados), la cinta SEGUIA en marcha y en 0.2s
+volvia a empujarlo contra el tope, dejandolo plano (0 grados) y pegado a el
+(y=1.2707), sin hueco para el dedo de ese lado: el Sorter lo escurria al
+cerrar y en el reintento el dedo atravesaba el cubo (pinza rota). Arreglo:
+al encajar, publicar '/warehouse/belt_hold' = True para que el almacen pare
+la cinta, y False cuando el Sorter ya se ha llevado el cubo (RELEASE_RADIUS).
+Topic aparte de belt_pause a proposito: el Loader escucha belt_pause para no
+cargar cubos, y la retencion no tiene por que frenarle.
 """
 
 import math
@@ -131,6 +142,9 @@ class SorterShuttleSupervisorDriver:
         self.__node = rclpy.create_node('sorter_shuttle_supervisor')
         self.__node.create_subscription(
             Bool, '/warehouse/belt_pause', self.__on_belt_pause, 10)
+        self.__pub_hold = self.__node.create_publisher(Bool, '/warehouse/belt_hold', 10)
+        self.__retenida = None
+        self.__retener(False)  # por si quedo retenida de una ejecucion anterior
 
         print(
             f'[sorter_shuttle_supervisor] Bandeja lista -- {len(self.__cubes)}/3 cubos '
@@ -140,6 +154,11 @@ class SorterShuttleSupervisorDriver:
     def __on_belt_pause(self, msg):
         self.__paused = bool(msg.data)
 
+    def __retener(self, retenida):
+        if retenida != self.__retenida:
+            self.__retenida = retenida
+            self.__pub_hold.publish(Bool(data=retenida))
+
     def __check_color(self, color, node):
         x, y, _z = node.getField('translation').getSFVec3f()
         dist = ((x - PICKUP_X) ** 2 + (y - PICKUP_Y) ** 2) ** 0.5
@@ -148,6 +167,8 @@ class SorterShuttleSupervisorDriver:
             if dist > RELEASE_RADIUS:
                 self.__docked.discard(color)
                 self.__last_xy.pop(color, None)
+                if not self.__docked:
+                    self.__retener(False)  # el Sorter se lo ha llevado: la cinta sigue
             return
 
         if dist > CATCH_RADIUS:
@@ -189,6 +210,7 @@ class SorterShuttleSupervisorDriver:
         node.resetPhysics()
         self.__docked.add(color)
         self.__last_xy.pop(color, None)
+        self.__retener(True)  # que la cinta no lo vuelva a empujar contra el tope
         print(
             f'[sorter_shuttle_supervisor] Cubo {color} encajado en la bandeja '
             f'({PICKUP_X},{y:.4f},{DOCK_Z}) girado {DOCK_YAW_DEG} grados.', flush=True
@@ -206,3 +228,6 @@ class SorterShuttleSupervisorDriver:
         self.__last_check = now
         for color, node in self.__cubes.items():
             self.__check_color(color, node)
+        # Se repite cada CHECK_PERIOD_S (no solo al cambiar): si un aviso se
+        # perdiera, la cinta no se quedaria parada (o en marcha) para siempre.
+        self.__pub_hold.publish(Bool(data=bool(self.__retenida)))

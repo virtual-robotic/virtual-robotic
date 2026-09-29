@@ -1,4 +1,4 @@
-# Version: 2026-09-26 18:40 -- modelos: permisos por grupo de los empleados
+# Version: 2026-09-28 20:40 -- modelos: stock por SUBPRODUCTO (10mm y 20mm son piezas distintas). Antes: permisos por grupo de los empleados
 import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
@@ -129,10 +129,11 @@ class Producto(Base):
 
 class Subproducto(Base):
     """Variante concreta de un producto (sesion 2026-09-15): p.ej.
-    "Tornillo de 10mm" dentro del producto "Tornillos". La celda fisica NO
-    distingue subproductos (solo sabe fabricar/clasificar por color, a
-    nivel de Producto) -- Stock y MovimientoStock siguen colgando de
-    producto_id sin cambios; el pedido es lo que ahora cuelga de aqui.
+    "Tornillo de 10mm" dentro del producto "Tornillos". Desde 2026-09-28
+    cada variante es una PIEZA DISTINTA (decision del usuario: "las de 10mm
+    con las de 10mm y las de 20mm con las de 20mm"): se fabrica en lotes
+    propios y tiene su propio stock (StockSubproducto), nunca se mezcla con
+    otra variante del mismo producto.
     """
 
     __tablename__ = "subproductos"
@@ -218,10 +219,9 @@ class Pedido(Base):
     # Sesion 2026-09-15: antes colgaba de producto_id directo; ahora cuelga
     # del subproducto concreto pedido. producto_id se mantiene tambien,
     # DESNORMALIZADO A PROPOSITO (= subproducto.producto_id en el momento
-    # de crear el pedido): es la clave con la que Stock/MovimientoStock y
-    # todo el motor de reparto (_servir_desde_stock, cubo_clasificado)
-    # siguen trabajando sin cambiar de comportamiento -- el robot solo
-    # sabe de color/producto, nunca de subproducto.
+    # de crear el pedido), para agrupar por producto y por grupo de cadena.
+    # El reparto y el stock van por subproducto_id desde 2026-09-28 (cada
+    # variante es una pieza distinta, ver StockSubproducto).
     subproducto_id = Column(Integer, ForeignKey("subproductos.id"), nullable=False)
     producto_id = Column(Integer, ForeignKey("productos.id"), nullable=False)
     # Solo si el pedido nacio de pedir un Paquete (POST /pedidos/paquete):
@@ -314,6 +314,13 @@ class PedidoPaquete(Base):
 
 
 class Stock(Base):
+    """Stock ANTIGUO por producto, de antes de 2026-09-28 (sin variante). Ya no
+    entra nada nuevo aqui salvo una pieza que llegue sin poder saber su variante
+    (producto con varias y sin pedido/subproducto que lo diga). Al arrancar, lo
+    de un producto con UNA sola variante pasa solo a ella (ver
+    _pasar_stock_antiguo_de_una_variante); el resto lo pasa el operario desde
+    Almacen ("Pasar a variante")."""
+
     __tablename__ = "stock"
 
     producto_id = Column(Integer, ForeignKey("productos.id"), primary_key=True)
@@ -325,6 +332,28 @@ class Stock(Base):
     producto = relationship("Producto", back_populates="stock")
 
 
+class StockSubproducto(Base):
+    """Stock libre de cada variante (pieza distinta), desde 2026-09-28."""
+
+    __tablename__ = "stock_subproductos"
+
+    subproducto_id = Column(Integer, ForeignKey("subproductos.id"), primary_key=True)
+    cantidad_actual = Column(Integer, nullable=False, default=0)
+    actualizado_en = Column(
+        DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
+
+    subproducto = relationship("Subproducto")
+
+    @property
+    def producto_id(self):
+        return self.subproducto.producto_id
+
+    @property
+    def producto(self):
+        return self.subproducto.producto
+
+
 class MovimientoStock(Base):
     """Libro de solo anadir: nunca se edita ni se borra una fila existente."""
 
@@ -332,6 +361,8 @@ class MovimientoStock(Base):
 
     id = Column(Integer, primary_key=True)
     producto_id = Column(Integer, ForeignKey("productos.id"), nullable=False)
+    # Variante del movimiento (2026-09-28). NULL = stock antiguo sin variante.
+    subproducto_id = Column(Integer, ForeignKey("subproductos.id"), nullable=True)
     tipo = Column(String, nullable=False)  # entrada / salida
     cantidad = Column(Integer, nullable=False)
     motivo = Column(String, nullable=False)  # produccion, asignacion_pedido (stock libre -> pedido), ajuste_manual

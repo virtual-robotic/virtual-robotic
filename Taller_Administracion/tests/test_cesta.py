@@ -2,6 +2,7 @@
 """POST /pedidos/multiple: varias lineas de una vez. Un pedido por linea, todos del mismo grupo de
 entrega; salen juntos en UN albaran cuando estan todos listos."""
 from .conftest import (
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -31,7 +32,7 @@ def _lineas(client, admin_headers, **cantidades):
 
 def _piezas(client, color, n):
     for _ in range(n):
-        client.post("/taller/cubo_clasificado", json={"color": color})
+        client.post("/taller/cubo_clasificado", json={"color": color, "subproducto_id": sub_id(color)})
 
 
 def _albaranes(client, admin_headers):

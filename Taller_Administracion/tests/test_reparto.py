@@ -6,6 +6,8 @@ primera etapa (asignar stock) y `expedicion_automatica` la segunda."""
 import datetime
 
 from .conftest import (
+    sub_de_producto,
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -24,7 +26,7 @@ def _config(client, admin_headers, **kw):
 
 
 def _pieza(client, color="R", **kw):
-    r = client.post("/taller/cubo_clasificado", json={"color": color, **kw})
+    r = client.post("/taller/cubo_clasificado", json={"color": color, "subproducto_id": sub_id(color), **kw})
     assert r.status_code == 200, r.text
     return r.json()
 
@@ -146,7 +148,7 @@ def test_repartir_a_mano_un_pedido_cubierto_por_stock_lo_asigna_y_entrega(client
     _config(client, admin_headers, reparto_automatico=False, expedicion_automatica=False)
     ctx = _preparar_pedido(client, admin_headers, color="B", cantidad=4)
     client.post("/almacen/ajustar", headers=admin_headers,
-                json={"producto_id": ctx["producto"]["id"], "cantidad": 4})
+                json={"subproducto_id": sub_de_producto(ctx["producto"]["id"]), "cantidad": 4})
     p = _pedido(client, admin_headers, ctx["pedido"]["id"])
     assert (p["estado"], p["stock_disponible"], p["para_repartir"], p["falta_fabricar"]) == ("pendiente", 4, 4, 0)
 
@@ -162,7 +164,7 @@ def test_asignar_stock_con_expedicion_manual_deja_el_pedido_listo(client, admin_
     _config(client, admin_headers, reparto_automatico=False, expedicion_automatica=False)
     ctx = _preparar_pedido(client, admin_headers, color="B", cantidad=2)
     client.post("/almacen/ajustar", headers=admin_headers,
-                json={"producto_id": ctx["producto"]["id"], "cantidad": 2})
+                json={"subproducto_id": sub_de_producto(ctx["producto"]["id"]), "cantidad": 2})
     client.post("/almacen/repartir", headers=admin_headers)
     assert _pedido(client, admin_headers, ctx["pedido"]["id"])["estado"] == "listo"
 

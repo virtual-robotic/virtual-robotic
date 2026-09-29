@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Version: 2026-09-29 13:25 -- se cierra con una senal normal (pkill/docker stop), igual que teleop_gui
 """
 Panel de control manual de parada/rearme para el Panda, con aspecto de
 cuadro de mandos industrial (Tkinter). Complementa al boton fisico de la
@@ -22,6 +23,8 @@ Como lanzarlo (no depende de Webots ni del driver, en cualquier momento):
 
     ros2 run panda_controller estop_panel
 """
+
+import signal
 
 import rclpy
 from rclpy.node import Node
@@ -166,7 +169,23 @@ class EstopApp:
         self.root.after(50, self._spin_tick)
 
     def run(self):
+        # Cierre con una senal normal (2026-09-29, mismo arreglo que TeleopApp.run): los manejadores
+        # de rclpy apagan ROS pero dejan la ventana abierta; aqui la senal solo marca la salida.
+        self._salir_pedido = False
+
+        def _pedir_salida(_signum, _frame):
+            self._salir_pedido = True
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            signal.signal(sig, _pedir_salida)
+        self._vigilar_salida()
         self.root.mainloop()
+
+    def _vigilar_salida(self):
+        if self._salir_pedido:
+            self.root.quit()
+            return
+        self.root.after(250, self._vigilar_salida)
 
 
 def main(args=None):

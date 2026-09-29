@@ -1,4 +1,4 @@
-_Last updated: 2026-09-26 11:37_
+_Last updated: 2026-09-29 14:38_
 
 # Starting the project (Linux)
 
@@ -207,7 +207,7 @@ There's one Pico per robot, each with its own LED:
 
 - **Sorter → the usual Pico W** (`Rasberry_Pi_Pico/`, over Wi-Fi). Power
   it on; `main.py` starts on its own and connects to the Wi-Fi, ending
-  up listening on `192.168.1.101:5001`. It's also the one carrying the
+  up listening on `IP_DE_LA_PICO:5001`. It's also the one carrying the
   **physical emergency stop button** (see further down).
 - **Loader → the new Pico with no Wi-Fi** (`Rasberry_Pi_Pico_USB_Loader/`).
   Plug it into this computer over USB (`docker-compose.yml` already
@@ -453,7 +453,7 @@ connect):
 ./crear_linea.sh 3
 # or with Machine No., Taller_Administracion's URL (if this line lives
 # on ANOTHER computer) and Machine group already set:
-./crear_linea.sh 3 3 http://192.168.1.XXX:8000 0
+./crear_linea.sh 3 3 http://IP_DEL_PRINCIPAL:8000 0
 ```
 
 The lines do not have to be on the same computer or the same system: on
@@ -605,9 +605,7 @@ the normal startup:
 
 - Worlds: `panda_un_cubo.wbt`, `panda_bolas.wbt`
 - Launch: `robot_launch.py` (a single robot, no namespaces)
-- Demos: `stack_tower_demo`, `move_above_ball`, `pick_and_place`,
-  `visit_balls`, `lift_ball`, `vision_lift_cube`,
-  `best_color_repeat_lift`, `teleop_manual`
+- Demos: `stack_tower_demo` (the single-robot demos with the old kinematics were removed on 2026-09-29; they remain in the git history)
 - Development tools for the current cell (also not part of normal
   startup, they were used to build it): `panda_two_arms_smoke_test.wbt`,
   `panda_sorter_grasp_test.wbt`, `grasp_yaw_test`, `sorter_hover_test`,

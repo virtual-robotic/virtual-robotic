@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Version: 2026-09-19 10:52 -- Sorter: avisa de cada pieza al Taller que tiene configurado el panel (no solo taller_host)
+# Version: 2026-09-29 15:23 -- cierre de pinza 0.024 (el cubo ya no flota en la pinza). Antes: Sorter: espera a que la bandeja encaje el cubo antes de planear el agarre. Antes: manda la VARIANTE de cada pieza
 """Robot "Sorter" de la celda industrial (sesion 2026-08-27): recoge un
 cubo del punto donde la cinta lo deja (el tope fisico) y lo deposita en la
 caja de su color, detectado por su PROPIA camara cenital
@@ -171,6 +171,10 @@ STILL_MOVING_TOLERANCE = 0.01
 # brazo de esa zona sin tocar el resto de la cinematica de agarre (leg()
 # sigue partiendo de HOME_POSITIONS de siempre, solo el aparcado final
 # usa esta postura alternativa).
+# Espera maxima a que la bandeja encaje el cubo (ver SorterDemo._esperar_encaje). La bandeja
+# encaja en cuanto ve el cubo quieto dos veces seguidas cada 0.5s: 4s sobra.
+ESPERA_ENCAJE_S = 4.0
+
 SORTER_PARK_POSITIONS = HOME_POSITIONS.copy()
 SORTER_PARK_POSITIONS[0] += 1.4
 
@@ -306,7 +310,14 @@ class SorterDemo(CubeShuttleDemo):
         # esto no basta o rompe algo (p.ej. empuja el cubo en vez de
         # sujetarlo), revertir a GRIPPER_CLOSED (0.017, el valor de
         # siempre) y mirar otra via.
-        self.grasp_close = 0.014
+        # 0.024 y no 0.014 (2026-09-29, medido con 4 cadenas y grabadora): cada dedo empuja a
+        # fuerza maxima MIENTRAS no llega a su objetivo. Con el objetivo a 16mm del cubo (0.014)
+        # los dos saturaban, se anulaban y el cubo "flotaba" hasta pegarse a un dedo (14mm de
+        # descentrado en todas las sueltas). Con 0.024 (6mm) la fuerza es la misma con el cubo
+        # centrado, pero si se desplaza el otro dedo deja de empujar y lo recentra: 4-5mm.
+        # Prueba de 320 piezas: 0 resbalones, 0 agarres fallidos, 0 dislocaciones, mismo ritmo.
+        # _verify_grasp sigue valiendo: los dedos paran en 0.030 > 0.024 + GRASP_VERIFY_MARGIN.
+        self.grasp_close = 0.024
         # Apertura de bajada SOLO del Sorter (sesion 2026-09-09, causa raiz
         # medida con datos en vivo). El Sorter baja DENTRO del canal de
         # carriles y, con el giro +90 de _adjust_grasp_yaw_for_obstacles
@@ -396,6 +407,10 @@ class SorterDemo(CubeShuttleDemo):
         # ABSOLUTO (no namespaceado), un unico Supervisor global la
         # controla, igual que /warehouse/cube_delivered.
         self.pub_belt_pause = self.create_publisher(Bool, '/warehouse/belt_pause', 10)
+        # La bandeja avisa en /warehouse/belt_hold cuando tiene un cubo ENCAJADO
+        # (sorter_shuttle_supervisor_driver.py) -- ver _esperar_encaje.
+        self._bandeja_encajada = False
+        self.create_subscription(Bool, '/warehouse/belt_hold', self._on_belt_hold, 10)
 
         # Aviso de "lote nuevo" (sesion 2026-08-31, peticion del usuario:
         # "cuando hay un cambio de lote los dos robots se van a su posicion
@@ -453,6 +468,7 @@ class SorterDemo(CubeShuttleDemo):
         # (compatibilidad con lotes antiguos: cubo_clasificado cae al
         # color como hasta ahora).
         self._lote_producto_id = None
+        self._lote_subproducto_id = None  # variante del lote (2026-09-28), ver _notificar_taller
         # Topic del LED de producto del Loader (sesion 2026-09-01): el
         # Sorter publica aqui DIRECTAMENTE el apagado cuando cuenta que el
         # lote esta completo de verdad -- topic fijo, no parametrizado,
@@ -671,7 +687,8 @@ class SorterDemo(CubeShuttleDemo):
             self.spin_for(STILL_MOVING_WAIT)
         return False
 
-    def _notificar_taller(self, color, pedido_id=None, forzar_reparto=False, producto_id=None):
+    def _notificar_taller(self, color, pedido_id=None, forzar_reparto=False, producto_id=None,
+                          subproducto_id=None):
         """POST a Taller_Administracion tras una entrega real -- si el
         otro proyecto no esta levantado o tarda, NO debe parar al Sorter
         (timeout corto, cualquier fallo se registra y se sigue). El
@@ -693,7 +710,9 @@ class SorterDemo(CubeShuttleDemo):
         el caso forzar_reparto (sin pedido_id unico) -- sin esto, un
         producto sin LED nunca podria completar sus pedidos por este
         camino, aunque pedido_id ya lo resuelve sin problema por su
-        cuenta en el backend."""
+        cuenta en el backend. 'subproducto_id' (2026-09-28): la variante
+        del lote -- cada variante es una pieza distinta (10mm no completa
+        un pedido de 20mm), y sin ella el Taller no la asigna a nada."""
         url = self._taller_base() + '/taller/cubo_clasificado'
         # Que maquina/grupo la ha fabricado (sesion 2026-09-14, bug real con
         # dos cadenas: una pieza de la maquina 20 completo un pedido de la
@@ -706,6 +725,8 @@ class SorterDemo(CubeShuttleDemo):
             cuerpo['pedido_id'] = pedido_id
         if producto_id is not None:
             cuerpo['producto_id'] = producto_id
+        if subproducto_id is not None:
+            cuerpo['subproducto_id'] = subproducto_id
         body = json.dumps(cuerpo).encode('utf-8')
         req = urllib.request.Request(
             url, data=body, method='POST',
@@ -730,6 +751,22 @@ class SorterDemo(CubeShuttleDemo):
 
     def _on_nuevo_lote(self, msg):
         self._nuevo_lote_pendiente = True
+
+    def _on_belt_hold(self, msg):
+        self._bandeja_encajada = bool(msg.data)
+
+    def _esperar_encaje(self, name):
+        """Espera (como mucho ESPERA_ENCAJE_S) a que la bandeja encaje el cubo antes de planear
+        el agarre (2026-09-29, grabado en vivo): el Sorter veia el cubo recien llegado, plano y
+        pegado al tope, planeaba con esa pose, y 0.27s despues la bandeja lo movia 8mm y lo giraba
+        10 grados -- bajaba a donde el cubo ESTABA, no a donde esta. Sin bandeja (otros mundos) el
+        aviso nunca llega y se sigue como antes tras la espera."""
+        transcurrido = self._cronometro()
+        while rclpy.ok() and not self._bandeja_encajada and transcurrido() < ESPERA_ENCAJE_S:
+            self.spin_for(0.1)
+        if not self._bandeja_encajada:
+            self.get_logger().warn(
+                f'[{name}] la bandeja no ha encajado el cubo en {ESPERA_ENCAJE_S:.0f}s -- sigo igualmente.')
 
     def _on_lote_color_objetivo(self, msg):
         """Formato 'COLOR:CANTIDAD:PEDIDO_ID:FORZAR:PRODUCTO_ID'. COLOR
@@ -760,6 +797,7 @@ class SorterDemo(CubeShuttleDemo):
             self._lote_pedido_id = None
             self._lote_forzar_reparto = False
             self._lote_producto_id = None
+            self._lote_subproducto_id = None
             self.get_logger().info('[lote] sin lote activo -- cada cubo cuenta por su color real.')
             return
         partes = crudo.split(':')
@@ -768,12 +806,14 @@ class SorterDemo(CubeShuttleDemo):
         pedido_id = int(partes[2]) if len(partes) > 2 and partes[2] else None
         forzar = len(partes) > 3 and partes[3] == '1'
         producto_id = int(partes[4]) if len(partes) > 4 and partes[4] else None
+        subproducto_id = int(partes[5]) if len(partes) > 5 and partes[5] else None
         self._lote_activo = True
         self._lote_color_objetivo = color
         self._lote_cantidad_objetivo = cantidad
         self._lote_pedido_id = pedido_id
         self._lote_forzar_reparto = forzar
         self._lote_producto_id = producto_id
+        self._lote_subproducto_id = subproducto_id
         if color:
             self.get_logger().info(
                 f'[lote] producto objetivo activo: toda entrega cuenta como {color} '
@@ -806,6 +846,7 @@ class SorterDemo(CubeShuttleDemo):
                     f'[{name}] no se ha quedado quieto tras {STILL_MOVING_CHECKS} '
                     'comprobaciones -- reintento el ciclo entero por si sigue en la cinta.')
                 continue
+            self._esperar_encaje(name)
             dest = BOXES.get(color, BOXES['R'])
             self.get_logger().info(
                 f'--- Cubo {name} detectado en la cinta -> caja {name} {dest} ---')
@@ -850,7 +891,7 @@ class SorterDemo(CubeShuttleDemo):
                     '(color objetivo del lote activo).')
             self._notificar_taller(
                 color_taller, pedido_id=self._lote_pedido_id, forzar_reparto=self._lote_forzar_reparto,
-                producto_id=self._lote_producto_id)
+                producto_id=self._lote_producto_id, subproducto_id=self._lote_subproducto_id)
             # Cierre REAL del lote (sesion 2026-09-01): solo aqui, cuando
             # el Sorter ha contado de verdad tantas entregas como pedia el
             # lote, se apaga el LED de producto -- el Loader terminar de

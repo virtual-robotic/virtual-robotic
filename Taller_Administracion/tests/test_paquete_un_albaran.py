@@ -2,6 +2,7 @@
 """Pedir un Paquete crea un pedido por componente (ver crear_pedido_paquete). Se entregan
 JUNTOS, en un albaran, cuando el paquete entero esta listo -- no un albaran por componente."""
 from .conftest import (
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -37,7 +38,7 @@ def _pedir(client, headers, paquete, cantidad=1):
 
 def _piezas(client, color, n):
     for _ in range(n):
-        assert client.post("/taller/cubo_clasificado", json={"color": color}).status_code == 200
+        assert client.post("/taller/cubo_clasificado", json={"color": color, "subproducto_id": sub_id(color)}).status_code == 200
 
 
 def _albaranes(client, admin_headers):

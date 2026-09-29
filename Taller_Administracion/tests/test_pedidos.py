@@ -10,6 +10,7 @@ Dos de estos tests documentan regresiones REALES de la sesion 2026-09-11:
 import pytest
 
 from .conftest import (
+    sub_id,
     asignar_producto,
     auth,
     crear_cliente_con_usuario,
@@ -175,7 +176,7 @@ class TestCancelar:
             json={"subproducto_id": ctx["subproducto"]["id"], "cantidad_pedida": 5},
         ).json()
         client.post(
-            "/taller/cubo_clasificado", json={"color": "R", "pedido_id": pedido["id"]}
+            "/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "pedido_id": pedido["id"]}
         )
         r = client.post(f"/pedidos/{pedido['id']}/cancelar", headers=admin_headers)
         assert r.status_code == 400
@@ -205,7 +206,7 @@ class TestReprocesar:
             json={"subproducto_id": ctx["subproducto"]["id"], "cantidad_pedida": cantidad},
         ).json()
         for _ in range(cantidad):
-            client.post("/taller/cubo_clasificado", json={"color": "R", "pedido_id": pedido["id"]})
+            client.post("/taller/cubo_clasificado", json={"color": "R", "subproducto_id": sub_id("R"), "pedido_id": pedido["id"]})
         return client.get(f"/pedidos/{pedido['id']}", headers=auth(ctx["tok_admin_cliente"])).json()
 
     def test_reprocesar_pedido_completado_crea_uno_nuevo(

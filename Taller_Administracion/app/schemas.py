@@ -1,4 +1,4 @@
-# Version: 2026-09-26 18:40 -- esquemas: permisos por grupo de los empleados
+# Version: 2026-09-28 20:40 -- esquemas: stock y piezas por SUBPRODUCTO. Antes: permisos por grupo de los empleados
 import datetime
 from typing import Literal, Optional
 
@@ -345,11 +345,17 @@ class CuboClasificado(BaseModel):
     llamadas antiguas). 'color' sigue siendo obligatorio como dato
     informativo (el color fisico real del cubo), pero deja de ser
     obligatorio para IDENTIFICAR el producto.
+
+    La VARIANTE (2026-09-28, cada subproducto es una pieza distinta): la del
+    pedido_id si viene; si no 'subproducto_id'; si no, la unica variante del
+    producto si solo tiene una. Si aun asi no se sabe, la pieza va al stock
+    antiguo sin variante y no se asigna a ningun pedido (nunca se adivina).
     """
 
     color: str
     pedido_id: Optional[int] = None
     producto_id: Optional[int] = None
+    subproducto_id: Optional[int] = None
     forzar_reparto: bool = False
     # Quien la ha fabricado (sesion 2026-09-14, bug real con dos cadenas: una
     # pieza de la maquina 20 completo un pedido de la maquina 10). Si viene
@@ -361,22 +367,42 @@ class CuboClasificado(BaseModel):
 
 
 class AjusteStock(BaseModel):
-    producto_id: int
+    subproducto_id: int
     cantidad: int
 
 
 class StockOut(BaseModel):
+    """Stock libre de UNA variante (2026-09-28)."""
+
     model_config = ConfigDict(from_attributes=True)
+    subproducto_id: int
     producto_id: int
     cantidad_actual: int
     actualizado_en: Optional[datetime.datetime] = None
+    subproducto: SubproductoOut
     producto: ProductoOut
+
+
+class StockAntiguoOut(BaseModel):
+    """Stock de antes de 2026-09-28, por producto y sin variante."""
+
+    model_config = ConfigDict(from_attributes=True)
+    producto_id: int
+    cantidad_actual: int
+    producto: ProductoOut
+
+
+class PasarAVariante(BaseModel):
+    producto_id: int
+    subproducto_id: int
+    cantidad: int
 
 
 class MovimientoStockOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     producto_id: int
+    subproducto_id: Optional[int] = None
     tipo: str
     cantidad: int
     motivo: str
