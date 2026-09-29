@@ -1,4 +1,4 @@
-// Version: 2026-09-29 11:50 -- el robot de madera de los 80 en Origen
+// Version: 2026-09-29 18:55 -- robot impreso en 3D (2016) en Origen
 // Traducciones de la landing (ES es el texto de la propia pagina; aqui EN y EU). Generado el 2026-09-21.
 // Cada elemento marcado con data-i18n="clave" (o data-i18n-alt / -title / -aria-label) se cambia al elegir idioma.
 // El euskera esta escrito a mano y agradece revision de un hablante nativo.
@@ -7,7 +7,9 @@
 // Las dos copias (Taller_Administracion/app/static y Virtual_Robotic) deben ser iguales.
 window.VR_I18N = {
  "en": {
-  "t80rob": "And the hobby goes back a long way. In the mid-1980s, with no internet and the MicroHobby magazine as a manual, the same hobbyist built a <strong>wooden arm</strong> with motors taken from cassette players, moved by strings and pulleys and controlled by a <strong>ZX Spectrum 48K</strong> through the parallel port, programmed in FORTH. In 2016 came a second attempt with Arduino and servos. This project is the third round of that same hobby.",
+  "t16cap": "2016: an EEZYbotARM MK2 (a free design found on the internet), 3D-printed and driven by Arduino and servos.",
+  "t16alt": "Red 3D-printed robotic arm on a blue base, screwed to a board, with the servo cables hanging loose.",
+  "t80rob": "And the hobby goes back a long way. In the mid-1980s, with no internet and the MicroHobby magazine as a manual, the same hobbyist built a <strong>wooden arm</strong> with motors taken from cassette players, moved by strings and pulleys and controlled by a <strong>ZX Spectrum 48K</strong> through the parallel port, programmed in FORTH. In 2016 came a second attempt with Arduino, servos and a 3D-printed arm. This project is the third round of that same hobby.",
   "t80cap": "The first robot, mid-1980s: wood, cassette-player motors and a Spectrum 48K.",
   "t80alt": "Wooden robotic arm from the 1980s, with strings, pulleys and wires in plain sight.",
   "t22a830": "2 — Sign in to the panel",
@@ -109,7 +111,9 @@ window.VR_I18N = {
   "tmenu": "Menu"
  },
  "eu": {
-  "t80rob": "Eta zaletasuna urrutitik dator. 80ko hamarkadaren erdialdean, internetik gabe eta MicroHobby aldizkaria eskuliburu gisa hartuta, zaletu berak <strong>egurrezko beso bat</strong> eraiki zuen, kasete-irratietako motorrekin, hari eta txirrikekin mugitua eta <strong>ZX Spectrum 48K</strong> batek portu paraleloaren bidez kontrolatua, FORTH lengoaian programatuta. 2016an bigarren saiakera etorri zen, Arduino eta serboekin. Proiektu hau zaletasun beraren hirugarren itzulia da.",
+  "t16cap": "2016: EEZYbotARM MK2 bat (internetetik hartutako diseinu librea), 3Dn inprimatua eta Arduino eta serboekin mugitua.",
+  "t16alt": "3Dn inprimatutako beso robotiko gorria, oinarri urdinaren gainean, ohol bati torlojutua, serboen kableak solte dituela.",
+  "t80rob": "Eta zaletasuna urrutitik dator. 80ko hamarkadaren erdialdean, internetik gabe eta MicroHobby aldizkaria eskuliburu gisa hartuta, zaletu berak <strong>egurrezko beso bat</strong> eraiki zuen, kasete-irratietako motorrekin, hari eta txirrikekin mugitua eta <strong>ZX Spectrum 48K</strong> batek portu paraleloaren bidez kontrolatua, FORTH lengoaian programatuta. 2016an bigarren saiakera etorri zen, Arduino, serboak eta 3Dn inprimatutako beso batekin. Proiektu hau zaletasun beraren hirugarren itzulia da.",
   "t80cap": "Lehen robota, 80ko hamarkadaren erdialdekoa: egurra, kasete-irratietako motorrak eta Spectrum 48K bat.",
   "t80alt": "80ko hamarkadako egurrezko beso robotikoa, hariak, txirrikak eta kableak agerian dituela.",
   "t22a830": "2 — Sartu panelean",
