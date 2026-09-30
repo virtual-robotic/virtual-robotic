@@ -1,6 +1,6 @@
 **Language:** [Español](INSTALAR_WINDOWS.md) · English · [Euskara](INSTALAR_WINDOWS.eu.md)
 
-_Last modified: 2026-09-26_
+_Last modified: 2026-09-30_
 
 # Installing on Windows
 
@@ -290,8 +290,10 @@ on us.
    or `crear_linea_windows.bat` with its number). Note: after cutting a batch
    halfway, the panel takes **2 minutes** before it lets you launch another
    one (it waits in case a part is still on its way).
-2. In the browser panel, to type in a small window (e.g. the *Settings*
-   key), **click inside the box** before typing.
+2. In the browser panel, the small windows (e.g. the *Settings* key) now
+   get the keyboard on their own and have a title bar to move them. With a
+   version older than 26-09-2026 you had to **click inside the box** before
+   typing.
 3. The Raspberry Pi Pico over USB: on Windows it does not reach the
    container, so the Loader's LED will not work (the rest will; the Pico is
    optional).
@@ -366,3 +368,22 @@ pointing at the Windows website:
   at its limit. The images need about 14 GB of disk: if they do not fit,
   see [PROBLEMAS_CONOCIDOS.en.md](PROBLEMAS_CONOCIDOS.en.md) (adding a second
   disk for Docker).
+
+## Another way (experimental): build it from scratch with Claude Code
+
+Instead of downloading the project with `git clone`, you can ask **Claude
+Code** to build the whole thing again, starting from an empty folder. That
+is what the file
+[Promt Genera Proyecto Virtual Robotic.md](Documentacion/Promt%20Genera%20Proyecto%20Virtual%20Robotic.md)
+is for: it explains how to use it and contains the instruction to paste into
+Claude.
+
+- **Tested on 27-09-2026 only on Linux** (a Linux Mint virtual machine):
+  Claude built it all in about 6 hours of work and it worked. **It has not
+  been tested on Windows yet**: the `.bat` files it generates have never been
+  run on a Windows PC.
+- **It does not replace the normal installation**: to use the project, the
+  quick and safe way is the one above.
+- It is a **snapshot of the project as of 27-09-2026**: whatever changes
+  later will not be in it.
+- It is only in Spanish.

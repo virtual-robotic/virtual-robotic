@@ -1,4 +1,4 @@
-// Version: 2026-09-29 18:55 -- robot impreso en 3D (2016) en Origen
+// Version: 2026-09-30 17:50 -- Dos Raspberry Pi Pico: LED y parada en las dos; sensor y pantalla en la del Loader
 // Traducciones de la landing (ES es el texto de la propia pagina; aqui EN y EU). Generado el 2026-09-21.
 // Cada elemento marcado con data-i18n="clave" (o data-i18n-alt / -title / -aria-label) se cambia al elegir idioma.
 // El euskera esta escrito a mano y agradece revision de un hablante nativo.
@@ -65,7 +65,7 @@ window.VR_I18N = {
   "t468a5a": "From curiosity to a whole workshop",
   "t828bac": "<a class=\"btn-primary\" href=\"#jugar\" style=\"text-decoration:none;\">Play with it</a>",
   "t6e7bc0": "Password",
-  "t63f672": "One carries a real LED that shows the colour of the product being made; the other, a proximity sensor that acts as an emergency stop button. They are a physical extra, not a part of the machinery: <strong>if these two Picos do not start, the rest of the cell works exactly the same.</strong>",
+  "t63f672": "Each one goes with one of the two robots and carries a real LED that lights up in the colour of the product being made, plus an emergency stop button. The Loader one also has a proximity sensor (bring your hand close and everything stops) and a <strong>small screen</strong> that spells out which product is being made: name, variant and code, so you do not have to learn which colour is which. They are a physical extra, not a part of the machinery: <strong>if these two Picos do not start, the rest of the cell works exactly the same.</strong>",
   "t4eaf34": "Every sorted piece instantly notifies a web orders panel: what was ordered, what is still to be made, what is ready and what has already been delivered to the customer, with its numbered delivery note and amounts. If the panel is off the cell keeps working the same, only nobody records the production in any order.",
   "tc54e67": "Code",
   "t0f3c68": "It is not enough for the finger sensor to say \"I have something\": where the cube really is gets checked too. If a cube is lost or stuck, it is rescued by itself instead of the robot carrying on blindly.",
@@ -169,7 +169,7 @@ window.VR_I18N = {
   "t468a5a": "Jakinminetik tailer oso batera",
   "t828bac": "<a class=\"btn-primary\" href=\"#jugar\" style=\"text-decoration:none;\">Jolastu harekin</a>",
   "t6e7bc0": "Pasahitza",
-  "t63f672": "Batek benetako LED bat darama, fabrikatzen ari den produktuaren kolorea adierazten duena; besteak hurbiltasun-sentsore bat, larrialdiko geldiketa-botoi gisa jarduten duena. Gehigarri fisiko bat dira, ez makinaria osoaren pieza bat: <strong>bi Pico hauek abiarazten ez badira, gelaxkaren gainerakoak berdin-berdin funtzionatzen du.</strong>",
+  "t63f672": "Bakoitza bi robotetako batekin doa eta benetako LED bat darama, fabrikatzen ari den produktuaren kolorean pizten dena, eta larrialdiko geldiketa-botoi bat. Loaderrarenak, gainera, hurbiltasun-sentsore bat du (eskua hurbiltzen baduzu, dena gelditzen da) eta <strong>pantaila txiki bat</strong>, zein produktu fabrikatzen ari den letraz idazten duena: izena, aldaera eta kodea, kolore bakoitza zer den ikasi behar ez izateko. Gehigarri fisiko bat dira, ez makineriaren pieza bat: <strong>bi Pico hauek abiarazten ez badira, gelaxkaren gainerakoak berdin-berdin funtzionatzen du.</strong>",
   "t4eaf34": "Sailkatutako pieza bakoitzak berehala abisatzen dio eskaeren web panel bati: zer eskatu den, zer falta den fabrikatzeko, zer dagoen prest eta zer entregatu zaion dagoeneko bezeroari, bere albaran zenbakituarekin eta zenbatekoekin. Panela itzalita badago gelaxkak berdin jarraitzen du, baina inork ez du ekoizpena eskaeretan apuntatzen.",
   "tc54e67": "Kodea",
   "t0f3c68": "Ez da nahikoa hatzen sentsoreak \"zerbait dut\" esatea: kuboa benetan non dagoen ere egiaztatzen da. Kubo bat galtzen bada edo trabatzen bada, bere kasa erreskatatzen da, robota itsu-itsuan jarraitu beharrean.",

@@ -1,4 +1,4 @@
-// Version: 2026-09-27 18:41 -- textos de las plantillas Word en EN y EU
+// Version: 2026-09-30 18:10 -- EN/EU de almacen por variante, stock antiguo y empleados
 // Traducciones del panel (Taller_Administracion/app/static/panel.html).
 // ES es el texto que ya lleva el propio panel.html (siempre el 2o argumento
 // de cada llamada a t("clave", "texto es", vars); aqui solo EN y EU.
@@ -23,6 +23,18 @@ window.VR_I18N_PANEL = {
 
   // ---- roles
   "rol_admin_sistema": "System admin.",
+  "rol_empleado": "Company employee",
+  "ayuda_almacen_variantes": "Each variant is a different piece (for example, 10mm Screw and 20mm Screw): it has its own stock and only serves orders for that same variant.",
+  "ayuda_stock_antiguo": "Pieces stored before each variant had its own stock. While they are here they do not serve any order: say which variant they are and move them.",
+  "contrasena_obligatoria": "password (required)",
+  "nuestra_empresa": "(our company)",
+  "pasar_a_variante": "Move to variant",
+  "permisos_todo": "everything",
+  "stock_antiguo": "Old stock without variant",
+  "th_pendiente": "Pending",
+  "th_permisos": "Permissions",
+  "th_variante": "Variant",
+  "usuario_empleado": "username (e.g. antonio)",
   "rol_admin_cliente": "Customer admin.",
   "rol_normal": "Normal",
 
@@ -312,6 +324,18 @@ window.VR_I18N_PANEL = {
 
   // ---- roles
   "rol_admin_sistema": "Sistemaren admin.",
+  "rol_empleado": "Enpresako langilea",
+  "ayuda_almacen_variantes": "Aldaera bakoitza pieza desberdina da (adibidez, 10mm-ko torlojua eta 20mm-ko torlojua): bere stocka du eta aldaera bereko eskaeretarako bakarrik balio du.",
+  "ayuda_stock_antiguo": "Aldaera bakoitzak bere stocka izan aurretik gordetako piezak. Hemen dauden bitartean ez dute inongo eskaeratarako balio: esan zein aldaeratakoak diren eta pasa itzazu.",
+  "contrasena_obligatoria": "pasahitza (derrigorrezkoa)",
+  "nuestra_empresa": "(gure enpresa)",
+  "pasar_a_variante": "Aldaerara pasa",
+  "permisos_todo": "dena",
+  "stock_antiguo": "Aldaerarik gabeko stock zaharra",
+  "th_pendiente": "Zain",
+  "th_permisos": "Baimenak",
+  "th_variante": "Aldaera",
+  "usuario_empleado": "erabiltzailea (adib. antonio)",
   "rol_admin_cliente": "Bezeroaren admin.",
   "rol_normal": "Arrunta",
 

@@ -1,4 +1,4 @@
-_Última modificación: 2026-09-26 19:05_
+_Última modificación: 2026-09-30 18:25_
 
 # La web de pedidos por dentro (detalle técnico)
 
@@ -227,7 +227,11 @@ con esconder la pestaña. Esto es lo que hace cada pestaña, contado sin tecnici
   cobrar, anular (rectificativa) y ver/imprimir.
 - **Albaranes** y **Facturas** (solo `admin_cliente`): sus entregas y sus facturas,
   en solo lectura, con "Ver / imprimir".
-- **Almacén**: el stock de piezas ya fabricadas y sus movimientos. Con
+- **Almacén**: el stock de piezas ya fabricadas y sus movimientos. El stock
+  va **por variante** (subproducto): Tornillo 10mm y Tornillo 20mm son piezas
+  distintas y cada una solo sirve para sus propios pedidos. Lo guardado antes
+  de ese cambio sale como «Stock antiguo sin variante» y se reparte a mano con
+  «Pasar a variante». Con
   **«Añadir a stock»** y **«Quitar de stock»** se meten o se sacan piezas a
   mano, sin pasar por la producción (piezas compradas fuera, inventario,
   devoluciones); cada una queda apuntada en Movimientos como «ajuste
@@ -257,7 +261,7 @@ reales.
 
 Tablas: `clientes`, `usuarios`, `audit_log`, `colores`, `productos`,
 `subproductos`, `paquetes`, `paquete_componentes`, `cliente_productos`,
-`pedidos`, `stock`, `movimientos_stock` (libro de solo añadir),
+`pedidos`, `stock`, `stock_subproductos` (stock por variante), `movimientos_stock` (libro de solo añadir),
 `eventos_produccion`, `configuracion_almacen` (fila única), `repartos` y
 `reparto_lineas` (albaranes), `tarifas_cliente`, `historial_precios`,
 `emisores` (empresas que facturan), `facturas` y `factura_lineas` (facturas y

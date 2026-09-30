@@ -1,4 +1,4 @@
-_Azken aldaketa: 2026-09-26 11:36_
+_Azken aldaketa: 2026-09-30 18:20_
 
 # Eskaeren webgunea barrutik (xehetasun teknikoa)
 
@@ -149,7 +149,12 @@ barruan, bere fitxak:
 `admin_cliente` batek hiru atal berak ikusten ditu baina murriztuta
 (Ekoizpena: Eskaerak · Kontabilitatea: Laburpena, Albaranak, Fakturak ·
 Administrazioa: Katalogoa, Erabiltzaileak). `normal` erabiltzaile batek
-Eskaerak bakarrik du eta ez du atalen menua ikusten. Hau da fitxa
+Eskaerak bakarrik du eta ez du atalen menua ikusten. `empleado` batek (gure
+tailerreko jendea, bezerorik gabe) adminaren fitxak ikusten ditu **markatuta
+dituen ataletan soilik** —Ekoizpena, Kontabilitatea edo biak— eta inoiz ez
+Administrazioa; ez du eskaerarik egiten eta bere pasahitza behar du.
+Zerbitzariak gauza bera egiaztatzen du eragiketa bakoitzean
+(`auth.require_permiso`); ez da nahikoa fitxa ezkutatzea. Hau da fitxa
 bakoitzak egiten duena, teknizismorik gabe kontatuta:
 
 - **Eskaerak**: eguneroko fitxa. **Beti saskiarekin** eskatzen da: pieza
@@ -251,6 +256,11 @@ bakoitzak egiten duena, teknizismorik gabe kontatuta:
   entregak eta bere fakturak, irakurtzeko soilik, "Ikusi / inprimatu"
   aukerarekin.
 - **Biltegia**: jada fabrikatutako piezen stocka eta bere mugimenduak.
+  Stocka **aldaeraka** doa (azpiproduktua): 10mm-ko torlojua eta 20mm-ko
+  torlojua pieza desberdinak dira eta bakoitzak bere eskaeretarako bakarrik
+  balio du. Aldaketa horren aurretik gordetakoa «Aldaerarik gabeko stock
+  zaharra» gisa agertzen da eta eskuz banatzen da «Aldaerara pasa»
+  botoiarekin.
   **«Stockera gehitu»** eta **«Stocketik kendu»** botoiekin eskuz sartzen
   edo ateratzen dira piezak, ekoizpenetik pasatu gabe (kanpoan erositakoak,
   inbentarioa, itzulketak); bakoitza Mugimenduetan apuntatzen da
@@ -280,7 +290,7 @@ errealekin fabrikatuak.
 
 Taulak: `clientes`, `usuarios`, `audit_log`, `colores`, `productos`,
 `subproductos`, `paquetes`, `paquete_componentes`, `cliente_productos`,
-`pedidos`, `stock`, `movimientos_stock` (gehitzeko-bakarrik liburua),
+`pedidos`, `stock`, `stock_subproductos` (aldaerako stocka), `movimientos_stock` (gehitzeko-bakarrik liburua),
 `eventos_produccion`, `configuracion_almacen` (errenkada bakarra),
 `repartos` eta `reparto_lineas` (albaranak), `tarifas_cliente`,
 `historial_precios`, `emisores` (fakturatzen duten enpresak), `facturas`

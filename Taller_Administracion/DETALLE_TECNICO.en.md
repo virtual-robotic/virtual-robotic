@@ -1,4 +1,4 @@
-_Last modified: 2026-09-26 11:36_
+_Last modified: 2026-09-30 18:20_
 
 # The orders website inside (technical detail)
 
@@ -145,7 +145,12 @@ inside each one, its tabs:
 An `admin_cliente` sees the same three sections but cut down (Production:
 Orders · Accounting: Summary, Delivery notes, Invoices · Administration:
 Catalogue, Users). A `normal` user only has Orders and doesn't see the
-section menu. Here's what each tab does, told without jargon:
+section menu. An `empleado` (people from our own workshop, with no client) sees the
+admin tabs **only in the sections ticked for them** —Production, Accounting or
+both— and never Administration; they do not place orders and need their own
+password. The server checks the same thing on every operation
+(`auth.require_permiso`); hiding the tab is not enough. Here's what each tab does,
+told without jargon:
 
 - **Orders**: the day-to-day tab. You **always** order with the basket: pick
   a piece or a whole package and how many, **+ Add to basket**, and once
@@ -239,7 +244,11 @@ section menu. Here's what each tab does, told without jargon:
   and viewing/printing.
 - **Delivery notes** and **Invoices** (`admin_cliente` only): its
   deliveries and its invoices, read-only, with "View / print".
-- **Warehouse**: the stock of already-made pieces and its movements. With
+- **Warehouse**: the stock of already-made pieces and its movements. Stock
+  is kept **per variant** (subproduct): 10mm Screw and 20mm Screw are
+  different pieces and each one only serves its own orders. Whatever was
+  stored before that change shows up as «Old stock without variant» and is
+  shared out by hand with «Move to variant». With
   **«Add to stock»** and **«Remove from stock»** pieces are added or removed
   by hand, without going through production (parts bought elsewhere, stock
   counts, returns); each one is recorded in Movements as «ajuste_manual».
@@ -269,7 +278,7 @@ product-LED-only colours (a wildcard mode), made with the three real cubes.
 
 Tables: `clientes`, `usuarios`, `audit_log`, `colores`, `productos`,
 `subproductos`, `paquetes`, `paquete_componentes`, `cliente_productos`,
-`pedidos`, `stock`, `movimientos_stock` (an append-only log),
+`pedidos`, `stock`, `stock_subproductos` (stock per variant), `movimientos_stock` (an append-only log),
 `eventos_produccion`, `configuracion_almacen` (a single row), `repartos` and
 `reparto_lineas` (delivery notes), `tarifas_cliente`, `historial_precios`,
 `emisores` (invoicing companies), `facturas` and `factura_lineas` (invoices

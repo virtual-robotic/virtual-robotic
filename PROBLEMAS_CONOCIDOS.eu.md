@@ -1,6 +1,6 @@
 **Hizkuntza:** [Español](PROBLEMAS_CONOCIDOS.md) · [English](PROBLEMAS_CONOCIDOS.en.md) · Euskara
 
-_Azken aldaketa: 2026-09-26_
+_Azken aldaketa: 2026-09-30_
 
 # Arazo ezagunak
 
@@ -61,6 +61,12 @@ Windows-en, ez piztu.
 akatsa: fabrikatutako unitate bakoitza berehala esleitzen zaie zain dauden
 eskaerei, beraz stocka 0an geratzen da eskaerak zain dauden bitartean.
 
+
+**Azaleko bideoak ez dira abiarazten Safari-n (Mac edo iPhone).** Safari-k
+bideoak zatika eskatzen ditu eta gure webguneak osorik bidaltzen zekien soilik
+(Chrome eta Firefox horrekin konformatzen dira). 2026-09-26an konpondua, baina
+**oraindik benetako Safari batean egiaztatu gabe**: ez dugu Mac-ik probatzeko.
+Probatzen baduzu, esan iezaguzu funtzionatzen duen.
 ## Windows
 
 **Motel doa (Webots 0.15x–0.22x-an PC zahar batean).** Ez da ordenagailuak

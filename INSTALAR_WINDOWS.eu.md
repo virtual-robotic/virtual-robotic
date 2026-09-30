@@ -1,6 +1,6 @@
 **Hizkuntza:** [Español](INSTALAR_WINDOWS.md) · [English](INSTALAR_WINDOWS.en.md) · Euskara
 
-_Azken aldaketa: 2026-09-26_
+_Azken aldaketa: 2026-09-30_
 
 # Windows-en instalatu
 
@@ -298,8 +298,10 @@ bigarren aldian badauzka (2026-09-24an gertatu zitzaigun). Ez erabili
    `crear_linea_windows.bat` bere zenbakiarekin). Kontuz: lote bat
    erdibidean moztu ondoren, panelak **2 minutu** behar ditu beste bat
    abiarazten uzteko (pieza bat bidean dagoen badaezpada itxaroten du).
-2. Nabigatzaileko panelean, leiho txiki batean idazteko (adib.
-   *Konfigurazioa*ko gakoa), **egin klik laukiaren barruan** idatzi aurretik.
+2. Nabigatzaileko panelean, leiho txikiek (adib. *Konfigurazioa*ko gakoa)
+   bakarrik jasotzen dute teklatua eta izenburu-barra dute mugitzeko.
+   2026-09-26 baino bertsio zaharrago batekin **klik egin behar zen
+   laukiaren barruan** idatzi aurretik.
 3. USB bidezko Raspberry Pi Pico: Windows-en ez da edukiontzira iristen,
    beraz Loaderraren LEDak ez du funtzionatuko (gainerakoak bai; Pico
    aukerakoa da).
@@ -376,3 +378,22 @@ webgunea seinalatuz sortzen da:
   ditu, baina mugan. Irudiek 14 GB disko inguru behar dituzte: sartzen ez
   badira, ikusi [PROBLEMAS_CONOCIDOS.eu.md](PROBLEMAS_CONOCIDOS.eu.md)
   (Docker-entzat bigarren disko bat gehitu).
+
+## Beste modu bat (esperimentala): hutsetik eraiki Claude Code-rekin
+
+Proiektua `git clone`-rekin deskargatu beharrean, **Claude Code**-ri eska
+dakioke oso-osorik berriro eraikitzeko, karpeta huts batetik abiatuta.
+Horretarako dago
+[Promt Genera Proyecto Virtual Robotic.md](Documentacion/Promt%20Genera%20Proyecto%20Virtual%20Robotic.md)
+fitxategia: nola erabili azaltzen du eta Claude-ri itsatsi behar zaion
+agindua dakar.
+
+- **2026-09-27an Linux-en soilik probatua** (Linux Mint makina birtual
+  batean): Claude-k 6 bat orduko lanean eraiki zuen osorik eta funtzionatu
+  zuen. **Windows-en ez da oraindik probatu**: sortzen dituen `.bat`
+  fitxategiak ez dira inoiz Windows PC batean exekutatu.
+- **Ez du ohiko instalazioa ordezkatzen**: proiektua erabiltzeko, bide
+  azkarra eta segurua goikoa da.
+- Proiektuaren **2026-09-27ko argazki bat** da: geroago aldatzen dena ez
+  dago bertan.
+- Gaztelaniaz bakarrik dago.

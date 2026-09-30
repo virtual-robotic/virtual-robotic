@@ -1,6 +1,6 @@
 **Language:** [Español](PROBLEMAS_CONOCIDOS.md) · English · [Euskara](PROBLEMAS_CONOCIDOS.eu.md)
 
-_Last modified: 2026-09-26_
+_Last modified: 2026-09-30_
 
 # Known problems
 
@@ -59,6 +59,12 @@ comes switched off; it is only switched on with `TALLER_RELOAD=1` in
 **No washers (or another product) show up in the warehouse.** It is not a
 fault: each unit made is assigned straight away to the orders waiting for
 it, so the stock stays at 0 while there are pending orders.
+
+**The landing page videos do not start in Safari (Mac or iPhone).** Safari
+asks for videos in pieces and our website could only send them whole (Chrome
+and Firefox are happy with that). Fixed on 2026-09-26, but **not yet checked
+in a real Safari**: we do not have a Mac to try it. If you try it, tell us
+whether it works.
 
 ## Windows
 

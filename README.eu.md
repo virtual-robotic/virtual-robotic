@@ -15,6 +15,13 @@ bezala eramaten dituen webgune bat.
 [![Bideoa: Loaderrak kuboak uhalean uzten ditu eta Sorterrak jaso eta kolorearen arabera sailkatzen ditu](Virtual_Robotic/img/celda_trabajando_1.gif)](Virtual_Robotic/img/celda_trabajando_1.mp4)
 [![Bideoa: bi besoak aldi berean lanean simulazioan](Virtual_Robotic/img/celda_trabajando_2.gif)](Virtual_Robotic/img/celda_trabajando_2.mp4)
 
+## Nondik hasi?
+
+- 👀 **Ikusi bakarrik nahi dut:** ireki [proiektuaren webgunea](https://virtual-robotic.github.io/virtual-robotic/). Ez da ezer instalatu behar.
+- 🏭 **Enpresa batek nola funtzionatzen duen interesatzen zait:** eskaerak, biltegia, albaranak eta fakturak → [probatu 3 urratsetan](#3-urratsetan-probatu-webgunea-soilik).
+- 🤖 **Robotak gustatzen zaizkit:** bi Panda beso Webots + ROS 2-n, ikusmen artifizialarekin → [gelaxka nola muntatu](LANZAR_PROYECTO.eu.md).
+- 🔌 **Plakekin trasteatzea gustatzen zait:** bi Raspberry Pi Pico LEDekin, sentsore batekin eta pantaila txiki batekin → [muntaketa](Documentacion/PI_PICO_montaje.html) (gaztelaniaz).
+
 ## Zer dago hemen
 
 **1. Robotekin gelaxka, simulatua.** Bi beso robotiko (Franka Emika Panda

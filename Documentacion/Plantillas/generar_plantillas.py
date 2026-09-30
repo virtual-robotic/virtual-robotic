@@ -1,4 +1,4 @@
-# Version: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: IP del clon .132 -> .133 (la real hoy). Antes: 2026-09-26 20:32 -- URL de Taller_Administracion en el panel de cada cadena de otro ordenador. Antes: 2026-09-26 20:17 -- paso E: explica por que las cadenas de otro ordenador llevan la IP de la principal (nota del usuario). Antes: 2026-09-26 19:52 -- ejemplo = nuestra instalacion (cadenas 1-2 en VM principal, 3-4 en el clon) y como poner el nombre de la cadena en el panel. Antes: 2026-09-26 19:46 -- apartado 9 reordenado (descargar antes de arrancar) y el principal puede ser una VM. Antes: 2026-09-26 19:45 -- anade el apartado 9 "Puesta en marcha, paso a paso" (principal primero, VM clonada, errores vistos). Antes: 2026-09-26 19:04 -- anade Ordenadores y "Donde arranca cada cadena" (cadenas en otro PC/VM). Antes: 2026-09-26 18:50 -- genera las plantillas de configuracion del taller (ejemplo y vacia). Necesita python-docx: python3 generar_plantillas.py <carpeta>
+# Version: 2026-09-30 10:30 -- usuarios ya hechos en la web (Empleado + Produccion/Contabilidad) y almacen por subproducto. Antes: 2026-09-29 14:38 -- IPs de la red cambiadas por marcadores. Antes: IP del clon .132 -> .133 (la real hoy). Antes: 2026-09-26 20:32 -- URL de Taller_Administracion en el panel de cada cadena de otro ordenador. Antes: 2026-09-26 20:17 -- paso E: explica por que las cadenas de otro ordenador llevan la IP de la principal (nota del usuario). Antes: 2026-09-26 19:52 -- ejemplo = nuestra instalacion (cadenas 1-2 en VM principal, 3-4 en el clon) y como poner el nombre de la cadena en el panel. Antes: 2026-09-26 19:46 -- apartado 9 reordenado (descargar antes de arrancar) y el principal puede ser una VM. Antes: 2026-09-26 19:45 -- anade el apartado 9 "Puesta en marcha, paso a paso" (principal primero, VM clonada, errores vistos). Antes: 2026-09-26 19:04 -- anade Ordenadores y "Donde arranca cada cadena" (cadenas en otro PC/VM). Antes: 2026-09-26 18:50 -- genera las plantillas de configuracion del taller (ejemplo y vacia). Necesita python-docx: python3 generar_plantillas.py <carpeta>
 """Genera las dos plantillas de configuracion del taller (ejemplo y vacia) con el mismo diseno."""
 import sys
 from pathlib import Path
@@ -248,10 +248,10 @@ EJ = {
         ["P100", "Caja de 100 clavos", ["100 × 400C030 Clavo 30mm"], "(vacío: 3,00)", "21"],
     ],
     "usuarios": [
-        ["jefe-taller", "Ana López", "Sí", "No", "Ve pedidos y producción"],
-        ["operario1", "Mikel Etxebarria", "Sí", "No", ""],
-        ["administracion", "Laura Gómez", "No", "Sí", "Albaranes, facturas y clientes"],
-        ["gerente", "Jesús", "Sí", "Sí", "Ve todo"],
+        ["admin", "Jesús", "Admin. sistema", "—", "—", "Lo ve y lo toca todo; el único que ve Administración"],
+        ["jefe-taller", "Ana López", "Empleado", "Sí", "No", "Pedidos, reparto y almacén"],
+        ["operario1", "Mikel Etxebarria", "Empleado", "Sí", "No", ""],
+        ["contable", "Laura Gómez", "Empleado", "No", "Sí", "Tarifas y facturas"],
     ],
 }
 
@@ -430,7 +430,7 @@ def generar(ruta: Path, ejemplo: bool):
 
     # 3. productos
     titulo_seccion(doc, 4, "Productos",
-                   "La familia de pieza (tornillos, clavos...). Es lo que la cadena fabrica y lo que se guarda en el almacén.",
+                   "La familia de pieza (tornillos, clavos...). Decide el color de la luz y a qué grupo de cadenas va.",
                    "web del taller, catálogo de productos.")
     tabla(doc, ["Código (3)", "Nombre", "Luz (color)", "Grupo", "Activo"],
           [2.4, 5.4, 3.8, 2.2, 3.6], d["productos"] if d else [],
@@ -440,11 +440,14 @@ def generar(ruta: Path, ejemplo: bool):
 
     # 4. subproductos
     titulo_seccion(doc, 5, "Subproductos",
-                   "Los tamaños o variantes de cada producto. Es lo que pide el cliente y lo que lleva precio.",
+                   "Los tamaños o variantes de cada producto. Es lo que pide el cliente, lo que lleva precio y lo que se "
+                   "guarda en el almacén.",
                    "web del taller, dentro de cada producto.")
     tabla(doc, ["Producto", "Código (4)", "Código completo", "Nombre", "Precio € sin IVA", "IVA %"],
           [3.2, 2.2, 2.8, 4.6, 2.8, 1.8], d["subproductos"] if d else [],
           filas_vacias=0 if d else 12, centrar=(1, 2, 4, 5))
+    texto(doc, "Cada subproducto es una pieza distinta: tiene su propio almacén y un lote nunca las mezcla "
+               "(un tornillo de 10 mm nunca sale por uno de 20 mm).", cursiva=True, color=GRIS, tam=9)
 
     # 5. paquetes
     titulo_seccion(doc, 6, "Paquetes",
@@ -459,16 +462,20 @@ def generar(ruta: Path, ejemplo: bool):
 
     # 6. usuarios
     titulo_seccion(doc, 7, "Usuarios de la empresa",
-                   "Quién entra en la web del taller y qué parte ve: Taller (pedidos y producción) o Administración "
-                   "(clientes, albaranes y facturas). Se pueden marcar las dos.",
-                   "web del taller, usuarios.")
-    recuadro(doc, "En preparación", [
-        "El reparto «unos ven solo Taller y otros solo Administración» todavía se está haciendo. "
-        "De momento este apartado sirve para dejar apuntado quién tiene que ver qué.",
-    ], FONDO_AVISO)
-    tabla(doc, ["Usuario", "Nombre y apellidos", "Taller", "Administración", "Notas"],
-          [3.0, 4.4, 1.8, 3.4, 4.8], d["usuarios"] if d else [],
-          filas_vacias=0 if d else 8, centrar=(2, 3))
+                   "La gente de nuestro taller que entra en la web. Cada persona es un «Empleado de la empresa» y ve "
+                   "solo lo que se le marque: Producción, Contabilidad o las dos.",
+                   "web del taller, Administración > Usuarios (rol «Empleado de la empresa» y sus casillas).")
+    tabla(doc, ["Usuario", "Nombre y apellidos", "Rol", "Producción", "Contabilidad", "Notas"],
+          [2.4, 3.2, 2.6, 2.3, 2.8, 4.1], d["usuarios"] if d else [],
+          filas_vacias=0 if d else 8, centrar=(3, 4))
+    recuadro(doc, "Qué ve cada uno", [
+        (("Producción: ", True), ("Pedidos Taller, Reparto, Almacén y Diagnóstico.", False)),
+        (("Contabilidad: ", True), ("Resumen, Tarifas y Facturación.", False)),
+        (("Administración ", True), ("(empresas, productos, usuarios, clientes...) es solo del «Admin. sistema»: "
+                                    "a un empleado nunca se le puede dar.", False)),
+        (("La gente de los clientes no va aquí: ", True),
+         ("sus usuarios («Normal» y «Admin. cliente») se crean con cada cliente y solo ven sus propios pedidos.", False)),
+    ], FONDO_NOTA)
 
     # 7. colores
     titulo_seccion(doc, 8, "Colores de luz disponibles",
@@ -554,6 +561,8 @@ def generar(ruta: Path, ejemplo: bool):
         "Las Pico están marcadas en una sola cadena, y enchufadas al ordenador donde funciona esa cadena.",
         "El ordenador principal (el de la web) tiene IP fija.",
         "Cada cadena de otro ordenador tiene puesta la URL de la web del principal en su panel y ve los pedidos.",
+        "Cada empleado tiene marcada al menos una casilla (Producción o Contabilidad); si no, entra y no ve nada.",
+        "La contraseña de fábrica de «admin» está cambiada.",
     ):
         rico(doc, ((f"{NO}  ", False), (linea, False)), despues=2)
 
